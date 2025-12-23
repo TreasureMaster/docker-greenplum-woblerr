@@ -6,11 +6,44 @@ env:
   build_platforms: "linux/amd64,linux/arm64"
 
 jobs:
+  detect_changes:
+    runs-on: ubuntu-22.04
+    outputs:
+      gpdb6_changed: ${{ steps.changed-files.outputs.gpdb6_any_changed }}
+      gpdb7_changed: ${{ steps.changed-files.outputs.gpdb7_any_changed }}
+      common_changed: ${{ steps.changed-files.outputs.common_any_changed }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect changed files
+        id: changed-files
+        # tj-actions/changed-files v47.0.1
+        uses: tj-actions/changed-files@e0021407031f5be11a464abee9a0776171c79891
+        with:
+          files_yaml: |
+            gpdb6:
+              - 'docker/**/6/**'
+            gpdb7:
+              - 'docker/**/7/**'
+            common:
+              - 'docker/files/**'
+              - 'docker-compose/**'
+              - 'Makefile'
+
   build_image:
     # Pin ubuntu-22.04.
     # See https://github.com/actions/runner-images/issues/11471
     # runs-on: ubuntu-latest
     runs-on: ubuntu-22.04
+    needs: [detect_changes]
+    if: |
+      needs.detect_changes.outputs.gpdb6_changed == 'true' ||
+      needs.detect_changes.outputs.common_changed == 'true' ||
+      github.ref == 'refs/heads/master' ||
+      startsWith(github.ref, 'refs/tags/')
     strategy:
       matrix:
         greenplum_version: ["6.27.1"]
