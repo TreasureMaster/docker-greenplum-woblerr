@@ -6,77 +6,78 @@
 [![build-greengage7](https://github.com/woblerr/docker-greenplum/actions/workflows/build-greengage7.yml/badge.svg)](https://github.com/woblerr/docker-greenplum/actions/workflows/build-greengage7.yml)
 [![build-warehousepg6](https://github.com/woblerr/docker-greenplum/actions/workflows/build-warehousepg6.yml/badge.svg)](https://github.com/woblerr/docker-greenplum/actions/workflows/build-warehousepg6.yml)
 
-This project provides Docker images for running Greenplum Database (GPDB) and its forks in containers. It supports both single-node and multi-node deployments. The images can be used for development, testing, and learning purposes.
+Этот проект предоставляет образы Docker для запуска базы данных Greenplum (GPDB) и её форков в контейнерах. Он поддерживает как одноузловые, так и многоузловые развертывания. Образы могут использоваться для разработки, тестирования и обучения.
 
-**Supported distributions:**
+**Поддерживаемые дистрибутивы:**
 - Greenplum Database (GPDB)
 - [Greengage](https://github.com/GreengageDB/greengage) (GGDB)
 - [WarehousePG](https://github.com/warehouse-pg/warehouse-pg) (WHPG)
 
-The Greenplum in docker provides the following features:
-- single-node deployment;
-- master and segments deployment;
-- support for segment mirroring;
-- gpperfmon (GPDB 6 only);
+В Docker Greenplum предоставляет следующие возможности:
+- развертывание на одном узле;
+- развертывание основного блока и сегментов;
+- поддержка зеркального отображения сегментов;
+- gpperfmon (только для GPDB 6);
 - diskquota;
 - gpbackup/gprestore;
 - gpbackup-s3-plugin;
 - gpbackman;
 - PXF (Platform Extension Framework);
-- custom initialization scripts;
-- WAL-G (physical backups).
+- пользовательские скрипты инициализации;
+- WAL-G (физические резервные копии).
 
-Environment variables supported by this image:
+Переменные среды, поддерживаемые этим образом:
 
-* `TZ` - container's time zone, default `Etc/UTC`;
-* `GREENPLUM_USER` - non-root user name for execution of the command, default `gpadmin`;
-* `GREENPLUM_UID` - UID of `${GREENPLUM_USER}` user, default `1001`;
-* `GREENPLUM_GROUP` - group name of `${GREENPLUM_USER}` user, default `gpadmin`;
-* `GREENPLUM_GID` - GID of `${GREENPLUM_USER}` user, default `1001`;
-* `GREENPLUM_DEPLOYMENT` - Greenplum deployment type, default `singlenode`, available values: `singlenode`, `master`, `segment`;
-* `GREENPLUM_DATA_DIRECTORY` - Greenplum data directory location, default `/data`;
-* `GREENPLUM_SEG_PREFIX` - Greenplum segment prefix, default `gpseg`;
-* `GREENPLUM_DATABASE_NAME` - Greenplum database name, default `demo`, this database will be created during the initialization;
-* `GREENPLUM_GPPERFMON_ENABLE` - enable gpperfmon (GPDB 6 only), default `false`;
-* `GREENPLUM_DISKQUOTA_ENABLE` - enable diskquota, default `false`;
-* `GREENPLUM_PXF_ENABLE` - enable PXF, default `false`;
-* `GREENPLUM_WALG_ENABLE` - enable WAL-G, default `false`;
+* `TZ` - Часовой пояс контейнера, по умолчанию `Etc/UTC`;
+* `GREENPLUM_USER` - Имя пользователя, не являющегося root, для выполнения команды (по умолчанию) `gpadmin`;
+* `GREENPLUM_UID` - UID пользователя `${GREENPLUM_USER}`, по умолчанию `1001`;
+* `GREENPLUM_GROUP` - название группы пользователя `${GREENPLUM_USER}`, по умолчанию `gpadmin`;
+* `GREENPLUM_GID` - GID пользователя `${GREENPLUM_USER}`, по умолчанию `1001`;
+* `GREENPLUM_DEPLOYMENT` - Тип развертывания Greenplum, по умолчанию `singlenode`, доступные значения: `singlenode`, `master`, `segment`;
+* `GREENPLUM_DATA_DIRECTORY` - Расположение каталога данных Greenplum, по умолчанию `/data`;
+* `GREENPLUM_SEG_PREFIX` - префикс сегмента Greenplum, по умолчанию `gpseg`;
+* `GREENPLUM_DATABASE_NAME` - Название базы данных Greenplum, по умолчанию `demo`, this database will be created during the initialization;
+* `GREENPLUM_GPPERFMON_ENABLE` - включить gpperfmon (только для GPDB 6), по умолчанию `false`;
+* `GREENPLUM_DISKQUOTA_ENABLE` - включить diskquota, по умолчанию `false`;
+* `GREENPLUM_PXF_ENABLE` - включить PXF, по умолчанию `false`;
+* `GREENPLUM_WALG_ENABLE` - включить WAL-G, по умолчанию `false`;
 
-Required environment variables:
-* `GREENPLUM_PASSWORD` - password for `${GREENPLUM_USER}` user, **required**;
-* `GREENPLUM_GPMON_PASSWORD` - password for `gpmon` user, **required** when `GREENPLUM_GPPERFMON_ENABLE` is `true`;
+Необходимые переменные среды:
+* `GREENPLUM_PASSWORD` - пароль для пользователя `${GREENPLUM_USER}`, **required**;
+* `GREENPLUM_GPMON_PASSWORD` - пароль для пользователя `gpmon`, **required** когда `GREENPLUM_GPPERFMON_ENABLE` равно `true`;
 
-## Build matrix
+## Матрица сборки
 
-The repository contains information for the last available versions. For specific version, you can build your own image using the [Build](#build) section.
+В репозитории содержится информация о последних доступных версиях.
+Для конкретной версии вы можете создать собственный образ, используя соответствующий раздел [Build](#build).
 
 Greenplum 6:
-| GPDB Version | Ubuntu 22.04 | Oracle Linux 8 | Platform |
-|---|---|---| ---|
-| 6.27.1| `6.27.1`, `6.27.1-ubuntu22.04` | `6.27.1-oraclelinux8` | `linux/amd64`, `linux/arm64` |
+| GPDB Version | Ubuntu 22.04                   | Oracle Linux 8        | Platform                     |
+| ------------ | ------------------------------ | --------------------- | ---------------------------- |
+| 6.27.1       | `6.27.1`, `6.27.1-ubuntu22.04` | `6.27.1-oraclelinux8` | `linux/amd64`, `linux/arm64` |
 
 Greenplum 7:
-| GPDB Version | Ubuntu 22.04 | Oracle Linux 8 | Platform |
-|---|---|---| ---|
-| 7.1.0| `7.1.0`, `7.1.0-ubuntu22.04` | `7.1.0-oraclelinux8` |  `linux/amd64`, `linux/arm64` |
+| GPDB Version | Ubuntu 22.04                 | Oracle Linux 8       | Platform                     |
+| ------------ | ---------------------------- | -------------------- | ---------------------------- |
+| 7.1.0        | `7.1.0`, `7.1.0-ubuntu22.04` | `7.1.0-oraclelinux8` | `linux/amd64`, `linux/arm64` |
 
 Greengage 6:
-| Greengage Version | Ubuntu 22.04 | Oracle Linux 8 | Platform |
-|---|---|---| ---|
-| 6.29.2| `6.29.2`, `6.29.2-ubuntu22.04` | `6.29.2-oraclelinux8` | `linux/amd64`, `linux/arm64` |
+| Greengage Version | Ubuntu 22.04                   | Oracle Linux 8        | Platform                     |
+| ----------------- | ------------------------------ | --------------------- | ---------------------------- |
+| 6.29.2            | `6.29.2`, `6.29.2-ubuntu22.04` | `6.29.2-oraclelinux8` | `linux/amd64`, `linux/arm64` |
 
 Greengage 7:
-| Greengage Version | Ubuntu 22.04 | Oracle Linux 8 | Platform |
-|---|---|---| ---|
-| 7.4.1| `7.4.1`, `7.4.1-ubuntu22.04` | `7.4.1-oraclelinux8` | `linux/amd64`, `linux/arm64` |
+| Greengage Version | Ubuntu 22.04                 | Oracle Linux 8       | Platform                     |
+| ----------------- | ---------------------------- | -------------------- | ---------------------------- |
+| 7.4.1             | `7.4.1`, `7.4.1-ubuntu22.04` | `7.4.1-oraclelinux8` | `linux/amd64`, `linux/arm64` |
 
 WarehousePG 6:
-| WarehousePG Version | Ubuntu 22.04 | Oracle Linux 8 | Platform |
-|---|---|---| ---|
-| 6.27.2-WHPG| `6.27.2-WHPG`, `6.27.2-WHPG-ubuntu22.04` | `6.27.2-WHPG-oraclelinux8` | `linux/amd64`, `linux/arm64` |
+| WarehousePG Version | Ubuntu 22.04                             | Oracle Linux 8             | Platform                     |
+| ------------------- | ---------------------------------------- | -------------------------- | ---------------------------- |
+| 6.27.2-WHPG         | `6.27.2-WHPG`, `6.27.2-WHPG-ubuntu22.04` | `6.27.2-WHPG-oraclelinux8` | `linux/amd64`, `linux/arm64` |
 
-## Pull
-Change `tag` to the version you need.
+## Загрузка
+Замените `tag` на нужную вам версию.
 
 **Greenplum:**
 
@@ -120,50 +121,50 @@ docker pull woblerr/warehousepg:tag
 docker pull ghcr.io/woblerr/warehousepg:tag
 ```
 
-## Run
+## Запуск
 
-You will need to mount the necessary directories or files inside the container (or use this image to build your own on top of it).
+Вам потребуется смонтировать необходимые каталоги или файлы внутри контейнера (или использовать этот образ для создания собственного на его основе).
 
-### Simple
+### Простой запуск
 
 ```bash
 docker run -p 5432:5432 -e GREENPLUM_PASSWORD=gparray -d greenplum:6.27.1
 ```
 
-Connect to Greenplum:
+Подключение к Greenplum:
 
 ```bash
 psql -h localhost -p 5432 -U gpadmin demo
 ```
 
-### Docker Secrets
-As an alternative to passing sensitive information via environment variables, `_FILE` may be appended to `GREENPLUM_PASSWORD` and `GREENPLUM_GPMON_PASSWORD` environment variables. In particular, this can be used to load passwords from Docker secrets stored in `/run/secrets/<secret_name>` files. 
+### Секреты Docker
+В качестве альтернативы передаче конфиденциальной информации через переменные окружения, к переменным окружения `GREENPLUM_PASSWORD` и `GREENPLUM_GPMON_PASSWORD` можно добавить `_FILE`. В частности, это можно использовать для загрузки паролей из секретов Docker, хранящихся в файлах `/run/secrets/<secret_name>`.
 
-For example:
+Например:
 ```bash
 docker run -p 5432:5432 -e GREENPLUM_PASSWORD_FILE=/run/secrets/gpdb_password -d greenplum:6.27.1
 ```
 
-### Initialization Scripts
+### Скрипты инициализации
 
-The image supports running custom initialization `*.sql` or `*.sh` scripts after Greenplum was started. Place your scripts in the `/docker-entrypoint-initdb.d` directory inside the container.
+Образ поддерживает запуск пользовательских скриптов инициализации `*.sql` или `*.sh` после запуска Greenplum. Разместите свои скрипты в каталоге `/docker-entrypoint-initdb.d` внутри контейнера.
 
-Scripts in `/docker-entrypoint-initdb.d` are executed only if a container is started with an empty data directory; any pre-existing database will remain untouched when the container is started.
+Скрипты в `/docker-entrypoint-initdb.d` выполняются только в том случае, если контейнер запускается с пустым каталогом данных; любая существующая база данных останется нетронутой при запуске контейнера.
 
-#### Script Execution Process
+#### Процесс выполнения скрипта
 
-Scripts are processed as follows:
-- **SQL scripts** (`*.sql`): Executed using `psql` with the following options:
-  - Executed for the database specified in `GREENPLUM_DATABASE_NAME`.
-  - Run with `-v ON_ERROR_STOP=1` flag.
-  - Run with `--no-psqlrc`.
-  - Connected as the `GREENPLUM_USER`.
-- **Shell scripts** (`*.sh`):
-  - If the script has executable permissions, it is executed directly.
-  - If not executable, it is sourced.
-- **Other files**: Files with other extensions are ignored.
+Обработка скриптов осуществляется следующим образом:
+- **SQL-скрипты** (`*.sql`): Выполняется с помощью `psql` со следующими параметрами:
+  - Выполняется для базы данных, указанной в `GREENPLUM_DATABASE_NAME`.
+  - Запуск с флагом `-v ON_ERROR_STOP=1`.
+  - Запуск с `--no-psqlrc`.
+  - Подключение как `GREENPLUM_USER`.
+- **Shell-скрипты** (`*.sh`):
+  - Если скрипт имеет права на выполнение, он запускается напрямую.
+  - Если файл не является исполняемым, он загружается из репозитория.
+- **Другие файлы**: Файлы с другими расширениями игнорируются.
 
-Example SQL initialization script `00_init.sql`:
+Пример скрипта инициализации SQL `00_init.sql`:
 
 ```sql
 CREATE TABLE test_initialization (
@@ -174,7 +175,7 @@ CREATE TABLE test_initialization (
 
 INSERT INTO test_initialization (name) VALUES ('Initialized via sql script');
 ```
-Example shell script `01_init.sh`:
+Пример скрипта shell `01_init.sh`:
 
 ```bash
 #!/bin/bash
@@ -183,7 +184,7 @@ psql -U ${GREENPLUM_USER} -h $(hostname) -d ${GREENPLUM_DATABASE_NAME} -c "INSER
 echo "Shell script executed successfully!"
 ```
 
-You can mount your initialization scripts directory to the container:
+Вы можете смонтировать каталог со скриптами инициализации в контейнер:
 
 ```bash
 docker run -p 5432:5432 \
@@ -192,16 +193,16 @@ docker run -p 5432:5432 \
   -d greenplum:6.27.1
 ```
 
-Or build a custom image:
+Или создайте собственный образ:
 
 ```bash
 FROM greenplum:6.27.1
 COPY docs/custom_init_scripts/* /docker-entrypoint-initdb.d/
 ```
 
-#### WAL-G configuration
+#### Настройка WAL-G
 
-When `GREENPLUM_WALG_ENABLE=true`, WAL-G is installed and available, but you need to configure it manually or use initialization scripts to set up `archive_command` and other parameters.
+Если `GREENPLUM_WALG_ENABLE=true`, WAL-G устанавливается и становится доступен, но его необходимо настроить вручную или использовать скрипты инициализации для установки `archive_command` и других параметров.
 
 
 ```bash
@@ -213,7 +214,7 @@ docker run -p 5432:5432 \
   -d greenplum:6.27.1
 ```
 
-Where init scripts for WAL-G looks like:
+Как лучше разместить скрипты инициализации для WAL-G:
 ```bash
 #!/bin/bash
 echo "Configuring wal-g archive_command"
@@ -223,19 +224,19 @@ USER=${GREENPLUM_USER} gpstop -u
 ```
 
 ### Docker Compose
-#### Prepare
+#### Подготовка
 
-Prepare password files (**set your own passwords**):
+Подготовьте файлы паролей (**установите собственные пароли**):
 ```bash
 echo "gparray" > docker-compose/secrets/gpdb_password
 echo "changeme" > docker-compose/secrets/gpmon_password
 ```
 
-For correct start docker compose, configs should be mounted to `/tmp`.
-It's valid for `gpinitsystem_config`, `hostfile_gpinitsystem` and `authorized_keys` files.
+Для корректного запуска docker compose необходимо смонтировать конфигурационные файлы в каталог `/tmp`.
+Это действительно для файлов `gpinitsystem_config`, `hostfile_gpinitsystem` и `authorized_keys`.
 
-SSH rsa keys should be mounted to `/home/${GREENPLUM_USER}/.ssh/` directory.
-Master mounts:
+Ключи SSH RSA должны быть смонтированы в директорию `/home/${GREENPLUM_USER}/.ssh/`.
+Монтирование ьфыеук:
 ```yaml
     volumes:
       - ./conf/${CONFIG_FOLDER}/gpinitsystem_config_no_mirrors:/tmp/gpinitsystem_config
@@ -243,35 +244,35 @@ Master mounts:
       - ./conf/ssh/id_rsa:/home/gpadmin/.ssh/id_rsa
       - ./conf/ssh/id_rsa.pub:/home/gpadmin/.ssh/id_rsa.pub
 ```
-Segments mounts:
+Монтирование сегментов:
 ```yaml
     volumes:
        - ./conf/ssh/authorized_keys:/tmp/authorized_keys
 ```
 
-The image name, version and `CONFIG_FOLDER` variable should be set in the `.env` file. See the example `.env` file in the `docker-compose` directory.
+Имя образа, версия и переменная `CONFIG_FOLDER` должны быть заданы в файле `.env`. Пример файла `.env` можно найти в каталоге `docker-compose`.
 
-#### Run
-Run  cluster with 1 master and 2 segments without mirroring:
+#### Запуск
+Запуск кластера с 1 мастером и 2 сегментами без зеркалирования.:
 ```bash
 docker compose -f ./docker-compose/docker-compose.no_mirrors.yaml up -d
 ```
 
-Run cluster with persistent storage:
+Запуск кластера с постоянным хранилищем:
 ```bash
 docker compose -f ./docker-compose/docker-compose.no_mirrors_persistent.yaml up -d
 ```
 
-Run cluster with 1 master and 2 segments with mirroring:
+Запуск кластера с 1 главным сервером и 2 сегментами с зеркалированием:
 ```bash
 docker compose -f ./docker-compose/docker-compose.with_mirrors.yaml up -d
 ```
 
-## Build
+## Сборка
 
 **Greenplum:**
 
-For Ubuntu based images:
+Для образов на основе Ubuntu:
 ```bash
 make build_gpdb_6_ubuntu TAG_GPDB_6=6.27.1
 ```
@@ -279,7 +280,7 @@ make build_gpdb_6_ubuntu TAG_GPDB_6=6.27.1
 make build_gpdb_7_ubuntu TAG_GPDB_7=7.1.0
 ```
 
-For Oracle Linux based images:
+Для образов на базе Oracle Linux:
 ```bash
 make build_gpdb_6_oraclelinux TAG_GPDB_6=6.27.1
 ```
@@ -289,7 +290,7 @@ make build_gpdb_7_oraclelinux TAG_GPDB_7=7.1.0
 
 **Greengage:**
 
-For Ubuntu based images:
+Для образов на основе Ubuntu:
 ```bash
 make build_greengage_6_ubuntu TAG_GREENGAGE_6=6.29.2
 ```
@@ -297,7 +298,7 @@ make build_greengage_6_ubuntu TAG_GREENGAGE_6=6.29.2
 make build_greengage_7_ubuntu TAG_GREENGAGE_7=7.4.1
 ```
 
-For Oracle Linux based images:
+Для образов на базе Oracle Linux:
 ```bash
 make build_greengage_6_oraclelinux TAG_GREENGAGE_6=6.29.2
 ```
@@ -307,24 +308,24 @@ make build_greengage_7_oraclelinux TAG_GREENGAGE_7=7.4.1
 
 **WarehousePG:**
 
-For Ubuntu based images:
+Для образов на основе Ubuntu:
 ```bash
 make build_warehousepg_6_ubuntu TAG_WAREHOUSEPG_6=6.27.2-WHPG
 ```
 
-For Oracle Linux based images:
+Для образов на базе Oracle Linux:
 ```bash
 make build_warehousepg_6_oraclelinux TAG_WAREHOUSEPG_6=6.27.2-WHPG
 ```
 
-**Manual build examples:**
+**Примеры ручной сборки:**
 
-Greenplum simple manual build:
+Greenplum с простой ручной сборкой:
 ```bash
 docker buildx build -f docker/greenplum/ubuntu22.04/6/Dockerfile -t greenplum:6.27.1 .
 ```
 
-Greengage simple manual build:
+Greengage с простой ручной сборкой:
 ```bash
 docker buildx build -f docker/greengage/ubuntu22.04/6/Dockerfile -t greengage:6.29.2 .
 ```
@@ -332,7 +333,7 @@ docker buildx build -f docker/greengage/ubuntu22.04/6/Dockerfile -t greengage:6.
 docker buildx build -f docker/greengage/ubuntu22.04/7/Dockerfile -t greengage:7.4.1 .
 ```
 
-Greengage OracleLinux manual build:
+Greengage OracleLinux (ручная сборка):
 ```bash
 docker buildx build -f docker/greengage/oraclelinux8/6/Dockerfile -t greengage:6.29.2-oraclelinux8 .
 ```
@@ -340,28 +341,28 @@ docker buildx build -f docker/greengage/oraclelinux8/6/Dockerfile -t greengage:6
 docker buildx build -f docker/greengage/oraclelinux8/7/Dockerfile -t greengage:7.4.1-oraclelinux8 .
 ```
 
-WarehousePG simple manual build:
+WarehousePG (простая ручная сборка):
 ```bash
 docker buildx build -f docker/warehousepg/ubuntu22.04/6/Dockerfile -t warehousepg:6.27.2-WHPG .
 ```
 
-WarehousePG OracleLinux manual build:
+WarehousePG OracleLinux (ручная сборка):
 ```bash
 docker buildx build -f docker/warehousepg/oraclelinux8/6/Dockerfile -t warehousepg:6.27.2-WHPG-oraclelinux8 .
 ```
 
-Manual build with specific component version for `linux/amd64` platform:
+Ручная сборка с указанием конкретной версии компонента для платформы `linux/amd64`:
 ```bash
 docker buildx build --platform linux/amd64 -f docker/greenplum/ubuntu22.04/6/Dockerfile --build-arg GPDB_VERSION=6.27.1 -t greenplum:6.27.1 .
 ```
 
-Manual build with specific component versions for `linux/amd64` and `linux/arm64` platforms:
+Ручная сборка с указанием конкретных версий компонентов для платформ `linux/amd64` и `linux/arm64`.:
 ```bash
 docker buildx build --platform linux/amd64,linux/arm64 -f docker/greenplum/ubuntu22.04/6/Dockerfile --build-arg GPDB_VERSION=6.27.1 --build-arg DISKQUOTA_VERSION=2.3.0 --build-arg GPBACKUP_VERSION=1.30.5 -t greenplum:6.27.1 .
 ```
 
-## Running tests
-Run the end-to-end tests:
+## Запуск тестов
+Запуск сквозного тестирования:
 ```bash
 make test-e2e
 ```
