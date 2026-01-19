@@ -1,60 +1,60 @@
-# End-to-end tests
+# Сквозное тестирование
 
-The following architecture is used to run the tests:
+Для запуска тестов используется следующая архитектура:
 
-* Separate containers with Greenplum (GPDB, Greengage, or WarehousePG).
-* Separate containers for MinIO and nginx. Official images [minio/minio](https://hub.docker.com/r/minio/minio), [minio/mc](https://hub.docker.com/r/minio/mc) and [nginx](https://hub.docker.com/_/nginx) are used. It's necessary for S3 compatible storage for WAL archiving and backups.
+* Отдельные контейнеры с Greenplum (GPDB, Greengage, или WarehousePG).
+* Отдельные контейнеры для MinIO и nginx. Используются официальные образы [minio/minio](https://hub.docker.com/r/minio/minio), [minio/mc](https://hub.docker.com/r/minio/mc) и [nginx](https://hub.docker.com/_/nginx). Это необходимо для совместимого с S3 хранилища для архивирования и резервного копирования WAL-файлов.
 
-## Prerequisites
+## Предварительные требования
 
-Before running tests:
+Перед запуском тестов:
 
-1. Build Greenplum docker images as described in [Build section](../README.md#build).
+1. Создайте образы Docker для Greenplum, как описано в [Build section](../README.md#build).
 
-2. Configure test environment by editing `e2e-tests/.env` file if needed (default: `GPDB 6.27.1`, other supported: `Greengage`, `WarehousePG`).
+2. Настройте тестовую среду, отредактировав файл `e2e-tests/.env`, если это необходимо. (по умолчанию: `GPDB 6.27.1`, другие поддерживаемые: `Greengage`, `WarehousePG`).
 
-3. Prepare password files as described in [Prepare section](../README.md#prepare) for Docker Compose. In tests used ssh keys from `e2e-tests/conf/ssh/` directory, so you can use them or create your own.
+3. Подготовьте файлы паролей, как описано в [Prepare section](../README.md#prepare) для Docker Compose. В тестах использовались SSH-ключи из каталога `e2e-tests/conf/ssh/`, поэтому вы можете использовать их или создать свои собственные.
 
-## Running tests
+## Запуск тестов
 
-Run all tests:
+Запуск всех тестов:
 ```bash
 make test-e2e
 ``` 
 
-### WAL-G tests
+### Тесты WAL-G
 
-Primary cluster is described in `e2e-tests/docker-compose.gpdb.yml`, standby cluster is described in `e2e-tests/docker-compose.gpdb-restore.yml`, and S3 compatible storage is described in `e2e-tests/docker-compose.s3.yml`.
+Основной кластер описан в файле `e2e-tests/docker-compose.gpdb.yml`, резервный кластер — в файле `e2e-tests/docker-compose.gpdb-restore.yml`, а хранилище, совместимое с S3, — в файле `e2e-tests/docker-compose.s3.yml`.
 
-The test validates WAL-G backup and restore functionality for Greenplum (works with GPDB and WarehousePG; **not supported for Greengage** due to changed database flavor):
+Тест проверяет функциональность резервного копирования и восстановления WAL-G для Greenplum (работает с GPDB и WarehousePG; **не поддерживается для Greengage** из-за изменения типа базы данных):
 
-1. **Full backup test**:
-   - Creates full backup on primary cluster
-   - Restores backup on standby cluster
-   - Compares data between primary and standby clusters
+1. **Полное тестирование резервного копирования**:
+   - Создает полную резервную копию на основном кластере
+   - Восстанавливает резервную копию на резервном кластере
+   - Сравнивает данные между основным и резервным кластерами
 
-2. **Restore point test**:
-   - Inserts additional data into primary cluster
-   - Creates restore point
-   - Restores to specific restore point on standby cluster  
-   - Compares data between clusters at the restore point
+2. **Проверка точки восстановления**:
+   - Вставляет дополнительные данные в основной кластер
+   - Создает точку восстановления
+   - Восстанавливает в определенную точку восстановления на резервном кластере
+   - Сравнивает данные между кластерами в точке восстановления
 
-The test verifies that data in tables `walg_ao`, `walg_co`, and `walg_heap` matches exactly between primary and standby clusters after backup/restore operations.
+Тест проверяет, что данные в таблицах `walg_ao`, `walg_co` и `walg_heap` точно совпадают между основным и резервным кластерами после операций резервного копирования/восстановления.
 
-Run:
+Запуск:
 
 ```bash
 make test-e2e-walg
 ```
 
-or
+или
 
 ```bash
 cd e2e-tests
 make test-e2e-walg
 ```
 
-or manually:
+или вручную:
 
 ```bash
 cd [docker-greenplum-root]/e2e-tests
