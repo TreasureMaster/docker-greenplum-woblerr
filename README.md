@@ -236,7 +236,7 @@ echo "changeme" > docker-compose/secrets/gpmon_password
 Это действительно для файлов `gpinitsystem_config`, `hostfile_gpinitsystem` и `authorized_keys`.
 
 Ключи SSH RSA должны быть смонтированы в директорию `/home/${GREENPLUM_USER}/.ssh/`.
-Монтирование ьфыеук:
+Монтирование master:
 ```yaml
     volumes:
       - ./conf/${CONFIG_FOLDER}/gpinitsystem_config_no_mirrors:/tmp/gpinitsystem_config
