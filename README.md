@@ -36,7 +36,7 @@
 * `GREENPLUM_DEPLOYMENT` - Тип развертывания Greenplum, по умолчанию `singlenode`, доступные значения: `singlenode`, `master`, `segment`;
 * `GREENPLUM_DATA_DIRECTORY` - Расположение каталога данных Greenplum, по умолчанию `/data`;
 * `GREENPLUM_SEG_PREFIX` - префикс сегмента Greenplum, по умолчанию `gpseg`;
-* `GREENPLUM_DATABASE_NAME` - Название базы данных Greenplum, по умолчанию `demo`, this database will be created during the initialization;
+* `GREENPLUM_DATABASE_NAME` - Название базы данных Greenplum, по умолчанию `demo`, эта база данных будет создана в процессе инициализации;
 * `GREENPLUM_GPPERFMON_ENABLE` - включить gpperfmon (только для GPDB 6), по умолчанию `false`;
 * `GREENPLUM_DISKQUOTA_ENABLE` - включить diskquota, по умолчанию `false`;
 * `GREENPLUM_PXF_ENABLE` - включить PXF, по умолчанию `false`;
