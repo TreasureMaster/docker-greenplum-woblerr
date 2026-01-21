@@ -3,7 +3,7 @@
 # 1 master - mdw-хост
 # 2 primary сегменты без зеркал (sdw*-хосты)
 
-version: '3'
+# version: '3'
 services:
   master:
     image: ${IMAGE_NAME}:${TAG}
