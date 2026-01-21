@@ -1,70 +1,65 @@
-# FILE NAME: gpinitsystem_config
+# НАЗВАНИЕ ФАЙЛА: gpinitsystem_config
 
-# Configuration file needed by the gpinitsystem
+# Конфигурационнй файл, необходимый для gpinitsystem
 
 ################################################
-#### REQUIRED PARAMETERS
+#### ОБЯЗАТЕЛЬНЫЕ ПАРАМЕТРЫ
 ################################################
 
-#### Name of this Greenplum system enclosed in quotes.
+#### Название этой системы Greenplum, заключеннное в кавычки.
 ARRAY_NAME="Greenplum Data Platform"
 
-#### Naming convention for utility-generated data directories.
+#### Правила именования каталогов данных data, создаваемых утилитами.
 SEG_PREFIX=gpseg
 
-#### Base number by which primary segment port numbers 
-#### are calculated.
+#### Базовое число, по которому рассчитываются номера портов primary сегмента.
 PORT_BASE=6000
 
-#### File system location(s) where primary segment data directories 
-#### will be created. The number of locations in the list dictate
-#### the number of primary segments that will get created per
-#### physical host (if multiple addresses for a host are listed in 
-#### the hostfile, the number of segments will be spread evenly across
-#### the specified interface addresses).
+#### Расположение файловой системы, где будут созданы каталоги данных primary сегментов.
+#### Количество расположений в списке определяет количество primary сегментов,
+#### которые будут созданы для каждого физического хоста (если в файле hostfile
+#### указано несколько адресов для хоста, количество сегментов будет равномерно
+#### распределено по указанным адресам интерфейсов).
 declare -a DATA_DIRECTORY=(/data1/primary /data1/primary /data1/primary /data2/primary /data2/primary /data2/primary)
 
-#### OS-configured hostname or IP address of the master host.
+#### Имя хоста или IP-адрес главного хоста, заданные операционной системой.
 MASTER_HOSTNAME=mdw
 
-#### File system location where the master data directory 
-#### will be created.
+#### Местоположение в файловой системе, где будет создан каталог данных master.
 MASTER_DIRECTORY=/data/master
 
-#### Port number for the master instance. 
+#### Номер порта для экземпляра master.
 MASTER_PORT=5432
 
-#### Shell utility used to connect to remote hosts.
+#### Утилита командной оболочки, используемая для подключения к удаленным хостам.
 TRUSTED_SHELL=ssh
 
-#### Maximum log file segments between automatic WAL checkpoints.
+#### Максимальное количество сегментов файла журнала между автоматическими контрольными точками WAL.
 CHECK_POINT_SEGMENTS=8
 
-#### Default server-side character set encoding.
+#### Кодировка символов по умолчанию на стороне сервера.
 ENCODING=UNICODE
 
 ################################################
-#### OPTIONAL MIRROR PARAMETERS
+#### ДОПОЛНИТЕЛЬНЫЕ ПАРАМЕТРЫ ЗЕРКАЛА
 ################################################
 
-#### Base number by which mirror segment port numbers 
-#### are calculated.
+#### Базовое число, по которому рассчитываются номера портов зеркальных сегментов.
 #MIRROR_PORT_BASE=7000
 
-#### File system location(s) where mirror segment data directories 
-#### will be created. The number of mirror locations must equal the
-#### number of primary locations as specified in the 
-#### DATA_DIRECTORY parameter.
+#### Расположение файловой системы, где будут созданы каталоги данных зеркальных сегментов.
+#### Количество расположений зеркал должно равняться количеству расположений primary,
+#### указанных в параметре DATA_DIRECTORY.
 #declare -a MIRROR_DATA_DIRECTORY=(/data1/mirror /data1/mirror /data1/mirror /data2/mirror /data2/mirror /data2/mirror)
 
 
 ################################################
-#### OTHER OPTIONAL PARAMETERS
+#### ДРУГИЕ ДОПОЛНИТЕЛЬНЫЕ ПАРАМЕТРЫ
 ################################################
 
-#### Create a database of this name after initialization.
+#### После инициализации создайте базу данных с этим именем.
 #DATABASE_NAME=name_of_database
 
-#### Specify the location of the host address file here instead of
-#### with the -h option of gpinitsystem.
+#### Укажите здесь расположение файла с адресами хостов,
+#### а не с помощью параметра -h команды gpinitsystem.
 #MACHINE_LIST_FILE=/home/gpadmin/gpconfigs/hostfile_gpinitsystem
