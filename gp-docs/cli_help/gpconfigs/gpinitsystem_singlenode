@@ -1,119 +1,122 @@
-# FILE NAME: gpinitsystem_singlenode
+# НАЗВАНИЕ ФАЙЛА: gpinitsystem_singlenode
 
-# A configuration file is needed by the gpinitsystem utility.
-# This sample file initializes a Greenplum Database Single Node
-# Edition (SNE) system with one master and  two segment instances 
-# on the local host. This file is referenced when you run gpinitsystem. 
+# Для работы утилиты gpinitsystem необходим конфигурационный файл.
+# Этот пример файла инициализирует систему Greenplum Database Single Node Edition (SNE)
+# с одним главным экземпляром и двумя экземплярами сегментов
+# на локальном хосте. Этот файл используется при запуске gpinitsystem. 
 
 ################################################
-# REQUIRED PARAMETERS
+# ОБЯЗАТЕЛЬНЫЕ ПАРАМЕТРЫ
 ################################################
 
-# A name for the array you are configuring. You can use any name you 
-# like. Enclose the name in quotes if the name contains spaces.
+# Имя для настраиваемого массива. Вы можете использовать любое имя
+# по своему усмотрению. Если имя содержит пробелы, заключите его в кавычки.
 
 ARRAY_NAME="GPDB SINGLENODE"
 
 
-# This specifies the file that contains the list of segment host names 
-# that comprise the Greenplum system. For a single-node system, this
-# file contains the local OS-configured hostname (as output by the 
-# hostname command). If the file does not reside in the same 
-# directory where the gpinitsystem utility is executed, specify 
-# the absolute path to the file.
+# Это указывает на файл, содержащий список имен хостов сегментов,
+# составляющих систему Greenplum. Для одноузловой системы этот файл
+# содержит локальное имя хоста, настроенное операционной системой
+# (как это выводится командой hostname).
+# Если файл находится не в том же каталоге, где выполняется утилита
+# gpinitsystem, укажите абсолютный путь к файлу.
 
 MACHINE_LIST_FILE=./hostlist_singlenode
 
 
-# This specifies a prefix that will be used to name the data directories 
-# of the master and segment instances. The naming convention for data 
-# directories in a Greenplum Database system is SEG_PREFIX<number> 
-# where <number> starts with 0 for segment instances and the master 
-# is always -1. So for example, if you choose the prefix gpsne, your 
-# master instance data directory would be named gpsne-1, and the segment 
-# instances would be named gpsne0, gpsne1, gpsne2, gpsne3, and so on.
+# Это задаёт префикс, который будет использоваться для именования
+# каталогов данных экземпляров главного сервера и сегментов.
+# В системе Greenplum Database используется соглашение об именовании
+# каталогов данных SEG_PREFIX<number>, где <number> начинается
+# с 0 для экземпляров сегментов, а для главного сервера всегда -1.
+# Например, если вы выберете префикс gpsne, каталог данных вашего
+# экземпляра главного сервера будет называться gpsne-1,
+# а экземпляров сегментов — gpsne0, gpsne1, gpsne2, gpsne3 и так далее.
 
 SEG_PREFIX=gpsne
 
 
-# Base port number on which primary segment instances will be 
-# started on a segment host. The base port number will be 
-# incremented by one for each segment instance started on a host. 
+# Базовый номер порта, на котором будут запускаться экземпляры
+# primary сегмента на хосте сегмента. Базовый номер порта будет
+# увеличиваться на единицу для каждого экземпляра сегмента, запущенного на хосте.
 
 PORT_BASE=6000
 
 
-# This specifies the data storage location(s) where the script will 
-# create the primary segment data directories. The script creates a 
-# unique data directory for each segment instance. If you want multiple 
-# segment instances per host, list a data storage area for each primary 
-# segment you want created. The recommended number is one primary segment
-# per CPU. It is OK to list the same data storage area multiple times 
-# if you want your data directories created in the same location. The 
-# number of data directory locations specified will determine the number 
-# of primary segment instances created per host.
-# You must make sure that the user who runs gpinitsystem (for example, 
-# the gpadmin user) has permissions to write to these directories. You 
-# may want to create these directories on the segment hosts before running 
-# gpinitsystem and chown them to the appropriate user.
+# Это указывает место(а) хранения данных, где скрипт будет
+# создавать каталоги данных основных primary сегментов. Скрипт
+# создает уникальный каталог данных для каждого экземпляра сегмента.
+# Если вам нужно несколько экземпляров сегментов на хост,
+# укажите область хранения данных для каждого основного primary сегмента,
+# который вы хотите создать. Рекомендуемое количество — один основной
+# primary сегмент на каждый процессор. Допустимо указывать одну и ту же
+# область хранения данных несколько раз, если вы хотите, чтобы ваши
+# каталоги данных создавались в одном и том же месте. Количество
+# указанных местоположений каталогов данных определит количество
+# экземпляров основных primary сегментов, создаваемых на хосте.
+# Необходимо убедиться, что пользователь, запускающий gpinitsystem
+# (например, пользователь gpadmin), имеет права на запись в эти каталоги.
+# Возможно, вам потребуется создать эти каталоги на хостах сегментов
+# перед запуском gpinitsystem и изменить их владельца на соответствующего пользователя.
 
 declare -a DATA_DIRECTORY=(/gpdata1 /gpdata2)
 
 
-# The OS-configured hostname of the Greenplum Database master instance.
+# Имя хоста, заданное операционной системой, для главного экземпляра базы данных Greenplum.
 
 MASTER_HOSTNAME=hostname_of_machine
 
 
-# The location where the data directory will be created on the  
-# Greenplum master host. 
-# You must make sure that the user who runs gpinitsystem
-# has permissions to write to this directory. You may want to 
-# create this directory on the master host before running 
-# gpinitsystem and chown it to the appropriate user.
+# Местоположение, где будет создан каталог данных на главном хосте Greenplum.
+# Необходимо убедиться, что у пользователя, запускающего gpinitsystem,
+# есть права на запись в этот каталог. Возможно, вам потребуется создать
+# этот каталог на главном хосте до запуска gpinitsystem и изменить
+# его владельца на соответствующего пользователя.
 
 MASTER_DIRECTORY=/gpmaster
 
 
-# The port number for the master instance. This is the port number 
-# that users and client connections will use when accessing the 
-# Greenplum Database system.
+# Номер порта для главного экземпляра. Это номер порта, который будут
+# использовать пользователи и клиентские подключения при доступе
+# к системе базы данных Greenplum.
 
 MASTER_PORT=5432
 
 
-# The shell the gpinitsystem script uses to execute 
-# commands on remote hosts. Allowed value is ssh. You must set up 
-# your trusted host environment before running the gpinitsystem 
-# script. You can use gpssh-exkeys to do this.
+# Оболочка, которую использует скрипт gpinitsystem для выполнения
+# команд на удаленных хостах. Допустимое значение — ssh.
+# Перед запуском скрипта gpinitsystem необходимо настроить
+# доверенную среду хоста. Для этого можно использовать gpssh-exkeys.
 
 TRUSTED_SHELL=ssh
 
 
-# Maximum distance between automatic write ahead log (WAL) 
-# checkpoints, in log file segments (each segment is normally 16 
-# megabytes). This will set the checkpoint_segments parameter 
-# in the postgresql.conf file for each segment instance in the 
-# Greenplum Database system.
+# Максимальное расстояние между контрольными точками автоматического
+# журнала предварительной записи (WAL) в сегментах файла журнала
+# (каждый сегмент обычно составляет 16 мегабайт).
+# Это установит параметр checkpoint_segments в файле postgresql.conf
+# для каждого экземпляра сегмента в системе базы данных Greenplum.
 
 CHECK_POINT_SEGMENTS=8
 
 
-# The character set encoding to use. Greenplum supports the 
-# same character sets as PostgreSQL. See 'Character Set Support'
-# in the PostgreSQL documentation for allowed character sets.
-# Should correspond to the OS locale specified with the 
-# gpinitsystem -n option. 
+# Кодировка символов для использования. Greenplum поддерживает
+# те же кодировки, что и PostgreSQL. Список допустимых кодировок
+# см. в разделе «Поддержка кодировок» документации PostgreSQL.
+# Должна соответствовать локали операционной системы, указанной
+# с помощью параметра gpinitsystem -n.
 
 ENCODING=UNICODE
 
 
 ################################################
-# OPTIONAL PARAMETERS
+# ДОПОЛНИТЕЛЬНЫЕ ПАРАМЕТРЫ
 ################################################
 
-# Optional. Uncomment to create a database of this name after the
-# system is initialized. You can always create a database later using 
-# the CREATE DATABASE command or the createdb script.
+# Необязательно. Раскомментируйте, чтобы создать базу данных
+# с этим именем после инициализации системы. Вы всегда можете
+# создать базу данных позже, используя команду CREATE DATABASE
+# или скрипт createdb.
 
 #DATABASE_NAME=warehouse
