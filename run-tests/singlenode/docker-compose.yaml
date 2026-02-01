@@ -3,7 +3,6 @@
 # 1 master - mdw-хост
 # 2 primary сегменты без зеркал (sdw*-хосты)
 
-# version: '3'
 services:
   master:
     image: ${IMAGE_NAME}:${TAG}
@@ -28,50 +27,31 @@ services:
       - ./conf/hostfile_singlenode:/tmp/hostfile_gpinitsystem
       - ./conf/ssh/id_rsa:/home/gpadmin/.ssh/id_rsa
       - ./conf/ssh/id_rsa.pub:/home/gpadmin/.ssh/id_rsa.pub
-    # depends_on:
-    #   - segment1
-    #   - segment2
-    # networks:
-    #   - greenplum
+    networks:
+      - dwh
 
-  # segment1:
-  #   image: ${IMAGE_NAME}:${TAG}
-  #   container_name: segment1
-  #   hostname: segment1
-  #   command: /start_gpdb.sh "00:primary" "01:primary"
-  #   environment:
-  #     - GREENPLUM_DEPLOYMENT=segment
-  #   volumes:
-  #     - gpdb-segment1-data:/data
-  #     - ./conf/ssh/authorized_keys:/tmp/authorized_keys
-  #   stop_grace_period: 60s
-  #   networks:
-  #     - greenplum
+  external-postgres:
+    image: ${POSTGRES_IMAGE_NAME}:${POSTGRES_TAG}
+    container_name: external-postgres
+    hostname: external-postgres
+    environment:
+      - POSTGRES_PASSWORD=/run/secrets/postgres_password
+    volumes:
+      - pgdb-conflog-data:/var/lib/postgresql/data
+    ports:
+      - "${EXPOSE_POSTGRES_PORT}:5432"
 
-  # segment2:
-  #   image: ${IMAGE_NAME}:${TAG}
-  #   container_name: segment2
-  #   hostname: segment2
-  #   command: /start_gpdb.sh "00:primary" "01:primary"
-  #   environment:
-  #     - GREENPLUM_DEPLOYMENT=segment
-  #   volumes:
-  #     - gpdb-segment2-data:/data
-  #     - ./conf/ssh/authorized_keys:/tmp/authorized_keys
-  #   stop_grace_period: 60s
-  #   networks:
-  #     - greenplum
-
-# networks:
-#   greenplum:
+networks:
+  dwh:
 
 volumes:
- gpdb-master-data:
-#  gpdb-segment1-data:
-#  gpdb-segment2-data:
+  gpdb-master-data:
+  pgdb-conflog-data:
 
 secrets:
   gpdb_password:
     file: ./secrets/gpdb_password
   gpmon_password:
     file: ./secrets/gpmon_password
+  postgres_password:
+    file: ./secrets/postgres_password
