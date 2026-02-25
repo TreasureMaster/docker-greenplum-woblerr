@@ -85,11 +85,11 @@ setup_segments() {
     create_directory "${GREENPLUM_DATA_DIRECTORY}/${segment_num}/${segment_type}"
 }
 
-# Resolve issue for GPDB 7 with mounted authorized_keys in docker
-# In GPDB 7, gpssh-exkeys use rsync to copy the authorized_keys
-# and we get error:
+# Устранение проблемы с GPDB 7 при использовании смонтированного файла authorized_keys в Docker.
+# В GPDB 7 команда gpssh-exkeys использует rsync для копирования authorized_keys,
+# и в результате возникает ошибка:
 #   rsync: rename "/home/gpadmin/.ssh/.authorized_keys.wiHHYt" -> "authorized_keys": Device or resource busy (16)
-# For GPDB 6 the problem is not reproduced, because the scp command is used.
+# В случае с GPDB 6 проблема не воспроизводится, поскольку используется команда scp.
 setup_segment_authorized_keys(){
     if [ -f /tmp/authorized_keys ]; then
         echo "INFO - Copy authorized_keys to /home/${GREENPLUM_USER}/.ssh/authorized_keys"
@@ -212,7 +212,7 @@ initialize_and_start_gpdb_segments() {
         setup_segments "${segment_num}" "${segment_type}"
     done
     trap "echo 'INFO - Shutdown segment host' && end_flag=1" TERM INT
-    # Keep container running
+    # Сохраняет контейнер запущенным
     while [ "${end_flag}" == '' ]; do
         sleep 1
     done
@@ -247,8 +247,8 @@ initialize_and_start_gpdb() {
             echo "*:5432:gpperfmon:gpmon:${GREENPLUM_GPMON_PASSWORD}" > /home/${GREENPLUM_USER}/.pgpass
             chmod 600 /home/${GREENPLUM_USER}/.pgpass
         fi
-	    echo 'INFO - Start GPDB'
-	    gpstart -a
+        echo 'INFO - Start GPDB'
+        gpstart -a
     else
         # Инициализация gpdb
         echo "INFO - Initialize GPDB"
@@ -294,9 +294,10 @@ initialize_and_start_gpdb() {
             echo "INFO - gpconfig -c archive_mode -v on"
             USER=${GREENPLUM_USER} gpconfig -c archive_mode -v on
             echo "INFO - gpconfig -c archive_command -v '/bin/true'"
-            # Set archive_command to /bin/true because there is no storage for WAL specified
-            # This is necessary to avoid errors
-            # Use init script to set actual archive_command
+            # Установите параметр archive_command в значение /bin/true,
+            # поскольку для WAL-файла не указано место для хранения.
+            # Это необходимо для предотвращения ошибок.
+            # Используйте скрипт инициализации для установки фактической команды архивирования.
             USER=${GREENPLUM_USER} gpconfig -c archive_command -v "'/bin/true'"
             if [ "${gp_major_version}" == "6" ]; then
                 echo "INFO - gpconfig -c wal_level -v archive"
@@ -308,7 +309,7 @@ initialize_and_start_gpdb() {
                 USER=${GREENPLUM_USER} gpconfig -c wal_level -v replica --skipvalidation
             fi
         fi
-        # Configure pg_hba
+        # Конфигурирование pg_hba
         echo "INFO - Configure pg_hba.conf"
         {
             echo "host all all 0.0.0.0/0 md5"
@@ -318,14 +319,14 @@ initialize_and_start_gpdb() {
         gpstop -ar
         sleep 10
     fi
-    # If db name is set and diskquota is enabled, create extension and init table size table
+    # Если задано имя базы данных и включена diskquota, создайте расширение и инициализируйте таблицу размеров таблиц.
     if [ "${GREENPLUM_DISKQUOTA_ENABLE}" == "true" ] && [ -n "${GREENPLUM_DATABASE_NAME:-}" ]; then
         echo "INFO - psql ${GREENPLUM_DATABASE_NAME} -t -c \"CREATE EXTENSION IF NOT EXISTS diskquota;\" | xargs"
         psql ${GREENPLUM_DATABASE_NAME} -t -c "CREATE EXTENSION IF NOT EXISTS diskquota;" | xargs
         echo "INFO - psql ${GREENPLUM_DATABASE_NAME} -t -c \"SELECT diskquota.init_table_size_table();\" | xargs"
         psql ${GREENPLUM_DATABASE_NAME} -t -c "SELECT diskquota.init_table_size_table();" | xargs
     fi
-    # Enable PXF
+    # Установить PXF
     if [ ${GREENPLUM_PXF_ENABLE} == "true" ]; then
         if [ ! -f "${pxf_env}" ]; then
             echo "INFO - Enable PXF"
@@ -334,8 +335,8 @@ initialize_and_start_gpdb() {
             echo "INFO - psql ${GREENPLUM_DATABASE_NAME} -t -c \"CREATE EXTENSION IF NOT EXISTS pxf;\" | xargs"
             psql ${GREENPLUM_DATABASE_NAME} -t -c "CREATE EXTENSION IF NOT EXISTS pxf;" | xargs
             echo "INFO - configure JVM options for PXF"
-            # Minimaze JVM memory for PXF.
-            # For docker default is too big.
+            # Минимизация памяти JVM для работы с PXF.
+            # Для docker значение по умолчанию слишком велико.
             echo 'PXF_JVM_OPTS="-Xmx512m -Xms256m"' >> ${pxf_env}
             pxf cluster sync
         fi
@@ -343,7 +344,7 @@ initialize_and_start_gpdb() {
         pxf cluster start
         sleep 10
     fi
-    # Monitor logs
+    # Мониторинг логов
     debug "Monitor logs"
     trap "kill %1; \
         if [ ${GREENPLUM_PXF_ENABLE} == 'true' ] && [ -f '${pxf_env}' ]; then \
@@ -352,7 +353,7 @@ initialize_and_start_gpdb() {
         fi; \
         gpstop -a -M fast && end_flag=1" INT TERM
     tail -f $(ls ${GREENPLUM_DATA_DIRECTORY}/${gp_master_dir_name}/${GREENPLUM_SEG_PREFIX}-1/${gp_log_dir}/gpdb-* | tail -n1) &
-    # Execute custom init scripts.
+    # Выполнение пользовательских скриптов инициализации.
     if [ "${gpdb_already_exists_flag}" == false ]; then
         echo "INFO - Execute custom init scripts"
         execute_custom_init_scripts
