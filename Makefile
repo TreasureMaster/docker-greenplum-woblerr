@@ -1,5 +1,6 @@
 GPDB_6_VERSIONS = 6.27.1
 TAG_GPDB_6 ?= 6.27.1
+TAG_GPDB_DUMMY ?= 0.0.1
 GPDB_7_VERSIONS = 7.1.0
 TAG_GPDB_7 ?= 7.1.0
 GREENGAGE_6_VERSIONS = 6.29.2
@@ -22,6 +23,10 @@ $(GPDB_6_VERSIONS):
 .PHONY: $(GPDB_7_VERSIONS)
 $(GPDB_7_VERSIONS):
 	$(call build_image,7,$@,$(UBUNTU_OS_VERSION))
+
+.PHONY: build_dummy_6_oraclelinux
+build_dummy_6_oraclelinux:
+	$(call build_image_with_tag,6,$(TAG_GPDB_DUMMY),$(OL_OS_VERSION))
 
 .PHONY: build_gpdb_6_ubuntu
 build_gpdb_6_ubuntu:
