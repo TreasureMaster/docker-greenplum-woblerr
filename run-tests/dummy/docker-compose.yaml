@@ -12,6 +12,7 @@ services:
       - "${EXPOSE_MASTER_PORT}:5432"
     environment:
       - GREENPLUM_DEPLOYMENT=dummy
+      - GREENPLUM_START_DEBUG=true
       - GREENPLUM_GPPERFMON_ENABLE=true
       - GREENPLUM_DISKQUOTA_ENABLE=true
       - GREENPLUM_PXF_ENABLE=true

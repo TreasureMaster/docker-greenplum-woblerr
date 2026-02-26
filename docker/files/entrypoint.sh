@@ -35,6 +35,7 @@ if [ "${uid}" = "0" ]; then
         /docker-entrypoint-initdb.d
     # Коррекция user:group для стартового файла
     chown ${GREENPLUM_USER}:${GREENPLUM_GROUP} /start_gpdb.sh
+    chown ${GREENPLUM_USER}:${GREENPLUM_GROUP} /liblog.sh
 fi
 
 # Старт SSH сервера.
