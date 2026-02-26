@@ -3,3 +3,5 @@ docker-compose/.secrets/*
 !docker-compose/secrets/.gitkeep
 .vscode/*
 .DS_Store
+
+tmp/
