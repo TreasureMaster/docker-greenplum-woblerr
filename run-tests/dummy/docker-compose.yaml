@@ -1,0 +1,38 @@
+# Этот файл используется для создания кластера Greenplum
+# с конфигурацией в отдельных контейнерах на отдельных хостах:
+# 1 master - mdw-хост
+# 2 primary сегменты без зеркал (sdw*-хосты)
+
+services:
+  master:
+    image: ${IMAGE_NAME}:${TAG}
+    container_name: master
+    hostname: master
+    ports:
+      - "${EXPOSE_MASTER_PORT}:5432"
+    environment:
+      - GREENPLUM_DEPLOYMENT=dummy
+      - GREENPLUM_GPPERFMON_ENABLE=true
+      - GREENPLUM_DISKQUOTA_ENABLE=true
+      - GREENPLUM_PXF_ENABLE=true
+      - GREENPLUM_PASSWORD_FILE=/run/secrets/gpdb_password
+      - GREENPLUM_GPMON_PASSWORD_FILE=/run/secrets/gpmon_password
+    secrets:
+      - gpdb_password
+      - gpmon_password
+    volumes:
+      - gpdb-master-data:/data
+      # - ../docs/custom_init_scripts:/docker-entrypoint-initdb.d
+      - ./conf/${CONFIG_FOLDER}/gpinitsystem_config_singlenode:/tmp/gpinitsystem_config
+      - ./conf/hostfile_singlenode:/tmp/hostfile_gpinitsystem
+      - ./conf/ssh/id_rsa:/home/gpadmin/.ssh/id_rsa
+      - ./conf/ssh/id_rsa.pub:/home/gpadmin/.ssh/id_rsa.pub
+
+volumes:
+  gpdb-master-data:
+
+secrets:
+  gpdb_password:
+    file: ./secrets/gpdb_password
+  gpmon_password:
+    file: ./secrets/gpmon_password
