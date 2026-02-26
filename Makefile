@@ -83,13 +83,13 @@ define build_image
 endef
 
 define build_dummy_image
-	@echo "Build GPDB $(1):$(2) $(3) docker image"
-	docker buildx build -f docker/greenplum/$(3)/$(1)/Dockerfile --build-arg GPDB_VERSION=$(2) -t greenplum:$(2)-$(3) .
+	@echo "Build dummy $(1):$(2) $(3) docker image"
+	docker buildx build -f docker-dummy/greenplum/$(3)/$(1)/Dockerfile --build-arg GPDB_VERSION=$(2) -t gp-dummy:$(2)-$(3) .
 endef
 
 define build_image_with_tag
-	@echo "Build dummy $(1):$(2) $(3) docker image"
-	docker buildx build -f docker-dummy/greenplum/$(3)/$(1)/Dockerfile --build-arg GPDB_VERSION=$(2) -t gp-dummy:$(2)-$(3) .
+	@echo "Build GPDB $(1):$(2) $(3) docker image"
+	docker buildx build -f docker/greenplum/$(3)/$(1)/Dockerfile --build-arg GPDB_VERSION=$(2) -t gp-dummy:$(2)-$(3) .
 endef
 
 define build_greengage_image_with_tag
