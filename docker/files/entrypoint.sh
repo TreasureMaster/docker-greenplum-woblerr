@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Load libraries
+. /liblog.sh
+
 uid=$(id -u)
 
 if [ "${uid}" = "0" ]; then
@@ -24,6 +27,7 @@ if [ "${uid}" = "0" ]; then
         mkdir -p /home/${GREENPLUM_USER}/pxf
         ssh-keygen -q -f /home/${GREENPLUM_USER}/.ssh/id_rsa -t rsa -N ""
     fi
+    debug "Correction user:group"
     # Коррекция user:group.
     chown -R ${GREENPLUM_USER}:${GREENPLUM_GROUP} \
         /home/${GREENPLUM_USER} \
@@ -34,7 +38,7 @@ if [ "${uid}" = "0" ]; then
 fi
 
 # Старт SSH сервера.
-echo "[DEBUG] - Start ssh server"
+debug "Start ssh server"
 if [ ! -f /etc/ssh/ssh_host_rsa_key ]; then
     ssh-keygen -A
 fi
@@ -43,7 +47,7 @@ mkdir -p /run/sshd
 sleep 2
 
 # Выполнение команды.
-echo "[DEBUG] - Start start_gpdb.sh"
+debug "Start start_gpdb.sh"
 if [ "${uid}" = "0" ]; then
     exec gosu ${GREENPLUM_USER} "$@"
 else

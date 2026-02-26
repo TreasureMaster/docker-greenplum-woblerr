@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
+# Load libraries
+. /liblog.sh
+
 gp_init_config_file="${GREENPLUM_DATA_DIRECTORY}/gpinitsystem_config"
 gp_init_host_file="${GREENPLUM_DATA_DIRECTORY}/hostfile_gpinitsystem"
 gp_custom_init_dir="/docker-entrypoint-initdb.d"
@@ -12,11 +15,11 @@ error_and_exit() {
     exit 1
 }
 
-debug() {
-    if [[ "${GREENPLUM_START_DEBUG:-}" == "true" ]]; then
-        echo "[DEBUG] - $1"
-    fi
-}
+# debug() {
+#     if [[ "${GREENPLUM_START_DEBUG:-}" == "true" ]]; then
+#         echo "[DEBUG] - $1"
+#     fi
+# }
 
 # Применение: file_env VAR [DEFAULT]
 # Например  : file_env 'XYZ_DB_PASSWORD' 'example'
