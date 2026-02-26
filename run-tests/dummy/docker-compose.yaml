@@ -4,9 +4,9 @@
 # 2 primary сегменты без зеркал (sdw*-хосты)
 
 services:
-  master:
+  master-dummy:
     image: ${IMAGE_NAME}:${TAG}
-    container_name: master
+    container_name: master-dummy
     hostname: master
     ports:
       - "${EXPOSE_MASTER_PORT}:5432"

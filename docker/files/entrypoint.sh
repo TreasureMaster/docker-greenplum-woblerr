@@ -29,9 +29,12 @@ if [ "${uid}" = "0" ]; then
         /home/${GREENPLUM_USER} \
         ${GREENPLUM_DATA_DIRECTORY} \
         /docker-entrypoint-initdb.d
+    # Коррекция user:group для стартового файла
+    chown ${GREENPLUM_USER}:${GREENPLUM_GROUP} /start_gpdb.sh
 fi
 
 # Старт SSH сервера.
+echo "[DEBUG] - Start ssh server"
 if [ ! -f /etc/ssh/ssh_host_rsa_key ]; then
     ssh-keygen -A
 fi
@@ -40,6 +43,7 @@ mkdir -p /run/sshd
 sleep 2
 
 # Выполнение команды.
+echo "[DEBUG] - Start start_gpdb.sh"
 if [ "${uid}" = "0" ]; then
     exec gosu ${GREENPLUM_USER} "$@"
 else

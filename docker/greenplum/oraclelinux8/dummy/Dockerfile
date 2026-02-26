@@ -150,8 +150,9 @@ RUN groupadd --gid ${GREENPLUM_GID} ${GREENPLUM_GROUP} \
 # COPY --from=go_builder /usr/local/pxf /usr/local/pxf
 # COPY --from=go_builder /tmp/gpbackman/gpbackman /usr/local/greenplum-db/bin/gpbackman
 # COPY --from=go_builder /tmp/wal-g/main/gp/wal-g /usr/local/greenplum-db/bin/wal-g
-COPY --chmod=750 docker/files/entrypoint.sh /entrypoint.sh
-COPY --chmod=750 docker/files/start_gpdb.sh /start_gpdb.sh
+# COPY --chmod=750 docker/files/entrypoint.sh /entrypoint.sh
+# COPY --chmod=750 docker/files/start_gpdb.sh /start_gpdb.sh
+COPY --chmod=750 docker/files/*.sh /
 
 # LABEL \
 #     org.opencontainers.image.version="${REPO_BUILD_TAG}" \
