@@ -197,6 +197,16 @@ execute_custom_init_scripts() {
     fi
 }
 
+initialize_and_start_dummy_host() {
+    local end_flag=""
+    echo "INFO - Initializing dummy host"
+    trap "echo 'INFO - Shutdown dummy host' && end_flag=1" TERM INT
+    # Сохраняет контейнер запущенным
+    while [ "${end_flag}" == '' ]; do
+        sleep 1
+    done
+}
+
 initialize_and_start_gpdb_segments() {
     local end_flag=""
     local arg segment_num segment_type
@@ -390,6 +400,9 @@ case ${GREENPLUM_DEPLOYMENT} in
     "segment")
         setup_segment_authorized_keys
         initialize_and_start_gpdb_segments "$@"
+        ;;
+    "dummy")
+        initialize_and_start_dummy_host
         ;;
     *)
         error_and_exit "Invalid deployment mode: ${GREENPLUM_DEPLOYMENT}"
