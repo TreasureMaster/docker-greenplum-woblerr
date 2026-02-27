@@ -18,12 +18,14 @@ if [ "${uid}" = "0" ]; then
     fi
     # Настройка пользователя.
     if [ "${GREENPLUM_USER}" != "gpadmin" ] || [ "${GREENPLUM_UID}" != "1001" ]; then
+        debug "Change user to ${GREENPLUM_USER} or uid to ${GREENPLUM_UID}"
         java_home_path=$(dirname $(dirname $(readlink -f $(which java))))
         usermod -g ${GREENPLUM_GID} -l ${GREENPLUM_USER} -u ${GREENPLUM_UID} -m -d /home/${GREENPLUM_USER} gpadmin
         echo "source /usr/local/greenplum-db/greenplum_path.sh" > /home/${GREENPLUM_USER}/.bashrc
         echo "export JAVA_HOME=/${java_home_path}" >> /home/${GREENPLUM_USER}/.bashrc
         echo 'export PATH="/usr/local/pxf/bin:${PATH}"' >> /home/${GREENPLUM_USER}/.bashrc
-        echo "export PXF_BASE=${GREENPLUM_DATA_DIRECTORY}/pxf" >> /home/${GREENPLUM_USER}/.bashrc
+        # echo "export PXF_BASE=${GREENPLUM_DATA_DIRECTORY}/pxf" >> /home/${GREENPLUM_USER}/.bashrc
+        echo "export PXF_BASE=${GREENPLUM_PXF_BASE_DIRECTORY}" >> /home/${GREENPLUM_USER}/.bashrc
         mkdir -m 700 -p /home/${GREENPLUM_USER}/.ssh
         mkdir -p /home/${GREENPLUM_USER}/pxf
         ssh-keygen -q -f /home/${GREENPLUM_USER}/.ssh/id_rsa -t rsa -N ""
@@ -33,6 +35,7 @@ if [ "${uid}" = "0" ]; then
     chown -R ${GREENPLUM_USER}:${GREENPLUM_GROUP} \
         /home/${GREENPLUM_USER} \
         ${GREENPLUM_DATA_DIRECTORY} \
+        ${GREENPLUM_PXF_BASE_DIRECTORY} \
         /docker-entrypoint-initdb.d
     # Коррекция user:group для стартовых файлов
     chown ${GREENPLUM_USER}:${GREENPLUM_GROUP} \

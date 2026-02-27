@@ -267,6 +267,7 @@ ENV TZ="Etc/UTC" \
     GREENPLUM_GPPERFMON_ENABLE="false" \
     GREENPLUM_DISKQUOTA_ENABLE="false" \
     GREENPLUM_PXF_ENABLE="false" \
+    GREENPLUM_PXF_BASE_DIRECTORY="${GREENPLUM_DATA_DIRECTORY}/pxf" \
     GREENPLUM_WALG_ENABLE="false"
 
 # Install runtime dependencies
@@ -349,13 +350,16 @@ RUN groupadd --gid ${GREENPLUM_GID} ${GREENPLUM_GROUP} \
     && echo "source /usr/local/greenplum-db/greenplum_path.sh" > /home/${GREENPLUM_USER}/.bashrc \
     && echo "export JAVA_HOME=/usr/lib/jvm/jre-11-openjdk" >> /home/${GREENPLUM_USER}/.bashrc \
     && echo 'export PATH="/usr/local/pxf/bin:${PATH}"' >> /home/${GREENPLUM_USER}/.bashrc \
-    && echo "export PXF_BASE=${GREENPLUM_DATA_DIRECTORY}/pxf" >> /home/${GREENPLUM_USER}/.bashrc \
+    # && echo "export PXF_BASE=${GREENPLUM_DATA_DIRECTORY}/pxf" >> /home/${GREENPLUM_USER}/.bashrc \
+    && echo "export PXF_BASE=${GREENPLUM_PXF_BASE_DIRECTORY}" >> /home/${GREENPLUM_USER}/.bashrc \
     && mkdir -p ${GREENPLUM_DATA_DIRECTORY} \
-                ${GREENPLUM_DATA_DIRECTORY}/pxf \
+                # ${GREENPLUM_DATA_DIRECTORY}/pxf \
+                ${GREENPLUM_PXF_BASE_DIRECTORY} \
                 /docker-entrypoint-initdb.d \
     && chown -R ${GREENPLUM_USER}:${GREENPLUM_GROUP} \
         /home/${GREENPLUM_USER}/ \
         ${GREENPLUM_DATA_DIRECTORY} \
+        ${GREENPLUM_PXF_BASE_DIRECTORY} \
         /docker-entrypoint-initdb.d \
     && ln -s /usr/bin/python2 /usr/bin/python \
     && unlink /etc/localtime \
