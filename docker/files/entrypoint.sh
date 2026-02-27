@@ -28,14 +28,13 @@ if [ "${uid}" = "0" ]; then
         ssh-keygen -q -f /home/${GREENPLUM_USER}/.ssh/id_rsa -t rsa -N ""
     fi
     debug "Correction user:group"
-    # Коррекция user:group.
+    # Коррекция user:group, если они были переопределены в env.
     chown -R ${GREENPLUM_USER}:${GREENPLUM_GROUP} \
         /home/${GREENPLUM_USER} \
         ${GREENPLUM_DATA_DIRECTORY} \
         /docker-entrypoint-initdb.d
-    # Коррекция user:group для стартового файла
-    chown ${GREENPLUM_USER}:${GREENPLUM_GROUP} /start_gpdb.sh
-    chown ${GREENPLUM_USER}:${GREENPLUM_GROUP} /liblog.sh
+    # Коррекция user:group для стартовых файлов
+    chown ${GREENPLUM_USER}:${GREENPLUM_GROUP} /start_gpdb.sh /liblog.sh
 fi
 
 # Старт SSH сервера.
