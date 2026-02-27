@@ -130,8 +130,8 @@ setup_gpinitsystem_config(){
 }
 
 generate_gpinitsystem_config() {
-    debug "Generate gpinitsystem config if absent"
     if [ ! -f "${gp_init_config_file}" ] ; then
+        debug "Generate gpinitsystem config if absent"
         cat > "${gp_init_config_file}" <<EOF
 ARRAY_NAME="Greenplum in docker"
 DATABASE_NAME=${GREENPLUM_DATABASE_NAME}
@@ -159,8 +159,8 @@ setup_hostfile_gpinitsystem() {
 }
 
 generate_hostfile_gpinitsystem() {
-    debug "Generate hostfile gpinitsystem if absent"
     if [ ! -f "${gp_init_host_file}" ] ; then
+        debug "Generate hostfile gpinitsystem if absent"
         echo "${gp_hostname}" > ${gp_init_host_file}
     fi
 }
