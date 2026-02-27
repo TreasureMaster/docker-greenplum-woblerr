@@ -2,6 +2,7 @@
 
 # Load libraries
 . /liblog.sh
+. /libenv.sh
 
 uid=$(id -u)
 
@@ -34,7 +35,25 @@ if [ "${uid}" = "0" ]; then
         ${GREENPLUM_DATA_DIRECTORY} \
         /docker-entrypoint-initdb.d
     # Коррекция user:group для стартовых файлов
-    chown ${GREENPLUM_USER}:${GREENPLUM_GROUP} /start_gpdb.sh /liblog.sh
+    chown ${GREENPLUM_USER}:${GREENPLUM_GROUP} \
+        /start_gpdb.sh \
+        /liblog.sh \
+        /libenv.sh
+    # Копирование проброшенных конфигурационных файлов, чтобы избежать изменения прав на хосте
+    mkdir -p ${gp_tmp_dir}
+    debug "Copy gpinitsystem config to local tmp"
+    if [ -f /tmp/gpinitsystem_config ]; then
+        echo "INFO - Copy gpinitsystem_config to ${gp_tmp_dir}"
+        cp /tmp/gpinitsystem_config "${gp_tmp_dir}"
+        # chown ${GREENPLUM_USER}:${GREENPLUM_GROUP} ${gp_tmp_dir}/gpinitsystem_config
+    fi
+    debug "Copy hostfile gpinitsystem to local tmp"
+    if [ -f /tmp/hostfile_gpinitsystem ]; then
+        echo "INFO - Copy hostfile_gpinitsystem to ${gp_tmp_dir}"
+        cp /tmp/hostfile_gpinitsystem "${gp_tmp_dir}"
+        # chown ${GREENPLUM_USER}:${GREENPLUM_GROUP} ${gp_tmp_dir}/hostfile_gpinitsystem
+    fi
+    chown -R ${GREENPLUM_USER}:${GREENPLUM_GROUP} ${gp_tmp_dir}
 fi
 
 # Старт SSH сервера.

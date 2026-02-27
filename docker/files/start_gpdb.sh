@@ -3,6 +3,7 @@ set -Eeuo pipefail
 
 # Load libraries
 . /liblog.sh
+. /libenv.sh
 
 gp_init_config_file="${GREENPLUM_DATA_DIRECTORY}/gpinitsystem_config"
 gp_init_host_file="${GREENPLUM_DATA_DIRECTORY}/hostfile_gpinitsystem"
@@ -10,16 +11,6 @@ gp_custom_init_dir="/docker-entrypoint-initdb.d"
 gp_master_dir_name="master"
 gp_hostname=$(hostname)
 
-error_and_exit() {
-    echo "ERROR - $1"
-    exit 1
-}
-
-# debug() {
-#     if [[ "${GREENPLUM_START_DEBUG:-}" == "true" ]]; then
-#         echo "[DEBUG] - $1"
-#     fi
-# }
 
 # Применение: file_env VAR [DEFAULT]
 # Например  : file_env 'XYZ_DB_PASSWORD' 'example'
@@ -131,9 +122,9 @@ check_required_var() {
 
 setup_gpinitsystem_config(){
     debug "Setup gpinitsystem config"
-    if [ -f /tmp/gpinitsystem_config ]; then
+    if [ -f ${gp_tmp_dir}/gpinitsystem_config ]; then
         echo "INFO - Copy gpinitsystem_config to ${gp_init_config_file}"
-        cp /tmp/gpinitsystem_config "${gp_init_config_file}"
+        cp ${gp_tmp_dir}/gpinitsystem_config "${gp_init_config_file}"
     fi
 }
 
@@ -159,9 +150,9 @@ EOF
 
 setup_hostfile_gpinitsystem() {
     debug "Setup hostfile gpinitsystem"
-    if [ -f /tmp/hostfile_gpinitsystem ]; then
+    if [ -f ${gp_tmp_dir}/hostfile_gpinitsystem ]; then
         echo "INFO - Copy hostfile_gpinitsystem to ${gp_init_host_file}"
-        cp /tmp/hostfile_gpinitsystem "${gp_init_host_file}"
+        cp ${gp_tmp_dir}/hostfile_gpinitsystem "${gp_init_host_file}"
     fi
 }
 
@@ -405,6 +396,8 @@ case ${GREENPLUM_DEPLOYMENT} in
         initialize_and_start_gpdb_segments "$@"
         ;;
     "dummy")
+        setup_gpinitsystem_config
+        setup_hostfile_gpinitsystem
         initialize_and_start_dummy_host
         ;;
     *)
