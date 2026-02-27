@@ -25,7 +25,7 @@ services:
       - gpdb-master-data:/data
       # - ../docs/custom_init_scripts:/docker-entrypoint-initdb.d
       - ./conf/${CONFIG_FOLDER}/gpinitsystem_config_singlenode:/tmp/gpinitsystem_config
-      - ./conf/hostfile_singlenode:/tmp/hostfile_gpinitsystem
+      - ./conf/hostlist_singlenode:/tmp/hostfile_gpinitsystem
       - ./conf/ssh/id_rsa:/home/gpadmin/.ssh/id_rsa
       - ./conf/ssh/id_rsa.pub:/home/gpadmin/.ssh/id_rsa.pub
 
