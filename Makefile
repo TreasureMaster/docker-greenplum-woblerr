@@ -13,6 +13,7 @@ UBUNTU_OS_VERSION = ubuntu22.04
 OL_OS_VERSION = oraclelinux8
 UID := $(shell id -u)
 GID := $(shell id -g)
+BASE_REPO = app-registry01.corp.skbbank.ru/dcms-test/
 
 all: $(GPDB_6_VERSIONS) $(GPDB_7_VERSIONS)
 
@@ -84,7 +85,7 @@ endef
 
 define build_image_with_tag
 	@echo "Build GPDB $(1):$(2) $(3) docker image"
-	docker buildx build -f docker/greenplum/$(3)/$(1)/Dockerfile --build-arg GPDB_VERSION=$(2) -t $(or $4,greenplum):$(2)-$(3) .
+	docker buildx build -f docker/greenplum/$(3)/$(1)/Dockerfile --build-arg GPDB_VERSION=$(2) -t $(BASE_REPO)$(or $4,greenplum):$(2)-$(3) .
 endef
 
 define build_greengage_image_with_tag
