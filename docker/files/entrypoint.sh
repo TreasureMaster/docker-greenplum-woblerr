@@ -30,6 +30,10 @@ if [ "${uid}" = "0" ]; then
         mkdir -p /home/${GREENPLUM_USER}/pxf
         ssh-keygen -q -f /home/${GREENPLUM_USER}/.ssh/id_rsa -t rsa -N ""
     fi
+    if [ "${GREENPLUM_PXF_BASE_DIRECTORY}" != "${GREENPLUM_DATA_DIRECTORY}/pxf" ]; then
+        debug "Change PXF_BASE value"
+        echo "export PXF_BASE=${GREENPLUM_PXF_BASE_DIRECTORY}" >> /home/${GREENPLUM_USER}/.bashrc
+    fi
     debug "Correction user:group"
     # Коррекция user:group, если они были переопределены в env.
     chown -R ${GREENPLUM_USER}:${GREENPLUM_GROUP} \
@@ -48,13 +52,11 @@ if [ "${uid}" = "0" ]; then
     if [ -f /tmp/gpinitsystem_config ]; then
         echo "INFO - Copy gpinitsystem_config to ${gp_tmp_dir}"
         cp /tmp/gpinitsystem_config "${gp_tmp_dir}"
-        # chown ${GREENPLUM_USER}:${GREENPLUM_GROUP} ${gp_tmp_dir}/gpinitsystem_config
     fi
     debug "Copy hostfile gpinitsystem to local tmp"
     if [ -f /tmp/hostfile_gpinitsystem ]; then
         echo "INFO - Copy hostfile_gpinitsystem to ${gp_tmp_dir}"
         cp /tmp/hostfile_gpinitsystem "${gp_tmp_dir}"
-        # chown ${GREENPLUM_USER}:${GREENPLUM_GROUP} ${gp_tmp_dir}/hostfile_gpinitsystem
     fi
     chown -R ${GREENPLUM_USER}:${GREENPLUM_GROUP} ${gp_tmp_dir}
 fi
