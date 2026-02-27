@@ -125,6 +125,7 @@ setup_gpinitsystem_config(){
     if [ -f ${gp_tmp_dir}/gpinitsystem_config ]; then
         echo "INFO - Copy gpinitsystem_config to ${gp_init_config_file}"
         cp ${gp_tmp_dir}/gpinitsystem_config "${gp_init_config_file}"
+        chmod 640 "${gp_init_config_file}"
     fi
 }
 
@@ -153,6 +154,7 @@ setup_hostfile_gpinitsystem() {
     if [ -f ${gp_tmp_dir}/hostfile_gpinitsystem ]; then
         echo "INFO - Copy hostfile_gpinitsystem to ${gp_init_host_file}"
         cp ${gp_tmp_dir}/hostfile_gpinitsystem "${gp_init_host_file}"
+        chmod 640 "${gp_init_host_file}"
     fi
 }
 
