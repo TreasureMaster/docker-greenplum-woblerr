@@ -26,7 +26,7 @@ $(GPDB_7_VERSIONS):
 
 .PHONY: build_dummy_6_oraclelinux
 build_dummy_6_oraclelinux:
-	$(call build_image_with_tag,dummy,$(TAG_GPDB_DUMMY),$(OL_OS_VERSION))
+	$(call build_image_with_tag,dummy,$(TAG_GPDB_DUMMY),$(OL_OS_VERSION),gp-dummy)
 
 .PHONY: build_gpdb_6_ubuntu
 build_gpdb_6_ubuntu:
@@ -84,7 +84,7 @@ endef
 
 define build_image_with_tag
 	@echo "Build GPDB $(1):$(2) $(3) docker image"
-	docker buildx build -f docker/greenplum/$(3)/$(1)/Dockerfile --build-arg GPDB_VERSION=$(2) -t gp-dummy:$(2)-$(3) .
+	docker buildx build -f docker/greenplum/$(3)/$(1)/Dockerfile --build-arg GPDB_VERSION=$(2) -t $(or $4,greenplum):$(2)-$(3) .
 endef
 
 define build_greengage_image_with_tag
