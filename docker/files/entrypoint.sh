@@ -59,6 +59,11 @@ if [ "${uid}" = "0" ]; then
         echo "INFO - Copy hostfile_gpinitsystem to ${gp_tmp_dir}"
         cp /tmp/hostfile_gpinitsystem "${gp_tmp_dir}"
     fi
+    debug "Copy pxf config to local tmp"
+    if [ -d /tmp/pxf ]; then
+        echo "INFO - Copy pxf config to ${gp_tmp_dir}"
+        cp -r /tmp/pxf "${gp_tmp_dir}"
+    fi
     chown -R ${GREENPLUM_USER}:${GREENPLUM_GROUP} ${gp_tmp_dir}
 fi
 

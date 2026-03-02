@@ -165,6 +165,17 @@ generate_hostfile_gpinitsystem() {
     fi
 }
 
+setup_pxf_config() {
+    debug "Setup pxf config dir"
+    if [ -d ${gp_tmp_dir}/pxf ]; then
+        echo "INFO - Copy pxf config to ${GREENPLUM_PXF_BASE_DIRECTORY}"
+        cp -r ${gp_tmp_dir}/pxf/* "${GREENPLUM_PXF_BASE_DIRECTORY}"
+        chmod -R 750 "${GREENPLUM_PXF_BASE_DIRECTORY}"
+        # chmod 755 "${GREENPLUM_PXF_BASE_DIRECTORY}/logs"
+        chmod -R g+s "${GREENPLUM_PXF_BASE_DIRECTORY}"
+    fi
+}
+
 execute_custom_init_scripts() {
     local script
     if [ -d "${gp_custom_init_dir}" ] && [ -n "$(ls -A ${gp_custom_init_dir})" ]; then
@@ -334,6 +345,9 @@ initialize_and_start_gpdb() {
     fi
     # Установить PXF
     if [ ${GREENPLUM_PXF_ENABLE} == "true" ]; then
+        # Копируем настраиваемые конфиги
+        setup_pxf_config
+        # Настройка pxf
         if [ ! -f "${pxf_env}" ]; then
             echo "INFO - Enable PXF"
             pxf cluster prepare
