@@ -47,6 +47,8 @@ services:
       - pg-conf/initdb:/docker-entrypoint-initdb.d
     ports:
       - "${EXPOSE_POSTGRES_PORT}:5432"
+    networks:
+      - dwh
 
 networks:
   dwh:
