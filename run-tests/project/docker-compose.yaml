@@ -44,7 +44,7 @@ services:
       - postgres_password
     volumes:
       - pgdb-conflog-data:/var/lib/postgresql/data
-      - pg-conf/initdb:/docker-entrypoint-initdb.d
+      - ./pg-conf/initdb:/docker-entrypoint-initdb.d
     ports:
       - "${EXPOSE_POSTGRES_PORT}:5432"
     networks:
