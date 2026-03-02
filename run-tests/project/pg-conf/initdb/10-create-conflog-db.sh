@@ -11,7 +11,7 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 		username VARCHAR(50) UNIQUE NOT NULL,
 		email VARCHAR(100) UNIQUE,
 		age INTEGER CHECK (age >= 0),
-		created_at TIMESTAMP DEFAULT CURRENT__TIMESTAMP
+		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 	);
 	INSERT INTO users (username, email, age)
 	VALUES 
