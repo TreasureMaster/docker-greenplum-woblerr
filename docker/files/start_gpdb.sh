@@ -173,6 +173,7 @@ setup_pxf_config() {
         chmod -R 750 "${GREENPLUM_PXF_BASE_DIRECTORY}"
         # chmod 755 "${GREENPLUM_PXF_BASE_DIRECTORY}/logs"
         chmod -R g+s "${GREENPLUM_PXF_BASE_DIRECTORY}"
+        pxf cluster sync
     fi
 }
 
@@ -345,8 +346,6 @@ initialize_and_start_gpdb() {
     fi
     # Установить PXF
     if [ ${GREENPLUM_PXF_ENABLE} == "true" ]; then
-        # Копируем настраиваемые конфиги
-        setup_pxf_config
         # Настройка pxf
         if [ ! -f "${pxf_env}" ]; then
             echo "INFO - Enable PXF"
@@ -360,6 +359,8 @@ initialize_and_start_gpdb() {
             echo 'PXF_JVM_OPTS="-Xmx512m -Xms256m"' >> ${pxf_env}
             pxf cluster sync
         fi
+        # Настройка пользовательских конфигов
+        setup_pxf_config
         echo "INFO - pxf cluster start"
         pxf cluster start
         sleep 10
