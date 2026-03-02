@@ -32,6 +32,10 @@ if [ "${uid}" = "0" ]; then
     fi
     if [ "${GREENPLUM_PXF_BASE_DIRECTORY}" != "${GREENPLUM_DATA_DIRECTORY}/pxf" ]; then
         debug "Change PXF_BASE path"
+        if [ -d "${GREENPLUM_DATA_DIRECTORY}/pxf" ]; then
+            debug "Delete old pxf dir"
+            rm -rf "${GREENPLUM_DATA_DIRECTORY}/pxf"
+        fi
         mkdir -p ${GREENPLUM_PXF_BASE_DIRECTORY}
         echo "export PXF_BASE=${GREENPLUM_PXF_BASE_DIRECTORY}" >> /home/${GREENPLUM_USER}/.bashrc
     fi
