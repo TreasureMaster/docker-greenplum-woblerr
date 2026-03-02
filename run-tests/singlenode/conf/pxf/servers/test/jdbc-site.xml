@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <property>
+        <name>jdbc.driver</name>
+        <value>org.postgresql.Driver</value>
+    </property>
+    <property>
+        <name>jdbc.url</name>
+        <value>jdbc:postgresql://external-postgres:5432/db_prod_log01</value>
+    </property>
+    <property>
+        <name>jdbc.user</name>
+        <value>usr_prodlog01</value>
+    </property>
+    <property>
+        <name>jdbc.password</name>
+        <value>password111</value>
+    </property>
+</configuration>

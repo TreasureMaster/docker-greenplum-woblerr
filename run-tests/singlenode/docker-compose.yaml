@@ -27,6 +27,7 @@ services:
       # - ../docs/custom_init_scripts:/docker-entrypoint-initdb.d
       - ./conf/${CONFIG_FOLDER}/gpinitsystem_config_singlenode:/tmp/gpinitsystem_config
       - ./conf/hostlist_singlenode:/tmp/hostfile_gpinitsystem
+      # - ./conf/pxf:/tmp/pxf
       - ./conf/ssh/id_rsa:/home/gpadmin/.ssh/id_rsa
       - ./conf/ssh/id_rsa.pub:/home/gpadmin/.ssh/id_rsa.pub
     networks:
