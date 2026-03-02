@@ -39,10 +39,12 @@ services:
     hostname: external-postgres
     environment:
       - POSTGRES_PASSWORD=/run/secrets/postgres_password
+      - POSTGRES_DB=afprod
     secrets:
       - postgres_password
     volumes:
       - pgdb-conflog-data:/var/lib/postgresql/data
+      - pg-conf/initdb:/docker-entrypoint-initdb.d
     ports:
       - "${EXPOSE_POSTGRES_PORT}:5432"
 
