@@ -31,7 +31,7 @@ if [ "${uid}" = "0" ]; then
         ssh-keygen -q -f /home/${GREENPLUM_USER}/.ssh/id_rsa -t rsa -N ""
     fi
     if [ "${GREENPLUM_PXF_BASE_DIRECTORY}" != "${GREENPLUM_DATA_DIRECTORY}/pxf" ]; then
-        debug "Change PXF_BASE value"
+        debug "Change PXF_BASE path"
         mkdir -p ${GREENPLUM_PXF_BASE_DIRECTORY}
         echo "export PXF_BASE=${GREENPLUM_PXF_BASE_DIRECTORY}" >> /home/${GREENPLUM_USER}/.bashrc
     fi
