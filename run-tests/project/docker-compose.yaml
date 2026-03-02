@@ -39,8 +39,6 @@ services:
     hostname: external-postgres
     environment:
       - POSTGRES_PASSWORD=/run/secrets/postgres_password
-    secrets:
-      - postgres_password
     volumes:
       - pgdb-conflog-data:/var/lib/postgresql/data
     ports:
