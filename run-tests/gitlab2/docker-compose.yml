@@ -1,0 +1,73 @@
+services:
+  # postgres:
+  #   image: postgres:16
+  #   restart: always
+  #   environment:
+  #     POSTGRES_USER: gitlab
+  #     POSTGRES_PASSWORD: gitlab_password
+  #     POSTGRES_DB: gitlabhq_production
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #   networks:
+  #     - gitlab
+
+  # redis:
+  #   image: redis:7-alpine
+  #   restart: always
+  #   command: redis-server --loglevel warning
+  #   volumes:
+  #     - redis_data:/data
+  #   networks:
+  #     - gitlab
+
+  gitlab:
+    image: gitlab/gitlab-ce:latest
+    restart: always
+    hostname: 'gitlab.example.com'
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        external_url 'http://localhost:8080'
+        gitlab_rails['initial_root_password'] = 'root123456'
+        # postgresql['enable'] = false
+        # postgresql['host'] = 'postgres'
+        # postgresql['port'] = 5432
+        # postgresql['password'] = { 'production' => 'gitlab_password' }
+        # redis['enable'] = false
+        # redis['host'] = 'redis'
+        # redis['port'] = 6379
+    ports:
+      - '8080:80'
+      - '2222:22'
+    volumes:
+      - gitlab_config:/etc/gitlab
+      - gitlab_logs:/var/log/gitlab
+      - gitlab_data:/var/opt/gitlab
+      - ./gitlab-rails-init:/usr/local/bin/gitlab-rails-init:ro
+      - ./users-data:/usr/local/bin/users-data:ro
+
+    # depends_on:
+    #   - postgres
+    #   - redis
+    # networks:
+    #   - gitlab
+    command: >
+      /bin/bash -c "
+        if [ ! -f /var/opt/gitlab/initialized ]; then
+          gitlab-ctl reconfigure;
+          gitlab-rails runner /usr/local/bin/gitlab-rails-init/init_users.rb;
+          touch /var/opt/gitlab/initialized;
+        fi;
+        gitlab-ctl reconfigure;
+        gitlab-ctl run;
+      "
+
+volumes:
+  # postgres_data:
+  # redis_data:
+  gitlab_config:
+  gitlab_logs:
+  gitlab_data:
+
+# networks:
+#   gitlab:
+#     driver: bridge
