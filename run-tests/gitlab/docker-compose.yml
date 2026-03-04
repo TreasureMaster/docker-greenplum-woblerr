@@ -1,0 +1,40 @@
+services:
+  gitlab:
+    image: 'gitlab/gitlab-ce:17.2.9-ce.0'
+    restart: always
+    hostname: 'gitlab.local'
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        external_url 'http://localhost:8080'
+        # Отключите регистрацию, если нужно
+        # gitlab_rails['gitlab_signup_enabled'] = false
+        # Настройки для CI/CD, если нужно
+    ports:
+      - '8080:80'
+      - '2222:22'
+    volumes:
+      - ./gitlab/config:/etc/gitlab
+      - ./gitlab/logs:/var/log/gitlab
+      - ./gitlab/data:/var/opt/gitlab
+      # том для скрипта
+      - ./create-users.rb:/tmp/create-users.rb
+    healthcheck:
+      test: ["CMD", "/opt/gitlab/bin/gitlab-healthcheck"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+
+  gitlab-init:
+    image: 'gitlab/gitlab-ce:17.2.9-ce.0'
+    depends_on:
+      gitlab:
+        condition: service_healthy
+    volumes:
+      - ./gitlab/data:/var/opt/gitlab
+    command: >
+      bash -c "
+        while ! gitlab-rails runner 'puts User.count rescue nil'; do
+          sleep 5;
+        done;
+        gitlab-rails runner /tmp/create-users.rb
+      "
