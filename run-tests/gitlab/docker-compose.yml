@@ -23,6 +23,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 10
+      start_period: 300s
 
   gitlab-init:
     image: 'gitlab/gitlab-ce:17.2.9-ce.0'
