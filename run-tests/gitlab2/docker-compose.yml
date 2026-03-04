@@ -21,7 +21,7 @@ services:
   #     - gitlab
 
   gitlab:
-    image: gitlab/gitlab-ce:latest
+    image: gitlab/gitlab-ce:17.2.9-ce.0
     restart: always
     hostname: 'gitlab.example.com'
     environment:
