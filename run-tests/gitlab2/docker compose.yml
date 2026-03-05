@@ -1,0 +1,57 @@
+services:
+  # postgres:
+  #   # ... как раньше
+
+  # redis:
+  #   # ... как раньше
+
+  gitlab:
+    image: gitlab/gitlab-ce:17.2.9-ce.0
+    restart: always
+    hostname: 'gitlab.example.com'
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        external_url 'http://localhost:8080'
+        gitlab_rails['initial_root_password'] = 'root123456'
+        # ... остальные настройки БД
+    ports:
+      - '8080:80'
+      - '2222:22'
+    volumes:
+      - gitlab_config:/etc/gitlab
+      - gitlab_logs:/var/log/gitlab
+      - gitlab_data:/var/opt/gitlab
+      - ./gitlab-rails-init:/init-scripts:ro  # Переименовали
+      - ./users-data:/users-data:ro
+    healthcheck:
+      test: ["CMD", "/opt/gitlab/bin/gitlab-healthcheck"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 300s
+    # depends_on:
+    #   - postgres
+    #   - redis
+    # УБИРАЕМ command полностью!
+
+# Добавьте init контейнер (опционально, для гарантии)
+  gitlab-init:
+    image: gitlab/gitlab-ce:17.2.9-ce.0
+    volumes:
+      - gitlab_data:/var/opt/gitlab
+      - ./gitlab-rails-init:/init-scripts:ro
+      - ./users-data:/users-data:ro
+    depends_on:
+      # - postgres
+      # - redis
+      gitlab:
+        condition: service_healthy
+        # until nc -z postgres 5432 && nc -z redis 6379; do sleep 1; done;
+    command: >
+      sh -c "
+        until curl -s http://gitlab:80/-/health; do sleep 5; echo 'Waiting GitLab...'; done;
+        sleep 30;
+        docker exec gitlab gitlab-rails runner /init-scripts/init_users.rb;
+        echo 'Init completed';
+      "
+    # profiles: ['init']  # Запускается только docker compose --profile init up
