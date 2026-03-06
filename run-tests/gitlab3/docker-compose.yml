@@ -1,0 +1,42 @@
+services:
+  gitlab:
+    image: alpinelinux/gitlab:17.2.7
+    # build: gitlab
+    hostname: ${GITLAB_HOSTNAME}
+    restart: always
+    volumes:
+      - ./gitlab/repositories:/home/git/repositories
+      - ./gitlab/config:/etc/gitlab
+      - ./gitlab/log:/var/log
+      - ./gitlab/builds:/home/git/gitlab/builds
+      - ./gitlab/shared:/home/git/gitlab/shared
+      - ./gitlab/uploads:/home/git/gitlab/public/uploads
+      - ./gitlab/plugins:/home/git/gitlab/plugins
+    ports:
+      - "2222:22"
+      - "8080:80"
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - GITLAB_ROOT_PASSWORD
+      - GITLAB_BACKUP_SKIP
+      - GITLAB_USE_PUMA
+
+  postgres:
+    image: postgres:17.7-alpine3.22
+    restart: always
+    volumes:
+      - ./gitlab/postgres:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+
+  redis:
+    image: redis:7.4.8-alpine3.21
+    restart: always
+    volumes:
+      - ./gitlab/redis:/data
+    entrypoint: redis-server --appendonly yes

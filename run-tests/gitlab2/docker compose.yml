@@ -55,3 +55,14 @@ services:
         echo 'Init completed';
       "
     # profiles: ['init']  # Запускается только docker compose --profile init up
+
+volumes:
+  # postgres_data:
+  # redis_data:
+  gitlab_config:
+  gitlab_logs:
+  gitlab_data:
+
+# networks:
+#   gitlab:
+#     driver: bridge
