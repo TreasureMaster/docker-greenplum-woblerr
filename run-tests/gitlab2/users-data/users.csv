@@ -1,5 +1,4 @@
 username,email,name,password
-root,root@example.com,Root User,root123456
 admin,admin@example.com,Admin User,adminpass123
 developer,dev@example.com,Developer User,devpass123
 tester,tester@example.com,Tester User,testerpass123
