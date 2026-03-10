@@ -1,0 +1,14 @@
+- username: admin_user
+  email: admin@example.com
+  name: Admin User
+  password: admpass123
+
+- username: developer
+  email: dev@example.com
+  name: Developer User
+  password: devpass123
+
+- username: tester
+  email: tester@example.com
+  name: Tester User
+  password: tstpass123
