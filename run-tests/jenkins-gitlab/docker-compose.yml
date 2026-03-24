@@ -45,6 +45,8 @@ services:
       timeout: 10s
       retries: 10
       start_period: ${START_PERIOD}s
+    networks:
+      - dwh
     # restart: always
 
   jenkins:
@@ -63,9 +65,15 @@ services:
     depends_on:
       gitlab:
         condition: service_healthy
+    networks:
+      - dwh
 
 volumes:
   gitlab_config:
   gitlab_logs:
   gitlab_data:
   jenkins_home:
+
+networks:
+  dwh:
+    driver: bridge
