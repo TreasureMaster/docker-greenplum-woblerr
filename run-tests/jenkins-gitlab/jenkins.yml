@@ -29,10 +29,10 @@ jobs:
             scm {
               git {
                 remote {
-                  url('http://gitlab.example.com')
+                  url(${GITLAB_DWH_URL}/DWH/ADB/service-projects/automation/jks-test-one.git)
                   credentials('gitlab-creds-id')
                 }
-                branches('*/main')
+                branches('*/master')
               }
             }
             scriptPath('Jenkinsfile')
@@ -47,13 +47,13 @@ jobs:
             scm {
               git {
                 remote {
-                  url('http://gitlab.example.com')
+                  url(${GITLAB_DWH_URL}/DWH/ADB/service-projects/automation/jks-test-two.git)
                   credentials('gitlab-creds-id')
                 }
-                branches('*/develop')
+                branches('*/master')
               }
             }
-            scriptPath('Jenkinsfile')
+            scriptPath('Jenkinsfile-test-two')
           }
         }
       }

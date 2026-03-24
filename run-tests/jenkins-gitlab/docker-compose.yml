@@ -58,11 +58,13 @@ services:
     volumes:
       - jenkins_home:/var/jenkins_home
       - ./init.groovy.d:/usr/share/jenkins/ref/init.groovy.d
+      - ./jenkins.yaml:/var/jenkins_home/jenkins.yaml
     environment:
       JENKINS_URL: http://${JENKINS_URL}:8080/
       GITLAB_DWH_URL: http://${GITLAB_HOSTNAME}:${GITLAB_PORT}
       START_ADMIN_USERNAME: ${START_ADMIN_USERNAME}
       START_ADMIN_PASSWORD: ${START_ADMIN_PASSWORD}
+      CASC_JENKINS_CONFIG: /var/jenkins_home/jenkins.yaml
     depends_on:
       gitlab:
         condition: service_healthy
