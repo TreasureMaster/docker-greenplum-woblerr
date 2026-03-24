@@ -39,12 +39,12 @@ services:
       - gitlab_data:/var/opt/gitlab
       - ./gitlab-rails-init:/usr/local/bin/gitlab-rails-init:rw
     shm_size: '1gb'
-    # healthcheck:
-    #   test: ["CMD", "/opt/gitlab/bin/gitlab-healthcheck"]
-    #   interval: 30s
-    #   timeout: 10s
-    #   retries: 10
-    #   start_period: 180s
+    healthcheck:
+      test: ["CMD", "/opt/gitlab/bin/gitlab-healthcheck"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: ${START_PERIOD}s
     # restart: always
 
 volumes:

@@ -1,5 +1,5 @@
 - username: admin_user
-  email: admin@example.com
+  email: admin_user@example.com
   name: Admin User
   password: admpass123
 

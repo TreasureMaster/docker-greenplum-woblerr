@@ -28,15 +28,12 @@ fi
 #                                2. Ждём GitLab                                #
 # ---------------------------------------------------------------------------- #
 
+# для теста скриптов по отдельности
 echo "=== Ожидаем запуск GitLab (${GITLAB_URL}) ..."
 until curl -sSf "${GITLAB_URL}/users/sign_in" >/dev/null 2>&1; do
   echo "GitLab ещё не готов, ждём 30 сек..."
   sleep 30
 done
-# while ! docker compose exec ${GITLAB_CONTAINER} /opt/gitlab/bin/gitlab-healthcheck >/dev/null 2>&1; do
-#   echo "GitLab ещё не готов... ждём 30 секунд"
-#   sleep 30
-# done
 
 # ---------------------------------------------------------------------------- #
 #                         3. Получаем/создаём root PAT                         #
@@ -68,8 +65,6 @@ ROOT_TOKEN=$(
       puts token.token
     " | tr -d '\r\n'
 )
-
-# echo "Полученный токен: '${ROOT_TOKEN}'"
 
 if [[ -z "${ROOT_TOKEN}" ]]; then
   echo "Не удалось получить root токен" >&2
@@ -140,22 +135,6 @@ create_project() {
 
 is_project_empty() {
   # Определение пустой ли проект или нет
-  # local project_id="$1"
-
-  # # Если в проекте нет коммитов, API вернёт 404 на /repository/commits
-  # local status
-  # status=$(curl -s -o /dev/null -w "%{http_code}" \
-  #   --header "PRIVATE-TOKEN: ${ROOT_TOKEN}" \
-  #   "${GITLAB_URL}/api/v4/projects/${project_id}/repository/commits")
-
-  # if [[ "${status}" == "404" ]]; then
-  #   # считаем репозиторий пустым
-  #   return 0
-  # else
-  #   # есть хотя бы один коммит
-  #   return 1
-  # fi
-
   local project_id="$1"
 
   # Берём объект проекта и смотрим поле empty_repo
@@ -173,7 +152,133 @@ is_project_empty() {
 }
 
 # ---------------------------------------------------------------------------- #
-#                               5. Основной цикл                               #
+#                      5. Функции работы с пользователями                      #
+# ---------------------------------------------------------------------------- #
+
+# Найти GitLab user ID по username
+get_user_id_by_username() {
+  local username="$1"
+
+  local id
+  id=$(curl -sS --header "PRIVATE-TOKEN: ${ROOT_TOKEN}" \
+        "${GITLAB_URL}/api/v4/users?username=${username}" \
+        | jq -r '.[0].id' 2>/dev/null)
+
+  if [[ -n "${id}" && "${id}" != "null" ]]; then
+    echo "${id}"
+    return 0
+  fi
+
+  return 1
+}
+
+# Проверить, есть ли пользователь в группе
+user_is_group_member() {
+  local group_id="$1"
+  local user_id="$2"
+
+  local status
+  status=$(curl -s -o /dev/null -w "%{http_code}" \
+    --header "PRIVATE-TOKEN: ${ROOT_TOKEN}" \
+    "${GITLAB_URL}/api/v4/groups/${group_id}/members/${user_id}" || echo "000")
+
+  [[ "${status}" == "200" ]]
+}
+
+# Добавить пользователя в группу как Reporter (20)
+add_user_to_group_reporter() {
+  local group_id="$1"
+  local user_id="$2"
+
+  curl -sS --request POST \
+    --header "PRIVATE-TOKEN: ${ROOT_TOKEN}" \
+    --data "user_id=${user_id}&access_level=20" \
+    "${GITLAB_URL}/api/v4/groups/${group_id}/members" >/dev/null
+}
+
+# Обход пользователей из YAML (выводит username по одному в строке)
+iterate_usernames_from_yaml() {
+  local file="$1"
+
+  if ! command -v yq >/dev/null 2>&1; then
+    echo "WARNING: yq не найден, пропускаю YAML ${file}" >&2
+    return 1
+  fi
+
+  yq '.[] | .username' "${file}"
+}
+
+# Обход пользователей из CSV (выводит username по одному в строке)
+iterate_usernames_from_csv() {
+  local file="$1"
+
+  if ! command -v awk >/dev/null 2>&1; then
+    echo "WARNING: awk не найден, пропускаю CSV ${file}" >&2
+    return 1
+  fi
+
+  # Пропускаем заголовок, берём первый столбец username
+  awk -F',' 'NR>1 { gsub(/\r/,"",$1); print $1 }' "${file}"
+}
+
+# Универсальная функция: добавить всех пользователей в группу
+add_all_users_to_group() {
+  local group_id="$1"
+
+  [[ -z "${USERS_SOURCE:-}" ]] && return 0
+
+  echo "  Добавляю пользователей (${USERS_SOURCE}) в группу ID=${group_id} как Reporter..."
+
+  local count=0
+  local usernames
+
+  case "${USERS_SOURCE}" in
+    yaml)
+      usernames=$(iterate_usernames_from_yaml "${USERS_YAML}" || true)
+      ;;
+    csv)
+      usernames=$(iterate_usernames_from_csv "${USERS_CSV}" || true)
+      ;;
+    *)
+      echo "  Неизвестный источник пользователей: ${USERS_SOURCE}, пропуск" >&2
+      return 0
+      ;;
+  esac
+
+  if [[ -z "${usernames}" ]]; then
+    echo "  В источнике ${USERS_SOURCE} пользователей не найдено или ошибка чтения"
+    return 0
+  fi
+
+  # Проходим по username'ам
+  while IFS= read -r username; do
+    username="${username//\"/}"
+    echo "[DEBUG]: Обработка пользователя ${username}"
+    [[ -z "${username}" || "${username}" == "null" ]] && continue
+
+    local uid
+    if ! uid=$(get_user_id_by_username "${username}"); then
+      echo "    Пользователь ${username} не найден в GitLab, пропуск"
+      continue
+    fi
+
+    if user_is_group_member "${group_id}" "${uid}"; then
+      echo "    Пользователь ${username} (ID=${uid}) уже в группе, пропуск"
+      continue
+    fi
+
+    add_user_to_group_reporter "${group_id}" "${uid}"
+    echo "    Добавлен пользователь ${username} (ID=${uid}) в группу ID=${group_id} как Reporter"
+    count=$((count+1))
+  done <<< "${usernames}"
+
+  echo "  Добавление пользователей завершено, новых добавлено: ${count}"
+}
+
+
+
+# ---------------------------------------------------------------------------- #
+#                               6. Основной цикл                               #
 # ---------------------------------------------------------------------------- #
 
 for full in "${PROJECTS[@]}"; do
@@ -231,6 +336,9 @@ for full in "${PROJECTS[@]}"; do
   fi
 
   echo "Итоговая группа ID=${FINAL_GROUP_ID}"
+
+  # Добавляем всех пользователей из users.yml/csv в эту группу как Reporter
+  add_all_users_to_group "${FINAL_GROUP_ID}"
 
   PROJECT_ID=""
   # Ищем проект по пути и группе
