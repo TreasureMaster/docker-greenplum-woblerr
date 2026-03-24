@@ -1,0 +1,421 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Загрузка переменных окружения
+. ./gitlabenv.sh
+
+# ---------------------------------------------------------------------------- #
+#                            1. Выбор режима работы                            #
+# ---------------------------------------------------------------------------- #
+
+# режим safe
+# - если проект не существует, он создается и заполняется
+# - если проект есть и пустой, он заполняется
+# - если проект есть и не пустой, то пропускается
+# режим force
+# - если проект есть, удаляется и создается заново, затем заливается код
+# - если проекта нет, то обычное создание и заливка
+MODE="${1:-safe}"   # safe (по умолчанию) или --force
+
+if [[ "${MODE}" == "--force" ]]; then
+  echo "Режим: FORCE (проекты будут пересоздаваться)"
+else
+  echo "Режим: SAFE (существующие непустые проекты будут пропущены)"
+  MODE="safe"
+fi
+
+# ---------------------------------------------------------------------------- #
+#                                2. Ждём GitLab                                #
+# ---------------------------------------------------------------------------- #
+
+# для теста скриптов по отдельности
+echo "=== Ожидаем запуск GitLab (${GITLAB_URL}) ..."
+until curl -sSf "${GITLAB_URL}/users/sign_in" >/dev/null 2>&1; do
+  echo "GitLab ещё не готов, ждём 30 сек..."
+  sleep 30
+done
+
+# ---------------------------------------------------------------------------- #
+#                         3. Получаем/создаём root PAT                         #
+# ---------------------------------------------------------------------------- #
+
+echo "=== Создаём/получаем root Personal Access Token ..."
+
+ROOT_TOKEN=$(
+  docker exec "${GITLAB_CONTAINER}" \
+    gitlab-rails runner "
+      user = User.find_by_username('${ROOT_USERNAME}')
+      unless user
+        STDERR.puts 'User ${ROOT_USERNAME} not found'
+        exit 1
+      end
+
+      # Удаляем все старые токены с таким именем
+      user.personal_access_tokens.where(name: 'bootstrap-token').find_each do |t|
+        t.destroy!
+      end
+
+      token = user.personal_access_tokens.create!(
+        scopes: [:api, :write_repository],
+        name: 'bootstrap-token',
+        expires_at: 365.days.from_now
+      )
+      token.set_token(SecureRandom.hex(32))
+      token.save!
+      puts token.token
+    " | tr -d '\r\n'
+)
+
+if [[ -z "${ROOT_TOKEN}" ]]; then
+  echo "Не удалось получить root токен" >&2
+  exit 1
+fi
+
+echo "ROOT_TOKEN получен"
+
+# ---------------------------------------------------------------------------- #
+#                          4. Вспомогательные функции                          #
+# ---------------------------------------------------------------------------- #
+
+get_group_id() {
+  # Получение id группы в gitlab
+  local path="$1"
+  local parent_id="$2"
+
+  local url="${GITLAB_URL}/api/v4/groups?search=${path}"
+  local jq_filter
+
+  if [[ -z "${parent_id}" ]]; then
+    jq_filter=".[] | select(.path==\"${path}\" and (.parent_id == null)) | .id"
+  else
+    jq_filter=".[] | select(.path==\"${path}\" and .parent_id == ${parent_id}) | .id"
+  fi
+
+  curl -sS --header "PRIVATE-TOKEN: ${ROOT_TOKEN}" "${url}" \
+    | jq -r "${jq_filter}" | head -n1
+}
+
+create_group() {
+  # Создание группы в gitlab
+  local name="$1"
+  local path="$2"
+  local parent_id="$3"
+
+  local data
+  if [[ -z "${parent_id}" ]]; then
+    data=$(jq -n --arg name "$name" --arg path "$path" \
+      '{name: $name, path: $path}')
+  else
+    data=$(jq -n --arg name "$name" --arg path "$path" --argjson pid "$parent_id" \
+      '{name: $name, path: $path, parent_id: $pid}')
+  fi
+
+  curl -sS --request POST \
+    --header "PRIVATE-TOKEN: ${ROOT_TOKEN}" \
+    --header "Content-Type: application/json" \
+    --data "${data}" \
+    "${GITLAB_URL}/api/v4/groups" \
+    | jq -r '.id'
+}
+
+create_project() {
+  # Создание пустого проекта в gitlab
+  local project_name="$1"
+  local namespace_id="$2"
+
+  jq -n --arg name "$project_name" --arg path "$project_name" --argjson ns "$namespace_id" \
+    '{name: $name, path: $path, namespace_id: $ns}' \
+  | curl -sS --request POST \
+      --header "PRIVATE-TOKEN: ${ROOT_TOKEN}" \
+      --header "Content-Type: application/json" \
+      --data @- \
+      "${GITLAB_URL}/api/v4/projects" \
+  | jq -r '.id'
+}
+
+is_project_empty() {
+  # Определение пустой ли проект или нет
+  local project_id="$1"
+
+  # Берём объект проекта и смотрим поле empty_repo
+  local flag
+  flag=$(curl -sS --header "PRIVATE-TOKEN: ${ROOT_TOKEN}" \
+    "${GITLAB_URL}/api/v4/projects/${project_id}" \
+    | jq -r '.empty_repo')
+
+  # empty_repo == true → репозиторий реально пустой
+  if [[ "${flag}" == "true" ]]; then
+    return 0   # пустой
+  else
+    return 1   # не пустой
+  fi
+}
+
+# ---------------------------------------------------------------------------- #
+#                      5. Функции работы с пользователями                      #
+# ---------------------------------------------------------------------------- #
+
+# Найти GitLab user ID по username
+get_user_id_by_username() {
+  local username="$1"
+
+  local id
+  id=$(curl -sS --header "PRIVATE-TOKEN: ${ROOT_TOKEN}" \
+        "${GITLAB_URL}/api/v4/users?username=${username}" \
+        | jq -r '.[0].id' 2>/dev/null)
+
+  if [[ -n "${id}" && "${id}" != "null" ]]; then
+    echo "${id}"
+    return 0
+  fi
+
+  return 1
+}
+
+# Проверить, есть ли пользователь в группе
+user_is_group_member() {
+  local group_id="$1"
+  local user_id="$2"
+
+  local status
+  status=$(curl -s -o /dev/null -w "%{http_code}" \
+    --header "PRIVATE-TOKEN: ${ROOT_TOKEN}" \
+    "${GITLAB_URL}/api/v4/groups/${group_id}/members/${user_id}" || echo "000")
+
+  [[ "${status}" == "200" ]]
+}
+
+# Добавить пользователя в группу как Reporter (20)
+add_user_to_group_reporter() {
+  local group_id="$1"
+  local user_id="$2"
+
+  curl -sS --request POST \
+    --header "PRIVATE-TOKEN: ${ROOT_TOKEN}" \
+    --data "user_id=${user_id}&access_level=20" \
+    "${GITLAB_URL}/api/v4/groups/${group_id}/members" >/dev/null
+}
+
+# Обход пользователей из YAML (выводит username по одному в строке)
+iterate_usernames_from_yaml() {
+  local file="$1"
+
+  if ! command -v yq >/dev/null 2>&1; then
+    echo "WARNING: yq не найден, пропускаю YAML ${file}" >&2
+    return 1
+  fi
+
+  yq '.[] | .username' "${file}"
+}
+
+# Обход пользователей из CSV (выводит username по одному в строке)
+iterate_usernames_from_csv() {
+  local file="$1"
+
+  if ! command -v awk >/dev/null 2>&1; then
+    echo "WARNING: awk не найден, пропускаю CSV ${file}" >&2
+    return 1
+  fi
+
+  # Пропускаем заголовок, берём первый столбец username
+  awk -F',' 'NR>1 { gsub(/\r/,"",$1); print $1 }' "${file}"
+}
+
+# Универсальная функция: добавить всех пользователей в группу
+add_all_users_to_group() {
+  local group_id="$1"
+
+  [[ -z "${USERS_SOURCE:-}" ]] && return 0
+
+  echo "  Добавляю пользователей (${USERS_SOURCE}) в группу ID=${group_id} как Reporter..."
+
+  local count=0
+  local usernames
+
+  case "${USERS_SOURCE}" in
+    yaml)
+      usernames=$(iterate_usernames_from_yaml "${USERS_YAML}" || true)
+      ;;
+    csv)
+      usernames=$(iterate_usernames_from_csv "${USERS_CSV}" || true)
+      ;;
+    *)
+      echo "  Неизвестный источник пользователей: ${USERS_SOURCE}, пропуск" >&2
+      return 0
+      ;;
+  esac
+
+  if [[ -z "${usernames}" ]]; then
+    echo "  В источнике ${USERS_SOURCE} пользователей не найдено или ошибка чтения"
+    return 0
+  fi
+
+  # Проходим по username'ам
+  while IFS= read -r username; do
+    username="${username//\"/}"
+    echo "[DEBUG]: Обработка пользователя ${username}"
+    [[ -z "${username}" || "${username}" == "null" ]] && continue
+
+    local uid
+    if ! uid=$(get_user_id_by_username "${username}"); then
+      echo "    Пользователь ${username} не найден в GitLab, пропуск"
+      continue
+    fi
+
+    if user_is_group_member "${group_id}" "${uid}"; then
+      echo "    Пользователь ${username} (ID=${uid}) уже в группе, пропуск"
+      continue
+    fi
+
+    add_user_to_group_reporter "${group_id}" "${uid}"
+    echo "    Добавлен пользователь ${username} (ID=${uid}) в группу ID=${group_id} как Reporter"
+    count=$((count+1))
+  done <<< "${usernames}"
+
+  echo "  Добавление пользователей завершено, новых добавлено: ${count}"
+}
+
+
+
+# ---------------------------------------------------------------------------- #
+#                               6. Основной цикл                               #
+# ---------------------------------------------------------------------------- #
+
+for full in "${PROJECTS[@]}"; do
+  echo
+  echo "==== Обработка ${full} ===="
+
+  # Убираем .git
+  path_no_git="${full%.git}"
+
+  # Разбиваем на части
+  IFS="/" read -r -a PARTS <<< "${path_no_git}"
+
+  # Последний элемент — имя проекта
+  PROJECT_NAME="${PARTS[-1]}"
+
+  # Все предыдущие — цепочка групп
+  unset 'PARTS[-1]'
+  GROUP_PARTS=("${PARTS[@]}")
+
+  echo "Группы: ${GROUP_PARTS[*]:-<нет>}"
+  echo "Проект: ${PROJECT_NAME}"
+
+  # Создаём/находим группы
+  parent_id=""
+  for part in "${GROUP_PARTS[@]}"; do
+    [[ -z "$part" ]] && continue
+
+    name="$part"
+    path="$part"
+
+    echo "-- Обрабатываем группу: ${path} (parent_id=${parent_id:-none})"
+
+    gid=$(get_group_id "${path}" "${parent_id}" || true)
+
+    if [[ -z "${gid}" ]]; then
+      echo "   Группа не найдена, создаю..."
+      gid=$(create_group "${name}" "${path}" "${parent_id}")
+      if [[ "${gid}" == "null" || -z "${gid}" ]]; then
+        echo "   Не удалось создать группу ${path}" >&2
+        exit 1
+      fi
+      echo "   Создана группа ID=${gid}"
+    else
+      echo "   Группа уже существует, ID=${gid}"
+    fi
+
+    parent_id="${gid}"
+  done
+
+  FINAL_GROUP_ID="${parent_id}"
+
+  if [[ -z "${FINAL_GROUP_ID}" ]]; then
+    echo "   Не удалось определить конечную группу для ${full}" >&2
+    exit 1
+  fi
+
+  echo "Итоговая группа ID=${FINAL_GROUP_ID}"
+
+  # Добавляем всех пользователей из users.yml/csv в эту группу как Reporter
+  add_all_users_to_group "${FINAL_GROUP_ID}"
+
+  PROJECT_ID=""
+  # Ищем проект по пути и группе
+  PROJECT_ID=$(curl -sS --header "PRIVATE-TOKEN: ${ROOT_TOKEN}" \
+    "${GITLAB_URL}/api/v4/groups/${FINAL_GROUP_ID}/projects" \
+    | jq -r ".[] | select(.path==\"${PROJECT_NAME}\") | .id" || true)
+
+  if [[ "${MODE}" == "--force" && -n "${PROJECT_ID}" ]]; then
+    echo "Режим FORCE: удаляю существующий проект ID=${PROJECT_ID} (${path_no_git}.git)..."
+    curl -sS --request DELETE \
+      --header "PRIVATE-TOKEN: ${ROOT_TOKEN}" \
+      "${GITLAB_URL}/api/v4/projects/${PROJECT_ID}" >/dev/null
+
+    PROJECT_ID=""
+  fi
+
+  if [[ -z "${PROJECT_ID}" ]]; then
+    echo "Создаю проект ${PROJECT_NAME} в группе ${FINAL_GROUP_ID}..."
+    PROJECT_ID=$(create_project "${PROJECT_NAME}" "${FINAL_GROUP_ID}")
+    if [[ "${PROJECT_ID}" == "null" || -z "${PROJECT_ID}" ]]; then
+      echo "Не удалось создать проект ${PROJECT_NAME}" >&2
+      exit 1
+    fi
+    echo "Проект создан, ID=${PROJECT_ID}"
+  else
+    echo "Проект уже существует, ID=${PROJECT_ID}"
+
+    if [[ "${MODE}" == "safe" ]]; then
+      echo "Проверяю, пустой ли репозиторий..."
+
+      if is_project_empty "${PROJECT_ID}"; then
+        echo "Репозиторий пустой — можно заливать код."
+      else
+        echo "Репозиторий НЕ пустой — в режиме SAFE пропускаем заливку."
+        # переходим к следующему проекту
+        continue
+      fi
+    fi
+  fi
+
+  # Работа с архивом ./projects/project-name.tar.gz
+  ARCHIVE_PATH="${ARCHIVE_DIR}/${PROJECT_NAME}.tar.gz"
+  if [[ ! -f "${ARCHIVE_PATH}" ]]; then
+    echo "Архив ${ARCHIVE_PATH} не найден, пропуск" >&2
+    continue
+  fi
+
+  WORKDIR="$(mktemp -d)"
+  echo "Распаковываю ${ARCHIVE_PATH} в ${WORKDIR} ..."
+  tar -xzf "${ARCHIVE_PATH}" -C "${WORKDIR}"
+
+  # Если архив содержит вложенную папку с кодом — при необходимости подстроить
+  # Предполагаем, что код в корне WORKDIR
+  pushd "${WORKDIR}" >/dev/null
+
+  if [[ ! -d .git ]]; then
+    git init
+    git config user.email "${ROOT_USERNAME}@${GITLAB_HOST}"
+    git config user.name "GitLab Bootstrap"
+    git add .
+    git commit -m "Initial import" || true
+  fi
+
+  REPO_HTTP_URL="${GITLAB_URL}/${path_no_git}.git"
+  REPO_PUSH_URL="${REPO_HTTP_URL/http:\/\//http://${ROOT_USERNAME}:${ROOT_TOKEN}@}"
+
+  git remote remove origin 2>/dev/null || true
+  git remote add origin "${REPO_PUSH_URL}"
+
+  git push -u origin --all
+  git push origin --tags || true
+
+  popd >/dev/null
+  rm -rf "${WORKDIR}"
+
+  echo "Проект ${path_no_git}.git успешно залит"
+done
+
+echo
+echo "=== Все проекты обработаны ==="

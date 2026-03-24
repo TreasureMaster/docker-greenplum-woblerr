@@ -1,0 +1,71 @@
+services:
+  gitlab:
+    image: gitlab/gitlab-ce:${GITLAB_VERSION}
+    container_name: ${GITLAB_CONTAINER_NAME}
+    hostname: ${GITLAB_HOSTNAME}
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        # Базовая настройка
+        external_url 'http://${GITLAB_HOSTNAME}'
+        gitlab_rails['initial_root_password'] = '${INITIAL_ROOT_PASSWORD}'
+        prometheus_monitoring['enable'] = false
+        
+        # CPU/RAM оптимизация
+        puma['worker_processes'] = 2
+        puma['worker_max_memory'] = 1024
+        sidekiq['concurrency'] = 10
+        
+        # Postgres tuning (критично!)
+        postgresql['shared_buffers'] = "1GB"
+        postgresql['effective_cache_size'] = "3GB"
+        postgresql['work_mem'] = "16MB"
+        postgresql['maintenance_work_mem'] = "512MB"
+        postgresql['checkpoint_completion_target'] = 0.9
+        postgresql['default_statistics_target'] = 100
+        
+        # Redis
+        redis['maxmemory'] = '1gb'
+        redis['maxmemory_policy'] = 'allkeys-lru'
+        
+        # Отключить тяжелые cron на старте
+        sidekiq['timeout'] = 30
+    ports:
+      - '8081:80'
+      - '8443:443'
+      - '2222:22'
+    volumes:
+      - gitlab_config:/etc/gitlab
+      - gitlab_logs:/var/log/gitlab
+      - gitlab_data:/var/opt/gitlab
+      - ./gitlab-rails-init:/usr/local/bin/gitlab-rails-init:ro
+    shm_size: '1gb'
+    healthcheck:
+      test: ["CMD", "/opt/gitlab/bin/gitlab-healthcheck"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: ${START_PERIOD}s
+    # restart: always
+
+  jenkins:
+    image: jenkins/jenkins:${JENKINS_VERSION}
+    container_name: jenkins
+    hostname: ${JENKINS_URL}
+    ports:
+      - "8080:8080"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - ./init.groovy.d:/usr/share/jenkins/ref/init.groovy.d
+    environment:
+      JENKINS_URL: http://${JENKINS_URL}:8080/
+      START_ADMIN_USERNAME: ${START_ADMIN_USERNAME}
+      START_ADMIN_PASSWORD: ${START_ADMIN_PASSWORD}
+    depends_on:
+      gitlab:
+        condition: service_healthy
+
+volumes:
+  gitlab_config:
+  gitlab_logs:
+  gitlab_data:
+  jenkins_home:
