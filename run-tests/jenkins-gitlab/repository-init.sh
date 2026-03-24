@@ -396,7 +396,7 @@ for full in "${PROJECTS[@]}"; do
 
   if [[ ! -d .git ]]; then
     git init
-    git config user.email "${ROOT_USERNAME}@${GITLAB_HOST}"
+    git config user.email "${ROOT_USERNAME}@${GITLAB_HOSTNAME}"
     git config user.name "GitLab Bootstrap"
     git add .
     git commit -m "Initial import" || true

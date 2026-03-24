@@ -60,6 +60,7 @@ services:
       - ./init.groovy.d:/usr/share/jenkins/ref/init.groovy.d
     environment:
       JENKINS_URL: http://${JENKINS_URL}:8080/
+      GITLAB_DWH_URL: http://${GITLAB_HOSTNAME}:${GITLAB_PORT}
       START_ADMIN_USERNAME: ${START_ADMIN_USERNAME}
       START_ADMIN_PASSWORD: ${START_ADMIN_PASSWORD}
     depends_on:

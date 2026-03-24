@@ -1,0 +1,59 @@
+jenkins:
+  systemMessage: "Jenkins настроен через Configuration as Code"
+  
+  # 1. Создаем учетные данные для GitLab
+  # securityRealm:
+  #   local:
+  #     allowsSignup: false
+  #     users:
+  #       - id: "admin"
+  #         password: "admin-password" # Смените на свой
+
+  credentials:
+    system:
+      domainCredentials:
+        - credentials:
+            - usernamePassword:
+                scope: GLOBAL
+                id: "gitlab-creds-id" # Используйте этот ID ниже в пайплайнах
+                username: "cdjks_user"
+                password: "jkspass123"
+                description: "Учетка для доступа к GitLab"
+
+# 2. Описываем создание пайплайнов через Job DSL
+jobs:
+  - script: >
+      pipelineJob('jks-automation-test-one') {
+        definition {
+          cpsScm {
+            scm {
+              git {
+                remote {
+                  url('http://gitlab.example.com')
+                  credentials('gitlab-creds-id')
+                }
+                branches('*/main')
+              }
+            }
+            scriptPath('Jenkinsfile')
+          }
+        }
+      }
+      
+  - script: >
+      pipelineJob('jks-automation-test-two') {
+        definition {
+          cpsScm {
+            scm {
+              git {
+                remote {
+                  url('http://gitlab.example.com')
+                  credentials('gitlab-creds-id')
+                }
+                branches('*/develop')
+              }
+            }
+            scriptPath('Jenkinsfile')
+          }
+        }
+      }
