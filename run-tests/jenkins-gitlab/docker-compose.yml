@@ -30,7 +30,7 @@ services:
         # Отключить тяжелые cron на старте
         sidekiq['timeout'] = 30
     ports:
-      - '8081:80'
+      - '${GITLAB_EXTERNAL_PORT}:80'
       - '8443:443'
       - '2222:22'
     volumes:
@@ -54,7 +54,7 @@ services:
     container_name: jenkins
     hostname: ${JENKINS_URL}
     ports:
-      - "8080:8080"
+      - "${JENKINS_EXTERNAL_PORT}:8080"
     volumes:
       - jenkins_home:/var/jenkins_home
       - ./init.groovy.d:/usr/share/jenkins/ref/init.groovy.d
