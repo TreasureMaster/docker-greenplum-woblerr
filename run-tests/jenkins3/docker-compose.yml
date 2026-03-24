@@ -1,0 +1,23 @@
+services:
+  jenkins:
+    image: jenkins/jenkins:2.516.3-lts-plg4
+    container_name: jenkins
+    hostname: ${JENKINS_URL}
+    ports:
+      - "8080:8080"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - ./init.groovy.d:/usr/share/jenkins/ref/init.groovy.d
+    environment:
+      # JAVA_OPTS: |
+      #   -Djenkins.install.runSetupWizard=false
+      #   -Djenkins.model.JenkinsLocationConfiguration.proxyCheck=false
+      # - JAVA_OPTS=-Djenkins.install.runSetupWizard=false
+      JENKINS_URL: http://${JENKINS_URL}:8080/
+      START_ADMIN_USERNAME: ${START_ADMIN_USERNAME}
+      START_ADMIN_PASSWORD: ${START_ADMIN_PASSWORD}
+  # ssh-agent:
+  #   image: jenkins/ssh-agent
+
+volumes:
+  jenkins_home:

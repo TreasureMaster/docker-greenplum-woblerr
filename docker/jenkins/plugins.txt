@@ -1,0 +1,44 @@
+# --- БАЗОВОЕ ОКРУЖЕНИЕ (CORE) ---
+cloudbees-folder
+antisamy-markup-formatter
+build-timeout
+credentials-binding
+timestamper
+ws-cleanup
+lockable-resources
+
+# --- БЕЗОПАСНОСТЬ И ДОСТУП ---
+matrix-auth
+pam-auth
+ldap
+role-strategy
+
+# --- PIPELINE (ОСНОВА) ---
+workflow-aggregator
+pipeline-stage-view
+pipeline-utility-steps
+
+# --- ВАШИ ИНСТРУМЕНТЫ ---
+# Автоматизация и скрипты
+ansible
+ansicolor
+http_request
+run-condition
+file-operations
+
+# Docker (внутри Pipeline)
+docker-workflow
+docker-build-publish
+
+# GitLab (вместо GitHub/SVN)
+git
+gitlab-plugin
+gitlab-oauth
+
+# Уведомления
+mailer
+email-ext
+
+# Jenkins Configuration as Code (JCasC)
+configuration-as-code
+job-dsl
