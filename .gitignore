@@ -5,3 +5,5 @@ docker-compose/.secrets/*
 .DS_Store
 
 tmp/
+*.tar.gz
+*.zip
