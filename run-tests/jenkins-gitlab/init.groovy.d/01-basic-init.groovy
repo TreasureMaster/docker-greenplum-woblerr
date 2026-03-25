@@ -42,7 +42,7 @@ if (locationConfig) {
 
 // 3. Назначаем метку встроенной ноде (контроллеру)
 def builtInNode = instance
-builtInNode.setLabelString("jmeter dwh")  // можно несколько: "jmeter linux docker"
+builtInNode.setLabelString("master jmeter dwh")  // можно несколько: "jmeter linux docker"
 println "Метка ноды установлена: ${builtInNode.getLabelString()}"
 
 instance.save()
