@@ -1,26 +1,70 @@
 services:
+  # local-registry:
+  #   image: registry:3.0.0
+  #   container_name: local-registry
+  #   ports:
+  #     - "5000:5000"
+  #   volumes:
+  #     - registry_data:/var/lib/registry
+  #     - ./registry-config.yml:/etc/docker/registry/config.yml:ro
+  #   networks:
+  #     - offline-net
+  #   healthcheck:
+  #     test: ["CMD", "curl", "-f", "http://localhost:5000/v2/"]
+  #     interval: 5s
+  #     timeout: 2s
+  #     retries: 5
+
   local-registry:
     image: registry:3.0.0
-    container_name: local-registry
+    container_name: ${REGISTRY_CONTAINER_NAME}
+    hostname: ${REGISTRY_HOSTNAME}
+    # restart: always
+    environment:
+      REGISTRY_STORAGE_DELETE_ENABLED: true
+      REGISTRY_HTTP_ADDR: "0.0.0.0:5000"
+      # отключить OpenTelemetry
+      OTEL_TRACES_EXPORTER: none
+      OTEL_METRICS_EXPORTER: none
+      OTEL_LOGS_EXPORTER: none
+      REGISTRY_LOG_LEVEL: info
     ports:
-      - "5000:5000"
+      - "${REGISTRY_HOST_PORT}:5000"   # опционально, если нужно с хоста
     volumes:
-      - registry_data:/var/lib/registry
-      - ./registry-config.yml:/etc/docker/registry/config.yml:ro
-    networks:
-      - offline-net
+      - registry-data:/var/lib/registry
+      # проброс не нужен. Это как пример
+      # - ./config/config.yml:/etc/distribution/config.yml
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5000/v2/"]
       interval: 5s
       timeout: 2s
       retries: 5
+    networks:
+      - registry-net
+
+  registry-ui:
+    image: joxit/docker-registry-ui:2.6.0
+    container_name: registry-ui
+    restart: always
+    ports:
+      - "8080:80"
+    environment:
+      - SINGLE_REGISTRY=true
+      - REGISTRY_TITLE=Local Docker Registry
+      - NGINX_PROXY_PASS_URL=http://${REGISTRY_HOSTNAME}:5000
+      - REGISTRY_SECURED=false
+    depends_on:
+      - registry
+    networks:
+      - registry-net
 
   registry-seeder:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        CRANE_ENABLED: "true"  # или "false"
+    image: dwh-init:0.0.1-cli
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile
+    #   args:
+    #     CRANE_ENABLED: "true"  # или "false"
     container_name: registry-seeder
     depends_on:
       local-registry:
@@ -36,12 +80,12 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     networks:
-      - offline-net
-    restart: "no"
+      - registry-net
+    # restart: "no"
 
 volumes:
   registry_data:
 
 networks:
-  offline-net:
+  registry-net:
     driver: bridge
