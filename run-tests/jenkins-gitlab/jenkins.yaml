@@ -1,35 +1,37 @@
 jenkins:
   systemMessage: "Jenkins настроен через Configuration as Code"
-  
-  # 1. Создаем учетные данные для GitLab
+
+security:
+  globalJobDslSecurityConfiguration:
+    useScriptSecurity: false
+
   # securityRealm:
   #   local:
   #     allowsSignup: false
   #     users:
   #       - id: "admin"
-  #         password: "admin-password" # Смените на свой
+  #         password: "admin-password"
 
-  credentials:
-    system:
-      domainCredentials:
-        - credentials:
-            - usernamePassword:
-                scope: GLOBAL
-                id: "gitlab-creds-id" # Используйте этот ID ниже в пайплайнах
-                username: "cdjks_user"
-                password: "jkspass123"
-                description: "Учетка для доступа к GitLab"
+credentials:
+  system:
+    domainCredentials:
+      - credentials:
+          - usernamePassword:
+              scope: GLOBAL
+              id: "gitlab-creds-id"
+              username: "cdjks_user"
+              password: "jkspass123"
+              description: "Учетка для доступа к GitLab"
 
-# 2. Описываем создание пайплайнов через Job DSL
 jobs:
-  - script: >
+  - script: |
       pipelineJob('jks-automation-test-one') {
         definition {
           cpsScm {
             scm {
               git {
                 remote {
-                  url(${GITLAB_DWH_URL}/DWH/ADB/service-projects/automation/jks-test-one.git)
+                  url('${GITLAB_DWH_URL}/DWH/ADB/service-projects/automation/jks-test-one.git')
                   credentials('gitlab-creds-id')
                 }
                 branches('*/master')
@@ -39,15 +41,14 @@ jobs:
           }
         }
       }
-      
-  - script: >
+
       pipelineJob('jks-automation-test-two') {
         definition {
           cpsScm {
             scm {
               git {
                 remote {
-                  url(${GITLAB_DWH_URL}/DWH/ADB/service-projects/automation/jks-test-two.git)
+                  url('${GITLAB_DWH_URL}/DWH/ADB/service-projects/automation/jks-test-two.git')
                   credentials('gitlab-creds-id')
                 }
                 branches('*/master')
