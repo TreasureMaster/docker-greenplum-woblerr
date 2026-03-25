@@ -5,7 +5,7 @@ services:
   #   ports:
   #     - "5000:5000"
   #   volumes:
-  #     - registry_data:/var/lib/registry
+  #     - registry-data:/var/lib/registry
   #     - ./registry-config.yml:/etc/docker/registry/config.yml:ro
   #   networks:
   #     - offline-net
@@ -84,7 +84,7 @@ services:
     # restart: "no"
 
 volumes:
-  registry_data:
+  registry-data:
 
 networks:
   registry-net:
