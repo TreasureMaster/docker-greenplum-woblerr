@@ -39,4 +39,10 @@ if (locationConfig) {
 // 3. ОТКЛЮЧАЕМ проверку reverse proxy (правильный способ для 2.516.3)
 // System.setProperty('jenkins.model.JenkinsLocationConfiguration.proxyCheck', 'false')
 
+
+// 3. Назначаем метку встроенной ноде (контроллеру)
+def builtInNode = instance
+builtInNode.setLabelString("jmeter dwh")  // можно несколько: "jmeter linux docker"
+println "Метка ноды установлена: ${builtInNode.getLabelString()}"
+
 instance.save()
