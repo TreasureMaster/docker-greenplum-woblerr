@@ -1,7 +1,7 @@
 FROM docker:26.1.4-cli
 
 # Устанавливаем curl и опционально crane
-RUN apk add --no-cache curl
+RUN apk update && apk add --no-cache curl bash
 
 # Загружаем crane (опционально, можно закомментировать)
 ARG CRANE_VERSION=v0.21.3

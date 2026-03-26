@@ -35,10 +35,11 @@ services:
       # проброс не нужен. Это как пример
       # - ./config/config.yml:/etc/distribution/config.yml
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5000/v2/"]
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:5000/v2/"]
       interval: 5s
       timeout: 2s
       retries: 5
+      start_period: 10s
     networks:
       - registry-net
 
@@ -59,7 +60,7 @@ services:
       - registry-net
 
   registry-seeder:
-    image: dwh-init:0.0.1-cli
+    image: dwh-init:0.1.0-cli
     # build:
     #   context: .
     #   dockerfile: Dockerfile
