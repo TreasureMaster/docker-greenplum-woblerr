@@ -111,8 +111,6 @@ services:
       - REGISTRY_TITLE=Local Docker Registry
       - NGINX_PROXY_PASS_URL=http://${REGISTRY_HOSTNAME}:5000
       - REGISTRY_SECURED=false
-    env_file:
-      - .env
     depends_on:
       - registry
     networks:
@@ -131,6 +129,8 @@ services:
       - REGISTRY_PORT=5000
       - IMAGES_DIR=/opt/offline-images
       - MODE=safe
+    env_file:
+      - .env
     networks:
       - registry-net
       - dwh-net
