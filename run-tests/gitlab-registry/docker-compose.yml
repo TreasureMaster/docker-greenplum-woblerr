@@ -1,0 +1,146 @@
+services:
+  gitlab:
+    image: gitlab/gitlab-ce:${GITLAB_VERSION}
+    container_name: ${GITLAB_CONTAINER_NAME}
+    hostname: ${GITLAB_HOSTNAME}
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        # Базовая настройка
+        external_url 'http://${GITLAB_HOSTNAME}'
+        gitlab_rails['initial_root_password'] = '${INITIAL_ROOT_PASSWORD}'
+        prometheus_monitoring['enable'] = false
+        
+        # CPU/RAM оптимизация
+        puma['worker_processes'] = 2
+        puma['worker_max_memory'] = 1024
+        sidekiq['concurrency'] = 10
+        
+        # Postgres tuning (критично!)
+        postgresql['shared_buffers'] = "1GB"
+        postgresql['effective_cache_size'] = "3GB"
+        postgresql['work_mem'] = "16MB"
+        postgresql['maintenance_work_mem'] = "512MB"
+        postgresql['checkpoint_completion_target'] = 0.9
+        postgresql['default_statistics_target'] = 100
+        
+        # Redis
+        redis['maxmemory'] = '1gb'
+        redis['maxmemory_policy'] = 'allkeys-lru'
+        
+        # Отключить тяжелые cron на старте
+        sidekiq['timeout'] = 30
+    ports:
+      - '${GITLAB_EXTERNAL_PORT}:80'
+      - '8443:443'
+      - '2222:22'
+    volumes:
+      - gitlab_config:/etc/gitlab
+      - gitlab_logs:/var/log/gitlab
+      - gitlab_data:/var/opt/gitlab
+      - ./gitlab-rails-init:/usr/local/bin/gitlab-rails-init:ro
+    shm_size: '1gb'
+    healthcheck:
+      test: ["CMD", "/opt/gitlab/bin/gitlab-healthcheck"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: ${START_PERIOD}s
+    networks:
+      - dwh-net
+    # restart: always
+
+  # jenkins:
+  #   image: jenkins/jenkins:${JENKINS_VERSION}
+  #   container_name: jenkins
+  #   hostname: ${JENKINS_URL}
+  #   ports:
+  #     - "${JENKINS_EXTERNAL_PORT}:8080"
+  #   volumes:
+  #     - jenkins_home:/var/jenkins_home
+  #     - ./init.groovy.d:/usr/share/jenkins/ref/init.groovy.d
+  #     - ./jenkins.yaml:/var/jenkins_home/jenkins.yaml
+  #   environment:
+  #     JENKINS_URL: http://${JENKINS_URL}:8080/
+  #     GITLAB_DWH_URL: http://${GITLAB_HOSTNAME}:${GITLAB_PORT}
+  #     START_ADMIN_USERNAME: ${START_ADMIN_USERNAME}
+  #     START_ADMIN_PASSWORD: ${START_ADMIN_PASSWORD}
+  #     CASC_JENKINS_CONFIG: /var/jenkins_home/jenkins.yaml
+  #   depends_on:
+  #     gitlab:
+  #       condition: service_healthy
+  #   networks:
+  #     - dwh
+
+  registry:
+    image: registry:3.0.0
+    container_name: ${REGISTRY_CONTAINER_NAME}
+    hostname: ${REGISTRY_HOSTNAME}
+    # restart: always
+    environment:
+      REGISTRY_STORAGE_DELETE_ENABLED: true
+      REGISTRY_HTTP_ADDR: "0.0.0.0:5000"
+      # отключить OpenTelemetry
+      OTEL_TRACES_EXPORTER: none
+      OTEL_METRICS_EXPORTER: none
+      OTEL_LOGS_EXPORTER: none
+      REGISTRY_LOG_LEVEL: info
+    ports:
+      - "${REGISTRY_HOST_PORT}:5000"   # опционально, если нужно с хоста
+    volumes:
+      - registry-data:/var/lib/registry
+      # проброс не нужен. Это как пример
+      # - ./config/config.yml:/etc/distribution/config.yml
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:5000/v2/"]
+      interval: 5s
+      timeout: 2s
+      retries: 5
+      start_period: 10s
+    networks:
+      - registry-net
+      - dwh-net
+
+  registry-ui:
+    image: joxit/docker-registry-ui:2.6.0
+    container_name: registry-ui
+    restart: always
+    ports:
+      - "8082:80"
+    environment:
+      - SINGLE_REGISTRY=true
+      - REGISTRY_TITLE=Local Docker Registry
+      - NGINX_PROXY_PASS_URL=http://${REGISTRY_HOSTNAME}:5000
+      - REGISTRY_SECURED=false
+    depends_on:
+      - registry
+    networks:
+      - registry-net
+
+  dwh-init:
+    image: dwh-init:0.3.0
+    container_name: dwh-init
+    depends_on:
+      registry:
+        condition: service_healthy
+    environment:
+      - REGISTRY_HOST=${REGISTRY_HOSTNAME}
+      - REGISTRY_PORT=5000
+      - IMAGES_DIR=/opt/offline-images
+      - MODE=safe
+    networks:
+      - registry-net
+      - dwh-net
+    # restart: "no"
+
+volumes:
+  gitlab_config:
+  gitlab_logs:
+  gitlab_data:
+  jenkins_home:
+  registry-data:
+
+networks:
+  dwh-net:
+    driver: bridge
+  registry-net:
+    driver: bridge
