@@ -15,7 +15,7 @@ services:
   #     timeout: 2s
   #     retries: 5
 
-  local-registry:
+  registry:
     image: registry:3.0.0
     container_name: ${REGISTRY_CONTAINER_NAME}
     hostname: ${REGISTRY_HOSTNAME}
@@ -67,7 +67,7 @@ services:
     #     CRANE_ENABLED: "true"  # или "false"
     container_name: registry-seeder
     depends_on:
-      local-registry:
+      registry:
         condition: service_healthy
     environment:
       - REGISTRY_HOST=host.docker.internal
