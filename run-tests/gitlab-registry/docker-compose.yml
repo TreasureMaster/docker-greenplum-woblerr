@@ -117,10 +117,12 @@ services:
       - registry-net
 
   dwh-init:
-    image: dwh-init:0.3.0
+    image: dwh-init:0.3.1
     container_name: dwh-init
     depends_on:
       registry:
+        condition: service_healthy
+      gitlab:
         condition: service_healthy
     environment:
       - REGISTRY_HOST=${REGISTRY_HOSTNAME}
