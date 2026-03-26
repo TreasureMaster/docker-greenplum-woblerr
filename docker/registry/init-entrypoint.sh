@@ -67,45 +67,71 @@ process_archives() {
         exit 1
     fi
 
-    echo "📦 Found ${#archives[@]} archive(s) to process"
+    echo "Found ${#archives[@]} archive(s) to process"
 
     for arch in "${archives[@]}"; do
         echo
         echo "=== Processing ${arch} ==="
         
-        # Извлекаем имя образа из архива (читаем манифест)
-        # Используем crane для чтения метаданных из tar
-        IMAGE_REF=$(gunzip -c "${arch}" | crane manifest - 2>/dev/null | jq -r '.config.labels."org.opencontainers.image.ref.name"' 2>/dev/null || echo "")
+        # Распаковываем во временный файл (crane требует путь к файлу)
+        TEMP_TAR="/tmp/image-$$.tar"
+        trap "rm -f ${TEMP_TAR}" EXIT
+        gunzip -c "${arch}" > "${TEMP_TAR}"
         
-        # Если метка не найдена, пробуем извлечь из имени файла
-        if [[ -z "${IMAGE_REF}" ]]; then
-            # Предполагаем, что имя файла = имя образа (без .tar.gz)
-            IMAGE_REF=$(basename "${arch}" .tar.gz)
-            echo "Using filename as image ref: ${IMAGE_REF}"
+        # Извлекаем имя образа из манифеста архива
+        # Используем crane для чтения метаданных
+        IMAGE_REF=""
+        
+        # Пробуем извлечь из labels в конфиге образа
+        local config_blob
+        config_blob=$(crane blob "${TEMP_TAR}" $(crane manifest "${TEMP_TAR}" | jq -r '.config.digest') 2>/dev/null) || true
+        
+        if [[ -n "${config_blob}" ]]; then
+            IMAGE_REF=$(echo "${config_blob}" | jq -r '.config.Labels."org.opencontainers.image.ref.name"' 2>/dev/null) || true
+        fi
+        
+        # Если не нашли в метаданных — парсим из имени файла
+        if [[ -z "${IMAGE_REF}" || "${IMAGE_REF}" == "null" ]]; then
+            # Ожидаем формат: имя-образа-тег.tar.gz → имя-образа:тег
+            local basename_no_ext
+            basename_no_ext=$(basename "${arch}" .tar.gz)
+            
+            # Если есть последняя точка после имени — считаем это тегом
+            if [[ "${basename_no_ext}" =~ ^(.+)--(.+)$ ]]; then
+                IMAGE_REF="${BASH_REMATCH[1]}:${BASH_REMATCH[2]}"
+            else
+                # Fallback: добавляем тег latest
+                IMAGE_REF="${basename_no_ext}:latest"
+            fi
+            echo "Using derived image ref: ${IMAGE_REF}"
         fi
         
         TARGET_IMAGE="${REGISTRY_LOAD_ADDR}/${IMAGE_REF}"
-        echo "Detected image ref: ${IMAGE_REF}"
+        echo "Image ref: ${IMAGE_REF}"
         echo "   Target: ${TARGET_IMAGE}"
         
         # Проверка существования в registry
         if [[ "${MODE}" == "force" ]]; then
-            if image_exists_in_registry "${TARGET_IMAGE}"; then
+            if crane digest "${CRANE_FLAGS}" "${TARGET_IMAGE}" >/dev/null 2>&1; then
                 echo "Image exists in registry, deleting before re-push (force mode)..."
-                delete_image_from_registry "${TARGET_IMAGE}"
+                crane delete "${CRANE_FLAGS}" "${TARGET_IMAGE}" 2>/dev/null || true
             fi
         else
-            if image_exists_in_registry "${TARGET_IMAGE}"; then
+            if crane digest "${CRANE_FLAGS}" "${TARGET_IMAGE}" >/dev/null 2>&1; then
                 echo "Image already exists in registry, skipping (safe mode)."
+                rm -f "${TEMP_TAR}"
                 continue
             fi
         fi
         
-        # Пуш напрямую из архива в реестр
+        # Пуш в реестр
         echo "Pushing ${TARGET_IMAGE} ..."
-        gunzip -c "${arch}" | crane push "${CRANE_FLAGS}" - "${TARGET_IMAGE}"
+        crane push "${CRANE_FLAGS}" "${TEMP_TAR}" "${TARGET_IMAGE}"
         
         echo "Successfully pushed ${TARGET_IMAGE}"
+        
+        # Очистка
+        rm -f "${TEMP_TAR}"
     done
 }
 
