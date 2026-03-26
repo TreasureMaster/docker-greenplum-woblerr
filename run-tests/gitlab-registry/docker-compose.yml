@@ -92,8 +92,8 @@ services:
       # - ./config/config.yml:/etc/distribution/config.yml
     healthcheck:
       test: ["CMD", "wget", "--spider", "-q", "http://localhost:5000/v2/"]
-      interval: 5s
-      timeout: 2s
+      interval: 20s
+      timeout: 5s
       retries: 5
       start_period: 10s
     networks:
