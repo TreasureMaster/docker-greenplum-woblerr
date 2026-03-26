@@ -60,7 +60,7 @@ services:
       - registry-net
 
   registry-seeder:
-    image: dwh-init:0.1.0-cli
+    image: dwh-init:0.2.0-cli
     # build:
     #   context: .
     #   dockerfile: Dockerfile
@@ -71,15 +71,15 @@ services:
       registry:
         condition: service_healthy
     environment:
-      - REGISTRY_HOST=host.docker.internal
+      - REGISTRY_HOST=${REGISTRY_HOSTNAME}
       - REGISTRY_PORT=5000
       - IMAGES_DIR=/opt/offline-images
       - MODE=safe
-      - CRANE_ENABLED=true
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+      # - CRANE_ENABLED=true
+    # volumes:
+    #   - /var/run/docker.sock:/var/run/docker.sock
+    # extra_hosts:
+    #   - "host.docker.internal:host-gateway"
     networks:
       - registry-net
     # restart: "no"
