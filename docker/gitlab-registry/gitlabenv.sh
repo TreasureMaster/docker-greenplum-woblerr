@@ -10,6 +10,9 @@ GITLAB_CONTAINER="${GITLAB_CONTAINER_NAME}"
 GITLAB_URL="http://${GITLAB_EXT_IP}:${GITLAB_EXTERNAL_PORT}"
 ROOT_USERNAME="root"
 
+# REGISTRY_LOAD_ADDR="${REGISTRY_HOSTNAME}"
+REGISTRY_LOAD_ADDR="${REGISTRY_HOSTNAME}:${REGISTRY_HOST_PORT}"
+
 # Полные пути проектов в GitLab (с .git)
 # Пути должны быть аналогичны тому, как они располагаются в gitlab
 # Шаблон пути - <group>/<subgroup>/.../<subgroup>/<project-name>.git
