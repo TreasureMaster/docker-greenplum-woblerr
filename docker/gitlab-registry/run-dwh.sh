@@ -8,6 +8,9 @@ set -eu
 #     sudo echo "Далее нужны будут права sudo..."
 # fi
 
+# Загрузка переменных окружения
+. ./gitlabenv.sh
+
 # echo "Запускаем кластер..."
 # docker compose up -d
 
