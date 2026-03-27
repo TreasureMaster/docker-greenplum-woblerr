@@ -39,7 +39,7 @@ services:
       - gitlab_data:/var/opt/gitlab
       - ./gitlab-rails-init:/usr/local/bin/gitlab-rails-init:ro
       - ssh-share:/shared-ssh
-      - ./ssh/gitlab-ssh-init.sh:/docker-entrypoint-init.d/gitlab-ssh-init.sh:ro
+      # - ./ssh/gitlab-ssh-init.sh:/docker-entrypoint-init.d/gitlab-ssh-init.sh:ro
     shm_size: '1gb'
     healthcheck:
       test: ["CMD", "/opt/gitlab/bin/gitlab-healthcheck"]

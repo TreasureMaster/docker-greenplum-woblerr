@@ -3,7 +3,7 @@ set -euo pipefail
 
 GITLAB_HOST="${GITLAB_HOSTNAME:-gitlab}"   # из .env
 GITLAB_SSH_PORT="${GITLAB_SSH_PORT:-22}"   # можешь задать в env
-GITLAB_ROOT_PASSWORD="${INITIAL_ROOT_PASSWORD:-gitlabroot}"  # важно прокинуть в dwh-init
+GITLAB_ROOT_PASSWORD="${INITIAL_ROOT_PASSWORD}"  # важно прокинуть в dwh-init
 
 echo "[dwh-init] installing ssh client..."
 apt-get update -qq
