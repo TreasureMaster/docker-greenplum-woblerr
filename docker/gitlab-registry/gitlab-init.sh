@@ -27,7 +27,25 @@ get_root_pat() {
         "${GITLAB_URL}/api/v4/user" \
         | jq -r '.id' 2>/dev/null)
     
-    if [[ -z "${user_id}" || "${user_id}" == "null" ]]…l token
+    if [[ -z "${user_id}" || "${user_id}" == "null" ]]; then
+        echo "Не удалось получить user_id для ${username}" >&2
+        return 1
+    fi
+    
+    # Проверяем существующие токены
+    local existing_token
+    existing_token=$(curl -sS --request GET \
+        --header "PRIVATE-TOKEN: ${password}" \
+        "${GITLAB_URL}/api/v4/users/${user_id}/personal_access_tokens?name=bootstrap-token" \
+        | jq -r '.[0].token // empty' 2>/dev/null)
+    
+    if [[ -n "${existing_token}" ]]; then
+        echo "${existing_token}"
+        return 0
+    fi
+    
+    # Создаём новый токен
+    local token
     token=$(curl -sS --request POST \
         --header "Content-Type: application/json" \
         --user "${username}:${password}" \
@@ -52,3 +70,95 @@ if [[ -z "${ROOT_TOKEN}" ]]; then
 fi
 
 echo "ROOT_TOKEN получен"
+
+# ---------------------------------------------------------------------------- #
+#                         2. Создаём пользователей через API                   #
+# ---------------------------------------------------------------------------- #
+# echo "=== Создаём пользователей из users.yaml ==="
+
+# # Проверяем наличие файла
+# if [[ ! -f "${USERS_YAML}" ]]; then
+#     echo "❌ Файл ${USERS_YAML} не найден" >&2
+#     exit 1
+# fi
+
+# # Парсим YAML через Python
+# USERS=$(python3 -c "
+# import yaml, json
+# with open('${USERS_YAML}') as f:
+#     data = yaml.safe_load(f)
+#     print(json.dumps(data if isinstance(data, list) else [data]))
+# " | jq -c '.[]')
+
+# RESERVED_USERNAMES=("admin" "root" "support" "help" "dashboard" "profile" "login" "signup" "users" "projects")
+
+# echo "${USERS}" | while IFS= read -r user_json; do
+#     username=$(echo "${user_json}" | jq -r '.username')
+#     email=$(echo "${user_json}" | jq -r '.email')
+#     name=$(echo "${user_json}" | jq -r '.name')
+#     password=$(echo "${user_json}" | jq -r '.password')
+    
+#     # Проверка на зарезервированные имена
+#     if printf '%s\n' "${RESERVED_USERNAMES[@]}" | grep -qi "^${username}$"; then
+#         echo "⚠️ Пропуск: имя ${username} зарезервировано"
+#         continue
+#     fi
+    
+#     # Проверка длины пароля
+#     if [[ ${#password} -lt 8 ]]; then
+#         echo "⚠️ Пропуск: пароль ${username} менее 8 символов"
+#         continue
+#     fi
+    
+#     # Проверяем, существует ли пользователь
+#     existing=$(curl -sS --header "PRIVATE-TOKEN: ${ROOT_TOKEN}" \
+#         "${GITLAB_URL}/api/v4/users?username=${username}" \
+#         | jq -r '.[0].username // empty')
+    
+#     if [[ -n "${existing}" ]]; then
+#         echo "⏭️ Пользователь ${username} уже существует"
+#         continue
+#     fi
+    
+#     # Создаём пользователя
+#     result=$(curl -sS --request POST \
+#         --header "PRIVATE-TOKEN: ${ROOT_TOKEN}" \
+#         --header "Content-Type: application/json" \
+#         --data "{
+#             \"username\": \"${username}\",
+#             \"email\": \"${email}\",
+#             \"name\": \"${name}\",
+#             \"password\": \"${password}\",
+#             \"skip_confirmation\": true
+#         }" \
+#         "${GITLAB_URL}/api/v4/users")
+    
+#     user_id=$(echo "${result}" | jq -r '.id // empty')
+    
+#     if [[ -n "${user_id}" && "${user_id}" != "null" ]]; then
+#         echo "✅ Создан пользователь: ${username} (ID=${user_id})"
+#     else
+#         echo "❌ Ошибка создания ${username}: ${result}" >&2
+#     fi
+# done
+
+# ---------------------------------------------------------------------------- #
+#                         3. Запрет регистрации через API                      #
+# ---------------------------------------------------------------------------- #
+# echo "=== Запрещаем регистрацию ==="
+
+# curl -sS --request PUT \
+#     --header "PRIVATE-TOKEN: ${ROOT_TOKEN}" \
+#     --header "Content-Type: application/json" \
+#     --data '{
+#         "signup_enabled": false,
+#         "can_create_group": false,
+#         "default_project_visibility": 0,
+#         "default_snippet_visibility": 0,
+#         "default_group_visibility": 0
+#     }' \
+#     "${GITLAB_URL}/api/v4/application/settings" \
+#     | jq -r '.signup_enabled'
+
+# echo "✅ Регистрация запрещена"
+# echo "=== Инициализация GitLab завершена ==="
