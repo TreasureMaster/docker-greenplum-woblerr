@@ -3,9 +3,9 @@ set -euo pipefail
 
 echo "[client] installing ssh client..."
 apt-get update -qq
-DEBIAN_FRONTEND=noninteractive apt-get install -y -qq openssh-client
+DEBIAN_FRONTEND=noninteractive apt-get install -y -qq openssh-client netcat-traditional
 
-echo "[client] generating SSH key..."
+echo "[client] generating SSH key in shared volume..."
 mkdir -p /shared-ssh
 if [[ ! -f /shared-ssh/id_ed25519 ]]; then
   ssh-keygen -t ed25519 -N "" -f /shared-ssh/id_ed25519

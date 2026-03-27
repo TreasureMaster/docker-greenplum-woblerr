@@ -6,8 +6,9 @@ services:
     container_name: ssh-server
     hostname: ssh-server
     volumes:
-      - ./ssh:/shared-ssh
-    command: ["/bin/bash", "-c", "/shared-ssh/server-init.sh && sleep infinity"]
+      - ssh-share:/shared-ssh
+      - ./ssh:/init-ssh
+    command: ["/bin/bash", "-c", "/init-ssh/server-init.sh && sleep infinity"]
     networks:
       - test-net
 
@@ -16,10 +17,14 @@ services:
     container_name: ssh-client
     hostname: ssh-client
     volumes:
-      - ./ssh:/shared-ssh
-    command: ["/bin/bash", "-c", "/shared-ssh/client-init.sh && sleep infinity"]
+      - ssh-share:/shared-ssh
+      - ./ssh:/init-ssh
+    command: ["/bin/bash", "-c", "/init-ssh/client-init.sh && sleep infinity"]
     networks:
       - test-net
+
+volumes:
+  ssh-share:
 
 networks:
   test-net:
