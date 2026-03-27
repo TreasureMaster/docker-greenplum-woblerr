@@ -22,6 +22,7 @@ RUN chmod -R +x /init /usr/local/bin/crane
 COPY images/ /opt/offline-images/
 WORKDIR /init
 COPY ./gitlab-rails-init/* ./gitlab-rails-init/
+COPY ./projects/* ./projects/
 
 # ENTRYPOINT ["/init-entrypoint.sh"]
 ENTRYPOINT ["./run-dwh.sh"]
