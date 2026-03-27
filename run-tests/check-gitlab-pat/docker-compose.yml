@@ -30,6 +30,8 @@ services:
         # Отключить тяжелые cron на старте
         sidekiq['timeout'] = 30
       GITLAB_POST_RECONFIGURE_SCRIPT: |
+        chown -R git:git /shared/bootstrap || true
+        chmod 700 /shared/bootstrap || true
         /opt/gitlab/bin/gitlab-rails runner /shared/bootstrap/create-root-pat.rb
     ports:
       - '8080:80'

@@ -16,68 +16,84 @@ echo "=== Инициализация GitLab через API ==="
 echo "=== Создаём/получаем root PAT ==="
 
 get_root_pat() {
-    local username="$1"
-    local password="$2"
+    while [[ ! -f /shared/bootstrap/root_pat.txt ]]; do
+        echo "[gitlab-init] /shared/bootstrap/root_pat.txt not found yet, waiting 10 seconds..."
+        sleep 10
+    done
 
-    # Получаем user ID
-    local user_id
-    echo "[DEBUG]: А что вообще возвращает curl для user_id:"
-    curl -sS --request GET \
-        --header "Content-Type: application/json" \
-        --user "${username}:${password}" \
-        "${GITLAB_URL}/api/v4/user"
+    echo "[gitlab-init] Found /shared/bootstrap/root_pat.txt, proceeding..."
 
-    user_id=$(curl -sS --request GET \
-        --header "Content-Type: application/json" \
-        --user "${username}:${password}" \
-        "${GITLAB_URL}/api/v4/user" \
-        | jq -r '.id' 2>/dev/null)
-
-    echo "[DEBUG]: Полученный use id: ${user_id}"
-    if [[ -z "${user_id}" || "${user_id}" == "null" ]]; then
-        echo "Не удалось получить user_id для ${username}" >&2
+    echo "[gitlab-init]: get root token..."
+    ROOT_TOKEN=$(cat /shared/bootstrap/root_pat.txt 2>/dev/null || true)
+    if [ -z "${ROOT_TOKEN}" ]; then
+        echo "[gitlab-init]: ROOT PAT not found in /shared/bootstrap/root_pat.txt" >&2
         return 1
-    fi
-
-    # Проверяем существующие токены
-    local existing_token
-    echo "[DEBUG]: А что вообще возвращает curl для existing_token:"
-    curl -sS --request GET \
-        --header "PRIVATE-TOKEN: ${password}" \
-        "${GITLAB_URL}/api/v4/users/${user_id}/personal_access_tokens?name=bootstrap-token"
-
-    existing_token=$(curl -sS --request GET \
-        --header "PRIVATE-TOKEN: ${password}" \
-        "${GITLAB_URL}/api/v4/users/${user_id}/personal_access_tokens?name=bootstrap-token" \
-        | jq -r '.[0].token // empty' 2>/dev/null)
-
-    if [[ -n "${existing_token}" ]]; then
-        echo "${existing_token}"
+    else
+        echo "${ROOT_TOKEN}"
         return 0
     fi
+    # local username="$1"
+    # local password="$2"
 
-    # Создаём новый токен
-    local token
-    echo "[DEBUG]: А что вообще возвращает curl для token:"
-    curl -sS --request POST \
-        --header "Content-Type: application/json" \
-        --user "${username}:${password}" \
-        --data '{"name":"bootstrap-token","scopes":["api","write_repository"],"expires_at":"'"$(date -d '+365 days' +%Y-%m-%d)"'"}' \
-        "${GITLAB_URL}/api/v4/users/${user_id}/personal_access_tokens"
+    # # Получаем user ID
+    # local user_id
+    # echo "[DEBUG]: А что вообще возвращает curl для user_id:"
+    # curl -sS --request GET \
+    #     --header "Content-Type: application/json" \
+    #     --user "${username}:${password}" \
+    #     "${GITLAB_URL}/api/v4/user"
 
-    token=$(curl -sS --request POST \
-        --header "Content-Type: application/json" \
-        --user "${username}:${password}" \
-        --data '{"name":"bootstrap-token","scopes":["api","write_repository"],"expires_at":"'"$(date -d '+365 days' +%Y-%m-%d)"'"}' \
-        "${GITLAB_URL}/api/v4/users/${user_id}/personal_access_tokens" \
-        | jq -r '.token // empty' 2>/dev/null)
+    # user_id=$(curl -sS --request GET \
+    #     --header "Content-Type: application/json" \
+    #     --user "${username}:${password}" \
+    #     "${GITLAB_URL}/api/v4/user" \
+    #     | jq -r '.id' 2>/dev/null)
 
-    if [[ -n "${token}" ]]; then
-        echo "${token}"
-        return 0
-    fi
+    # echo "[DEBUG]: Полученный use id: ${user_id}"
+    # if [[ -z "${user_id}" || "${user_id}" == "null" ]]; then
+    #     echo "Не удалось получить user_id для ${username}" >&2
+    #     return 1
+    # fi
 
-    return 1
+    # # Проверяем существующие токены
+    # local existing_token
+    # echo "[DEBUG]: А что вообще возвращает curl для existing_token:"
+    # curl -sS --request GET \
+    #     --header "PRIVATE-TOKEN: ${password}" \
+    #     "${GITLAB_URL}/api/v4/users/${user_id}/personal_access_tokens?name=bootstrap-token"
+
+    # existing_token=$(curl -sS --request GET \
+    #     --header "PRIVATE-TOKEN: ${password}" \
+    #     "${GITLAB_URL}/api/v4/users/${user_id}/personal_access_tokens?name=bootstrap-token" \
+    #     | jq -r '.[0].token // empty' 2>/dev/null)
+
+    # if [[ -n "${existing_token}" ]]; then
+    #     echo "${existing_token}"
+    #     return 0
+    # fi
+
+    # # Создаём новый токен
+    # local token
+    # echo "[DEBUG]: А что вообще возвращает curl для token:"
+    # curl -sS --request POST \
+    #     --header "Content-Type: application/json" \
+    #     --user "${username}:${password}" \
+    #     --data '{"name":"bootstrap-token","scopes":["api","write_repository"],"expires_at":"'"$(date -d '+365 days' +%Y-%m-%d)"'"}' \
+    #     "${GITLAB_URL}/api/v4/users/${user_id}/personal_access_tokens"
+
+    # token=$(curl -sS --request POST \
+    #     --header "Content-Type: application/json" \
+    #     --user "${username}:${password}" \
+    #     --data '{"name":"bootstrap-token","scopes":["api","write_repository"],"expires_at":"'"$(date -d '+365 days' +%Y-%m-%d)"'"}' \
+    #     "${GITLAB_URL}/api/v4/users/${user_id}/personal_access_tokens" \
+    #     | jq -r '.token // empty' 2>/dev/null)
+
+    # if [[ -n "${token}" ]]; then
+    #     echo "${token}"
+    #     return 0
+    # fi
+
+    # return 1
 }
 
 export ROOT_TOKEN
