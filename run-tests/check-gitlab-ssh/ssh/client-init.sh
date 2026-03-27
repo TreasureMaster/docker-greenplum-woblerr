@@ -23,9 +23,9 @@ echo "[dwh-init] trying ssh gitlab-rails version..."
 
 SSH_OPTS="-i /shared-ssh/id_ed25519 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
 
-ssh ${SSH_OPTS} root@ssh-server "ls -la /" || echo "[dwh-init] ssh command failed"
+ssh ${SSH_OPTS} root@${GITLAB_HOSTNAME} "ls -la /" || echo "[dwh-init] ssh command failed"
 
-ssh ${SSH_OPTS} root@gitlab \
+ssh ${SSH_OPTS} root@${GITLAB_HOSTNAME} \
   "gitlab-rails runner 'puts Gitlab::VERSION'" || echo "[dwh-init] ssh/gitlab-rails failed"
 
 echo "[dwh-init] SSH test finished."

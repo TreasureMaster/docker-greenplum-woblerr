@@ -55,10 +55,15 @@ services:
     image: debian:12-slim
     container_name: ssh-client
     hostname: ssh-client
+    environment:
+      GITLAB_HOSTNAME: ${GITLAB_HOSTNAME}
     volumes:
       - ssh-share:/shared-ssh
       - ./ssh:/init-ssh
     command: ["/bin/bash", "-c", "/init-ssh/client-init.sh && sleep infinity"]
+    depends_on:
+      gitlab:
+        condition: service_healthy
     networks:
       - dwh-net
 
