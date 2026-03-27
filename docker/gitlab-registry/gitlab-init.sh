@@ -63,19 +63,11 @@ echo "=== Создаём пользователей из users.yaml ==="
 
 # Проверяем наличие файла
 if [[ ! -f "${USERS_YAML}" ]]; then
-    echo "Файл ${USERS_YAML} не найден" >&2
+    echo "[ERROR]: Файл ${USERS_YAML} не найден" >&2
     exit 1
 fi
 
-# Парсим YAML через Python
-# USERS=$(python3 -c "
-# import yaml, json
-# with open('${USERS_YAML}') as f:
-#     data = yaml.safe_load(f)
-#     print(json.dumps(data if isinstance(data, list) else [data]))
-# " | jq -c '.[]')
-
-# без python
+# Парсим YAML без python
 USERS=$(yq -o=json '.' "${USERS_YAML}" | jq -c '.[]')
 
 
@@ -89,13 +81,13 @@ echo "${USERS}" | while IFS= read -r user_json; do
 
     # Проверка на зарезервированные имена
     if printf '%s\n' "${RESERVED_USERNAMES[@]}" | grep -qi "^${username}$"; then
-        echo "Пропуск: имя ${username} зарезервировано"
+        echo "[WARNING]: Пропуск: имя ${username} зарезервировано"
         continue
     fi
 
     # Проверка длины пароля
     if [[ ${#password} -lt 8 ]]; then
-        echo "Пропуск: пароль ${username} менее 8 символов"
+        echo "[ERROR]: Пропуск: пароль ${username} менее 8 символов"
         continue
     fi
 
@@ -105,7 +97,7 @@ echo "${USERS}" | while IFS= read -r user_json; do
         | jq -r '.[0].username // empty')
     
     if [[ -n "${existing}" ]]; then
-        echo "Пользователь ${username} уже существует"
+        echo "[INFO]: Пользователь ${username} уже существует"
         continue
     fi
 
@@ -125,29 +117,29 @@ echo "${USERS}" | while IFS= read -r user_json; do
     user_id=$(echo "${result}" | jq -r '.id // empty')
 
     if [[ -n "${user_id}" && "${user_id}" != "null" ]]; then
-        echo "Создан пользователь: ${username} (ID=${user_id})"
+        echo "[INFO]: Создан пользователь: ${username} (ID=${user_id})"
     else
-        echo "Ошибка создания ${username}: ${result}" >&2
+        echo "[ERROR]: Ошибка создания ${username}: ${result}" >&2
     fi
 done
 
 # ---------------------------------------------------------------------------- #
 #                         3. Запрет регистрации через API                      #
 # ---------------------------------------------------------------------------- #
-# echo "=== Запрещаем регистрацию ==="
+echo "=== Запрещаем регистрацию ==="
 
-# curl -sS --request PUT \
-#     --header "PRIVATE-TOKEN: ${ROOT_TOKEN}" \
-#     --header "Content-Type: application/json" \
-#     --data '{
-#         "signup_enabled": false,
-#         "can_create_group": false,
-#         "default_project_visibility": 0,
-#         "default_snippet_visibility": 0,
-#         "default_group_visibility": 0
-#     }' \
-#     "${GITLAB_URL}/api/v4/application/settings" \
-#     | jq -r '.signup_enabled'
+curl -sS --request PUT \
+    --header "PRIVATE-TOKEN: ${ROOT_TOKEN}" \
+    --header "Content-Type: application/json" \
+    --data '{
+        "signup_enabled": false,
+        "can_create_group": false,
+        "default_project_visibility": 0,
+        "default_snippet_visibility": 0,
+        "default_group_visibility": 0
+    }' \
+    "${GITLAB_URL}/api/v4/application/settings" \
+    | jq -r '.signup_enabled'
 
-# echo "✅ Регистрация запрещена"
-# echo "=== Инициализация GitLab завершена ==="
+echo "[INFO]: Регистрация запрещена"
+echo "=== Инициализация GitLab завершена ==="
