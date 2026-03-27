@@ -1,0 +1,26 @@
+version: "3.9"
+
+services:
+  server:
+    image: debian:12-slim
+    container_name: ssh-server
+    hostname: ssh-server
+    volumes:
+      - ./ssh:/shared-ssh
+    command: ["/bin/bash", "-c", "/shared-ssh/server-init.sh && sleep infinity"]
+    networks:
+      - test-net
+
+  client:
+    image: debian:12-slim
+    container_name: ssh-client
+    hostname: ssh-client
+    volumes:
+      - ./ssh:/shared-ssh
+    command: ["/bin/bash", "-c", "/shared-ssh/client-init.sh && sleep infinity"]
+    networks:
+      - test-net
+
+networks:
+  test-net:
+    driver: bridge
