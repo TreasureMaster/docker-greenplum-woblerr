@@ -2,7 +2,7 @@
 FROM alpine:3.22.3
 
 # Устанавливаем curl и опционально crane
-RUN apk update && apk add --no-cache curl bash gzip jq yq
+RUN apk update && apk add --no-cache curl bash gzip jq yq git
 
 # Загружаем crane (опционально, можно закомментировать)
 ARG CRANE_VERSION=v0.21.3
