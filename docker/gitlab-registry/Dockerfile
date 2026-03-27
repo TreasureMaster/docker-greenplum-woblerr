@@ -17,6 +17,7 @@ RUN wget -q https://github.com/google/go-containerregistry/releases/download/${C
 RUN mkdir -p /init
 COPY *.sh /init/
 RUN chmod -R +x /init /usr/local/bin/crane
+COPY ./gitlab-rails-init/* /gitlab-rails-init/
 # RUN chmod +x /registry-init.sh /run-dwh.sh /usr/local/bin/crane
 
 COPY images/ /opt/offline-images/

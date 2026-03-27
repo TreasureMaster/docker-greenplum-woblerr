@@ -1,0 +1,4 @@
+- username: cdjks_user
+  email: cdjks_user@example.com
+  name: Jenkins User
+  password: jkspass123
