@@ -129,17 +129,15 @@ done
 echo "=== Запрещаем регистрацию ==="
 
 curl -sS --request PUT \
-    --header "PRIVATE-TOKEN: ${ROOT_TOKEN}" \
-    --header "Content-Type: application/json" \
-    --data '{
-        "signup_enabled": false,
-        "can_create_group": false,
-        "default_project_visibility": 0,
-        "default_snippet_visibility": 0,
-        "default_group_visibility": 0
-    }' \
-    "${GITLAB_URL}/api/v4/application/settings" \
-    | jq -r '.signup_enabled'
+  --header "PRIVATE-TOKEN: ${ROOT_TOKEN}" \
+  --data "signup_enabled=false" \
+  --data "can_create_group=false" \
+  --data "default_project_visibility=private" \
+  --data "default_snippet_visibility=private" \
+  --data "default_group_visibility=private" \
+  "${GITLAB_URL}/api/v4/application/settings" \
+  | jq -r '.signup_enabled, .can_create_group, .default_project_visibility, .default_group_visibility, .default_snippet_visibility'
+
 
 echo "[INFO]: Регистрация запрещена"
 echo "=== Инициализация GitLab завершена ==="
