@@ -1,0 +1,81 @@
+services:
+  gitlab:
+    image: gitlab/gitlab-ce:17.2.9-ce.0
+    container_name: ${GITLAB_CONTAINER_NAME}
+    hostname: ${GITLAB_HOSTNAME}
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        # Базовая настройка
+        external_url 'http://${GITLAB_HOSTNAME}'
+        gitlab_rails['initial_root_password'] = '${INITIAL_ROOT_PASSWORD}'
+        prometheus_monitoring['enable'] = false
+        
+        # CPU/RAM оптимизация
+        puma['worker_processes'] = 2
+        puma['worker_max_memory'] = 1024
+        sidekiq['concurrency'] = 10
+        
+        # Postgres tuning (критично!)
+        postgresql['shared_buffers'] = "1GB"
+        postgresql['effective_cache_size'] = "3GB"
+        postgresql['work_mem'] = "16MB"
+        postgresql['maintenance_work_mem'] = "512MB"
+        postgresql['checkpoint_completion_target'] = 0.9
+        postgresql['default_statistics_target'] = 100
+        
+        # Redis
+        redis['maxmemory'] = '1gb'
+        redis['maxmemory_policy'] = 'allkeys-lru'
+        
+        # Отключить тяжелые cron на старте
+        sidekiq['timeout'] = 30
+    ports:
+      - '8080:80'
+      - '8443:443'
+      - '2222:22'
+    volumes:
+      - gitlab_config:/etc/gitlab
+      - gitlab_logs:/var/log/gitlab
+      - gitlab_data:/var/opt/gitlab
+      - ./gitlab-rails-init:/usr/local/bin/gitlab-rails-init:ro
+      - ssh-share:/shared-ssh
+      - ./ssh/gitlab-ssh-init.sh:/docker-entrypoint-init.d/gitlab-ssh-init.sh:ro
+    shm_size: '1gb'
+    healthcheck:
+      test: ["CMD", "/opt/gitlab/bin/gitlab-healthcheck"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: ${START_PERIOD}s
+    networks:
+      - dwh-net
+    # restart: always
+
+  client:
+    image: debian:12-slim
+    container_name: ssh-client
+    hostname: ssh-client
+    environment:
+      GITLAB_HOSTNAME: ${GITLAB_HOSTNAME}
+      GITLAB_SSH_PORT: 22
+      INITIAL_ROOT_PASSWORD: ${INITIAL_ROOT_PASSWORD}
+    volumes:
+      - ssh-share:/shared-ssh
+      - ./ssh:/init-ssh
+    command: ["/bin/bash", "-c", "/init-ssh/gitlab-ssh-bootstrap.sh && sleep infinity"]
+    depends_on:
+      gitlab:
+        condition: service_healthy
+    networks:
+      - dwh-net
+
+
+volumes:
+  ssh-share:
+  gitlab_config:
+  gitlab_logs:
+  gitlab_data:
+
+networks:
+  dwh-net:
+    driver: bridge
