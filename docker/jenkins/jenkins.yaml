@@ -1,0 +1,60 @@
+jenkins:
+  systemMessage: "Jenkins настроен через Configuration as Code"
+
+security:
+  globalJobDslSecurityConfiguration:
+    useScriptSecurity: false
+
+  # securityRealm:
+  #   local:
+  #     allowsSignup: false
+  #     users:
+  #       - id: "admin"
+  #         password: "admin-password"
+
+credentials:
+  system:
+    domainCredentials:
+      - credentials:
+          - usernamePassword:
+              scope: GLOBAL
+              id: "gitlab-creds-id"
+              username: "cdjks_user"
+              password: "jkspass123"
+              description: "Учетка для доступа к GitLab"
+
+jobs:
+  - script: |
+      pipelineJob('jks-automation-test-one') {
+        definition {
+          cpsScm {
+            scm {
+              git {
+                remote {
+                  url('${GITLAB_DWH_URL}/DWH/ADB/service-projects/automation/jks-test-one.git')
+                  credentials('gitlab-creds-id')
+                }
+                branches('*/master')
+              }
+            }
+            scriptPath('Jenkinsfile')
+          }
+        }
+      }
+
+      pipelineJob('jks-automation-test-two') {
+        definition {
+          cpsScm {
+            scm {
+              git {
+                remote {
+                  url('${GITLAB_DWH_URL}/DWH/ADB/service-projects/automation/jks-test-two.git')
+                  credentials('gitlab-creds-id')
+                }
+                branches('*/master')
+              }
+            }
+            scriptPath('Jenkinsfile-test-two')
+          }
+        }
+      }
