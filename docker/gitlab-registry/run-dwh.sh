@@ -42,6 +42,7 @@ echo "Registry is ready"
 echo ""
 echo "=== Running gitlab-init.sh ==="
 # /usr/local/bin/gitlab-init.sh
+. ./gitlab-init.sh
 
 # ---------------------------------------------------------------------------- #
 #                         3. Загружаем Docker-образы в registry                #
