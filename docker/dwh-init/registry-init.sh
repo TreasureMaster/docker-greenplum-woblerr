@@ -4,16 +4,16 @@ set -euo pipefail
 # ---------------------------------------------------------------------------- #
 #                         1. Конфигурация из ENV                               #
 # ---------------------------------------------------------------------------- #
-REGISTRY_HOST="${REGISTRY_HOST:-local-registry}"
-REGISTRY_PORT="${REGISTRY_PORT:-5000}"
-REGISTRY_LOAD_ADDR="${REGISTRY_HOST}:${REGISTRY_PORT}"
+# REGISTRY_HOST="${REGISTRY_HOST:-local-registry}"
+# REGISTRY_PORT="${REGISTRY_PORT:-5000}"
+# REGISTRY_LOAD_ADDR="${REGISTRY_HOST}:${REGISTRY_PORT}"
 IMAGES_DIR="${IMAGES_DIR:-/opt/offline-images}"
 MODE="${MODE:-safe}"  # safe | force
 CRANE_FLAGS="--insecure"  # Разрешаем HTTP
 
 echo "Starting offline registry initialization (crane-only)..."
 echo "   Mode: ${MODE}"
-echo "   Registry: ${REGISTRY_LOAD_ADDR}"
+echo "   Registry: ${REGISTRY_URL}"
 echo "   Images Dir: ${IMAGES_DIR}"
 
 # ---------------------------------------------------------------------------- #
@@ -22,8 +22,8 @@ echo "   Images Dir: ${IMAGES_DIR}"
 wait_for_registry() {
     local max_attempts=60
     local attempt=0
-    local url="http://${REGISTRY_LOAD_ADDR}/v2/"
-    
+    local url="http://${REGISTRY_URL}/v2/"
+
     echo "Waiting for registry at ${url}..."
     until curl -s -o /dev/null -w "%{http_code}" "${url}" | grep -q "200"; do
         attempt=$((attempt + 1))
@@ -72,30 +72,30 @@ process_archives() {
     for arch in "${archives[@]}"; do
         echo
         echo "=== Processing ${arch} ==="
-        
+
         # Распаковываем во временный файл (crane требует путь к файлу)
         TEMP_TAR="/tmp/image-$$.tar"
         trap "rm -f ${TEMP_TAR}" EXIT
         gunzip -c "${arch}" > "${TEMP_TAR}"
-        
+
         # Извлекаем имя образа из манифеста архива
         # Используем crane для чтения метаданных
         IMAGE_REF=""
-        
+
         # Пробуем извлечь из labels в конфиге образа
         local config_blob
         config_blob=$(crane blob "${TEMP_TAR}" $(crane manifest "${TEMP_TAR}" | jq -r '.config.digest') 2>/dev/null) || true
-        
+
         if [[ -n "${config_blob}" ]]; then
             IMAGE_REF=$(echo "${config_blob}" | jq -r '.config.Labels."org.opencontainers.image.ref.name"' 2>/dev/null) || true
         fi
-        
+
         # Если не нашли в метаданных — парсим из имени файла
         if [[ -z "${IMAGE_REF}" || "${IMAGE_REF}" == "null" ]]; then
             # Ожидаем формат: имя-образа-тег.tar.gz → имя-образа:тег
             local basename_no_ext
             basename_no_ext=$(basename "${arch}" .tar.gz)
-            
+
             # Если есть последняя точка после имени — считаем это тегом
             if [[ "${basename_no_ext}" =~ ^(.+)--(.+)$ ]]; then
                 IMAGE_REF="${BASH_REMATCH[1]}:${BASH_REMATCH[2]}"
@@ -105,11 +105,11 @@ process_archives() {
             fi
             echo "Using derived image ref: ${IMAGE_REF}"
         fi
-        
-        TARGET_IMAGE="${REGISTRY_LOAD_ADDR}/${IMAGE_REF}"
+
+        TARGET_IMAGE="${REGISTRY_URL}/${IMAGE_REF}"
         echo "Image ref: ${IMAGE_REF}"
         echo "   Target: ${TARGET_IMAGE}"
-        
+
         # Проверка существования в registry
         if [[ "${MODE}" == "force" ]]; then
             if crane digest "${CRANE_FLAGS}" "${TARGET_IMAGE}" >/dev/null 2>&1; then
@@ -123,13 +123,13 @@ process_archives() {
                 continue
             fi
         fi
-        
+
         # Пуш в реестр
         echo "Pushing ${TARGET_IMAGE} ..."
         crane push "${CRANE_FLAGS}" "${TEMP_TAR}" "${TARGET_IMAGE}"
-        
+
         echo "Successfully pushed ${TARGET_IMAGE}"
-        
+
         # Очистка
         rm -f "${TEMP_TAR}"
     done

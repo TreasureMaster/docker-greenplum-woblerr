@@ -17,7 +17,7 @@ set -eu
 
 echo "Starting DWH Cluster Initialization..."
 echo "   GitLab URL: ${GITLAB_URL}"
-echo "   Registry: ${REGISTRY_LOAD_ADDR}"
+echo "   Registry: ${REGISTRY_URL}"
 
 # ---------------------------------------------------------------------------- #
 #                         1. Ждём готовности сервисов                          #
@@ -30,7 +30,7 @@ done
 echo "GitLab is ready"
 
 echo "Waiting for Registry to be ready..."
-until curl -sSf "http://${REGISTRY_LOAD_ADDR}/v2/" >/dev/null 2>&1; do
+until curl -sSf "http://${REGISTRY_URL}/v2/" >/dev/null 2>&1; do
     echo "   Registry not ready, waiting 10s..."
     sleep 10
 done

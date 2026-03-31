@@ -12,7 +12,7 @@ ROOT_USERNAME="root"
 ROOT_PASSWORD="${INITIAL_ROOT_PASSWORD}"
 
 # REGISTRY_LOAD_ADDR="${REGISTRY_HOSTNAME}"
-REGISTRY_LOAD_ADDR="${REGISTRY_HOSTNAME}:${REGISTRY_HOST_PORT}"
+# REGISTRY_LOAD_ADDR="${REGISTRY_HOSTNAME}:${REGISTRY_PORT}"
 
 # Полные пути проектов в GitLab (с .git)
 # Пути должны быть аналогичны тому, как они располагаются в gitlab
