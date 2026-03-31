@@ -6,13 +6,8 @@
 # set +a
 
 GITLAB_CONTAINER="${GITLAB_CONTAINER_NAME}"
-# GITLAB_URL="http://${GITLAB_HOSTNAME}:${GITLAB_EXTERNAL_PORT}"
-# GITLAB_URL="http://${GITLAB_HOSTNAME}:${GITLAB_PORT}"
 ROOT_USERNAME="root"
 ROOT_PASSWORD="${INITIAL_ROOT_PASSWORD}"
-
-# REGISTRY_LOAD_ADDR="${REGISTRY_HOSTNAME}"
-# REGISTRY_LOAD_ADDR="${REGISTRY_HOSTNAME}:${REGISTRY_PORT}"
 
 # Полные пути проектов в GitLab (с .git)
 # Пути должны быть аналогичны тому, как они располагаются в gitlab

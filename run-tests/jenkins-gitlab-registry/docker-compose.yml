@@ -115,7 +115,6 @@ services:
     environment:
       - SINGLE_REGISTRY=true
       - REGISTRY_TITLE=DWH Docker Registry
-      # - NGINX_PROXY_PASS_URL=http://${REGISTRY_HOSTNAME}:5000
       - NGINX_PROXY_PASS_URL=http://${REGISTRY_URL}
       - REGISTRY_SECURED=false
     depends_on:
@@ -132,8 +131,6 @@ services:
       gitlab:
         condition: service_healthy
     environment:
-      # - REGISTRY_HOST=${REGISTRY_HOSTNAME}
-      # - REGISTRY_PORT=${REGISTRY_PORT}
       - IMAGES_DIR=/opt/offline-images
       - MODE=safe
     env_file:
