@@ -18,7 +18,7 @@ credentials:
       - credentials:
           - usernamePassword:
               scope: GLOBAL
-              id: "gitlab-creds-id"
+              id: "cdjksnd"
               username: "cdjks_user"
               password: "jkspass123"
               description: "Учетка для доступа к GitLab"
@@ -32,7 +32,7 @@ jobs:
               git {
                 remote {
                   url('${GITLAB_DWH_URL}/DWH/ADB/service-projects/automation/jks-test-one.git')
-                  credentials('gitlab-creds-id')
+                  credentials('cdjksnd')
                 }
                 branches('*/master')
               }
@@ -49,7 +49,7 @@ jobs:
               git {
                 remote {
                   url('${GITLAB_DWH_URL}/DWH/ADB/service-projects/automation/jks-test-two.git')
-                  credentials('gitlab-creds-id')
+                  credentials('cdjksnd')
                 }
                 branches('*/master')
               }
