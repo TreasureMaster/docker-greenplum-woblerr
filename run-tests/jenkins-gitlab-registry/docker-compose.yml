@@ -71,6 +71,8 @@ services:
       START_ADMIN_USERNAME: ${START_ADMIN_USERNAME}
       START_ADMIN_PASSWORD: ${START_ADMIN_PASSWORD}
       CASC_JENKINS_CONFIG: /var/jenkins_home/jenkins.yaml
+    env_file:
+      - .env
     depends_on:
       gitlab:
         condition: service_healthy
