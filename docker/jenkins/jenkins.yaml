@@ -22,39 +22,45 @@ credentials:
               username: "cdjks_user"
               password: "jkspass123"
               description: "Учетка для доступа к GitLab"
+          - usernamePassword:
+              scope: GLOBAL
+              id: "adb-prod-admin"
+              username: "admin_user"
+              password: "jkspass123"
+              description: "Учетка для доступа к ADB"
 
 jobs:
   - script: |
-      pipelineJob('jks-automation-test-one') {
+      pipelineJob('jks-automatic-all-adb-prod') {
         definition {
           cpsScm {
             scm {
               git {
                 remote {
-                  url('${GITLAB_DWH_URL}/DWH/ADB/service-projects/automation/jks-test-one.git')
+                  url('${GITLAB_DWH_URL}/DWH/ADB/service-projects/automation/jks-liquibase-all.git')
                   credentials('cdjksnd')
                 }
                 branches('*/master')
               }
             }
-            scriptPath('Jenkinsfile')
+            scriptPath('pipelines-prod/Jenkinsfile-all-adb-prod')
           }
         }
       }
 
-      pipelineJob('jks-automation-test-two') {
+      pipelineJob('jks-automatic-deploy-adb-prod') {
         definition {
           cpsScm {
             scm {
               git {
                 remote {
-                  url('${GITLAB_DWH_URL}/DWH/ADB/service-projects/automation/jks-test-two.git')
+                  url('${GITLAB_DWH_URL}/DWH/ADB/service-projects/automation/jks-liquibase-all.git')
                   credentials('cdjksnd')
                 }
                 branches('*/master')
               }
             }
-            scriptPath('Jenkinsfile-test-two')
+            scriptPath('pipelines-prod/Jenkinsfile-deploy-adb-prod')
           }
         }
       }
