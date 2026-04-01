@@ -13,12 +13,19 @@ ROOT_PASSWORD="${INITIAL_ROOT_PASSWORD}"
 # Пути должны быть аналогичны тому, как они располагаются в gitlab
 # Шаблон пути - <group>/<subgroup>/.../<subgroup>/<project-name>.git
 # <project-name> должно совпадать с именем архива проекта tar.gz
+# PROJECTS=(
+#     "Platform/backend/hello-project.git"
+#     "Platform/frontend/hello-project.git"
+#     "INFRA/hello-world.git"
+#     "DWH/ADB/service-projects/automation/jks-test-one.git"
+#     "DWH/ADB/service-projects/automation/jks-test-two.git"
+# )
 PROJECTS=(
-    "Platform/backend/hello-project.git"
-    "Platform/frontend/hello-project.git"
-    "INFRA/hello-world.git"
-    "DWH/ADB/service-projects/automation/jks-test-one.git"
-    "DWH/ADB/service-projects/automation/jks-test-two.git"
+    "DWH/ADB/service-projects/automation/jks-liquibase-all.git"
+    "DWH/ADB/service-projects/dwh-shared-jenkins.git"
+    "DWH/ADB/service-projects/adb-platform.git"
+    "DWH/ADB/dwh-gp.git"
+    "DWH/ADB/service-projects/adb-internal-config.git"
 )
 
 # Архивы ищем в ./projects/<project-name>.tar.gz
