@@ -126,7 +126,7 @@ services:
       - registry-net
 
   dwh-init:
-    image: dwh-init:0.3.9
+    image: dwh-init:0.3.10
     container_name: dwh-init
     depends_on:
       registry:
