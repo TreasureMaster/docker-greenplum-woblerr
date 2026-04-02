@@ -64,9 +64,10 @@ instance.save()
 // println "--- Sandbox Approval: Метод getEnvironment одобрен автоматически ---"
 
 // Одобрение метода getEnvironment
-import org.jenkinsci.plugins.scriptsecurity.sandbox.whitelists.ScriptApproval
+// FIXME не работает, нужно ждать загрузки плагина
+// import org.jenkinsci.plugins.scriptsecurity.sandbox.whitelists.ScriptApproval
 
-def scriptApproval = ScriptApproval.get()
-scriptApproval.approveSignature("method org.jenkinsci.plugins.workflow.support.actions.EnvironmentAction getEnvironment")
-scriptApproval.save()
-println "--- Sandbox: Метод getEnvironment одобрен ---"
+// def scriptApproval = ScriptApproval.get()
+// scriptApproval.approveSignature("method org.jenkinsci.plugins.workflow.support.actions.EnvironmentAction getEnvironment")
+// scriptApproval.save()
+// println "--- Sandbox: Метод getEnvironment одобрен ---"
