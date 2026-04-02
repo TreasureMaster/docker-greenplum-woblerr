@@ -25,9 +25,9 @@ Signed-By: /etc/apt/keyrings/docker.asc" > /etc/apt/sources.list.d/docker.source
 ARG DOCKER_CLI_VERSION="5:26.1.4-1~debian-bookworm"
 
 RUN apt-get update && apt-get install -y \
-    docker-ce-cli=${DOCKER_CLI_VERSION} \
-    docker-buildx-plugin \
-    docker-compose-plugin
+    docker-ce-cli=${DOCKER_CLI_VERSION}
+    # docker-buildx-plugin \
+    # docker-compose-plugin
 
 # RUN groupadd -g 999 docker || true && \
 RUN usermod -aG docker jenkins
