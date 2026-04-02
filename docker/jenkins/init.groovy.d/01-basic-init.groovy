@@ -48,17 +48,25 @@ println "Метка ноды установлена: ${builtInNode.getLabelStrin
 instance.save()
 
 // NOTE Одобрение метода getEnvironment
-import org.jenkinsci.plugins.scriptsecurity.sandbox.whitelists.StaticWhitelist
-import org.jenkinsci.plugins.scriptsecurity.sandbox.groovy.GroovySandbox
+// import org.jenkinsci.plugins.scriptsecurity.sandbox.whitelists.StaticWhitelist
+// import org.jenkinsci.plugins.scriptsecurity.sandbox.groovy.GroovySandbox
 
-// Получаем доступ к хранилищу одобренных скриптов
-def scriptApproval = org.jenkinsci.plugins.scriptsecurity.sandbox.whitelists.ScriptApproval.get()
+// // Получаем доступ к хранилищу одобренных скриптов
+// def scriptApproval = org.jenkinsci.plugins.scriptsecurity.sandbox.whitelists.ScriptApproval.get()
 
-// Сигнатура метода, который вызвал ошибку в Тесте
-def signature = "method org.jenkinsci.plugins.workflow.support.actions.EnvironmentAction getEnvironment"
+// // Сигнатура метода, который вызвал ошибку в Тесте
+// def signature = "method org.jenkinsci.plugins.workflow.support.actions.EnvironmentAction getEnvironment"
 
-// Одобряем метод, если он еще не в списке
-scriptApproval.approveSignature(signature)
+// // Одобряем метод, если он еще не в списке
+// scriptApproval.approveSignature(signature)
+// scriptApproval.save()
+
+// println "--- Sandbox Approval: Метод getEnvironment одобрен автоматически ---"
+
+// Одобрение метода getEnvironment
+import org.jenkinsci.plugins.scriptsecurity.sandbox.whitelists.ScriptApproval
+
+def scriptApproval = ScriptApproval.get()
+scriptApproval.approveSignature("method org.jenkinsci.plugins.workflow.support.actions.EnvironmentAction getEnvironment")
 scriptApproval.save()
-
-println "--- Sandbox Approval: Метод getEnvironment одобрен автоматически ---"
+println "--- Sandbox: Метод getEnvironment одобрен ---"
