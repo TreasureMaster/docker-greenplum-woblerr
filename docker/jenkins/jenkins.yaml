@@ -34,7 +34,10 @@ credentials:
 
 jobs:
   - script: |
-      pipelineJob('jks-automatic-all-adb-prod') {
+      folder('DWH_GP') {}
+      folder('DWH_GP/internal_manual') {}
+
+      pipelineJob('DWH_GP/internal_manual/jks-automatic-all-adb-prod') {
         definition {
           cpsScm {
             scm {
@@ -51,7 +54,7 @@ jobs:
         }
       }
 
-      pipelineJob('jks-automatic-deploy-adb-prod') {
+      pipelineJob('DWH_GP/internal_manual/jks-automatic-deploy-adb-prod') {
         definition {
           cpsScm {
             scm {
