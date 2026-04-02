@@ -46,3 +46,19 @@ builtInNode.setLabelString("master jmeter dwh")  // можно нескольк�
 println "Метка ноды установлена: ${builtInNode.getLabelString()}"
 
 instance.save()
+
+// NOTE Одобрение метода getEnvironment
+import org.jenkinsci.plugins.scriptsecurity.sandbox.whitelists.StaticWhitelist
+import org.jenkinsci.plugins.scriptsecurity.sandbox.groovy.GroovySandbox
+
+// Получаем доступ к хранилищу одобренных скриптов
+def scriptApproval = org.jenkinsci.plugins.scriptsecurity.sandbox.whitelists.ScriptApproval.get()
+
+// Сигнатура метода, который вызвал ошибку в Тесте
+def signature = "method org.jenkinsci.plugins.workflow.support.actions.EnvironmentAction getEnvironment"
+
+// Одобряем метод, если он еще не в списке
+scriptApproval.approveSignature(signature)
+scriptApproval.save()
+
+println "--- Sandbox Approval: Метод getEnvironment одобрен автоматически ---"
