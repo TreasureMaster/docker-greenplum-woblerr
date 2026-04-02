@@ -42,3 +42,6 @@ email-ext
 # Jenkins Configuration as Code (JCasC)
 configuration-as-code
 job-dsl
+
+# Плагин работы с пользователем
+build-user-vars-plugin
