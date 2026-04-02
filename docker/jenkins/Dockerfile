@@ -8,9 +8,19 @@ RUN apt-get update && apt-get install -y \
     gnupg \
     lsb-release
 
-RUN mkdir -p /etc/apt/keyrings && \
-    curl -fsSL https://docker.com | gpg --dearmor -o /etc/apt/keyrings/docker.gpg && \
-    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://docker.com $(lsb_release -cs) stable" > /etc/apt/sources.list.d/docker.list
+# RUN mkdir -p /etc/apt/keyrings && \
+#     curl -fsSL https://docker.com | gpg --dearmor -o /etc/apt/keyrings/docker.gpg && \
+#     echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://docker.com $(lsb_release -cs) stable" > /etc/apt/sources.list.d/docker.list
+RUN install -m 0755 -d /etc/apt/keyrings && \
+    curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc && \
+    chmod a+r /etc/apt/keyrings/docker.asc
+
+RUN echo "Types: deb\n\
+URIs: https://download.docker.com/linux/debian\n\
+Suites: $(. /etc/os-release && echo "$VERSION_CODENAME")\n\
+Components: stable\n\
+Architectures: $(dpkg --print-architecture)\n\
+Signed-By: /etc/apt/keyrings/docker.asc" > /etc/apt/sources.list.d/docker.sources
 
 ARG DOCKER_CLI_VERSION="5:26.1.4-1~debian-bookworm"
 
