@@ -38,6 +38,13 @@ jobs:
       folder('DWH_GP/internal_manual') {}
 
       pipelineJob('DWH_GP/internal_manual/jks-automatic-all-adb-prod') {
+        parameters {
+          booleanParam('forceterminate', false, 'Принудительно разорвать все сессии к БД ?')
+          booleanParam('hotfix', false, 'Режим Hot Fix?')
+          booleanParam('refactoring', false, 'Режим рефакторинг?')
+          booleanParam('manualpause', false, 'Ручная пауза дагов')
+          booleanParam('doUnpaused', true, 'Снимать даги с паузы после раскатки мастера ? (отключать только в экстренных случаях)')
+        }
         definition {
           cpsScm {
             scm {
@@ -55,6 +62,10 @@ jobs:
       }
 
       pipelineJob('DWH_GP/internal_manual/jks-automatic-deploy-adb-prod') {
+        parameters {
+          booleanParam('hotfix', false, 'Режим Hot Fix?')
+          booleanParam('refactoring', false, 'Режим рефакторинг?')
+        }
         definition {
           cpsScm {
             scm {
