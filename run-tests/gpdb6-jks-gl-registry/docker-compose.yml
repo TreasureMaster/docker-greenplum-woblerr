@@ -7,6 +7,7 @@ services:
     ports:
       - "${EXPOSE_MASTER_PORT}:5432"
     environment:
+      - GREENPLUM_DATABASE_NAME=adb
       - GREENPLUM_PXF_BASE_DIRECTORY=/var/lib/pxf
       - GREENPLUM_DEPLOYMENT=singlenode
       - GREENPLUM_START_DEBUG=true
