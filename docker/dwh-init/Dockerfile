@@ -24,6 +24,7 @@ WORKDIR /init
 COPY ./gitlab-rails-init/* ./gitlab-rails-init/
 COPY ./projects/* ./projects/
 COPY ./gpconf/* ./gpconf/
+COPY ./gpsecrets/* ./gpsecrets/
 
 # ENTRYPOINT ["/init-entrypoint.sh"]
 ENTRYPOINT ["./run-dwh.sh"]

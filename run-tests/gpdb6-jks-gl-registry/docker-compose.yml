@@ -15,16 +15,18 @@ services:
       - GREENPLUM_PXF_ENABLE=true
       - GREENPLUM_PASSWORD_FILE=/run/secrets/gpdb_password
       - GREENPLUM_GPMON_PASSWORD_FILE=/run/secrets/gpmon_password
-    secrets:
-      - gpdb_password
-      - gpmon_password
+    # secrets:
+    #   - gpdb_password
+    #   - gpmon_password
     volumes:
       - gpdb-master-data:/data
       # - ../docs/custom_init_scripts:/docker-entrypoint-initdb.d
       # - ./conf/${CONFIG_FOLDER}/gpinitsystem_config_singlenode:/tmp/gpinitsystem_config
       # - ./conf/hostlist_singlenode:/tmp/hostfile_gpinitsystem
       - gpdb-config:/tmp/gpinitsystem_config:ro,subpath=gpinitsystem_config
-      - gpdb-config:/tmp/hostfile_gpinitsystem,subpath=hostfile_gpinitsystem
+      - gpdb-config:/tmp/hostfile_gpinitsystem:ro,subpath=hostfile_gpinitsystem
+      - gpdb-secrets:/run/secrets/gpdb_password:ro,subpath=gpdb_password
+      - gpdb-secrets:/run/secrets/gpmon_password:ro,subpath=gpmon_password
       - ./conf/pxf:/tmp/pxf
       # - ./conf/ssh/id_rsa:/home/gpadmin/.ssh/id_rsa
       # - ./conf/ssh/id_rsa.pub:/home/gpadmin/.ssh/id_rsa.pub
@@ -161,7 +163,7 @@ services:
       - registry-net
 
   dwh-init:
-    image: dwh-init:0.4.0
+    image: dwh-init:0.4.1
     container_name: dwh-init
     depends_on:
       registry:
@@ -176,6 +178,7 @@ services:
     volumes:
       - gitlab-bootstrap:/shared/bootstrap
       - gpdb-config:/init/gpconf
+      - gpdb-secrets:/init/gpsecrets
     networks:
       - registry-net
       - dwh-net
@@ -190,12 +193,13 @@ volumes:
   gitlab-bootstrap:
   gpdb-master-data:
   gpdb-config:
+  gpdb-secrets:
 
-secrets:
-  gpdb_password:
-    file: ./secrets/gpdb_password
-  gpmon_password:
-    file: ./secrets/gpmon_password
+# secrets:
+#   gpdb_password:
+#     file: ./secrets/gpdb_password
+#   gpmon_password:
+#     file: ./secrets/gpmon_password
 
 networks:
   dwh-net:
