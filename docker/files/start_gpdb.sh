@@ -29,7 +29,10 @@ file_env() {
     if [ "${!var:-}" ]; then
         val="${!var}"
     elif [ "${!fileVar:-}" ]; then
-        val="$(< "${!fileVar}")"
+        if [ -f "${fileVar}" ]; then
+            val="$(< "${!fileVar}")"
+        else
+            error_and_exit "File ${fileVar} not found."
     fi
 
     export "$var"="$val"
