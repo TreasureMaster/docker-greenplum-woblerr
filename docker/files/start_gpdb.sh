@@ -33,6 +33,7 @@ file_env() {
             val="$(< "${!fileVar}")"
         else
             error_and_exit "File ${fileVar} not found."
+        fi
     fi
 
     export "$var"="$val"
