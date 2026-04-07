@@ -19,6 +19,7 @@ gp_hostname=$(hostname)
 # особенно с учетом возможностей Docker по работе с секретами)
 file_env() {
     local var="$1"
+    debug "Variable ${var} initializing from file env..."
     local fileVar="${var}_FILE"
     local def="${2:-}"
     if [ "${!var:-}" ] && [ "${!fileVar:-}" ]; then
@@ -30,7 +31,7 @@ file_env() {
     elif [ "${!fileVar:-}" ]; then
         val="$(< "${!fileVar}")"
     fi
-    
+
     export "$var"="$val"
     unset "$fileVar"
 }
@@ -115,6 +116,7 @@ is_gpperfmon_enabled() {
 check_required_var() {
     local var_name=$1
     local var_value=$2
+    debug "Variable ${var_name} checking with value: ${var_value}"
     if [ -z "${var_value}" ]; then
         error_and_exit "${var_name} variable is not set!"
     fi
