@@ -31,6 +31,8 @@ services:
       # - ./conf/ssh/id_rsa:/home/gpadmin/.ssh/id_rsa
       # - ./conf/ssh/id_rsa.pub:/home/gpadmin/.ssh/id_rsa.pub
     depends_on:
+      dwh-init:
+        condition: service_started
       gitlab:
         condition: service_healthy
     networks:
