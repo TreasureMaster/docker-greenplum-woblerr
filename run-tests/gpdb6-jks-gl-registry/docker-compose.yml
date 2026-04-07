@@ -30,7 +30,7 @@ services:
       gitlab:
         condition: service_healthy
     networks:
-      - dwh
+      - dwh-net
 
   gitlab:
     image: gitlab/gitlab-ce:${GITLAB_VERSION}
@@ -185,6 +185,13 @@ volumes:
   jenkins_home:
   registry-data:
   gitlab-bootstrap:
+  gpdb-master-data:
+
+secrets:
+  gpdb_password:
+    file: ./secrets/gpdb_password
+  gpmon_password:
+    file: ./secrets/gpmon_password
 
 networks:
   dwh-net:
