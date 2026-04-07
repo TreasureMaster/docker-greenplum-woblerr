@@ -56,12 +56,12 @@ if [ "${uid}" = "0" ]; then
     debug "Copy gpinitsystem config to local tmp"
     if [ -f /tmp/gpinitsystem_config ]; then
         echo "INFO - Copy gpinitsystem_config to ${gp_tmp_dir}"
-        cp /tmp/gpinitsystem_config "${gp_tmp_dir}"
+        cp /tmp/gptempcfg/gpinitsystem_config "${gp_tmp_dir}"
     fi
     debug "Copy hostfile gpinitsystem to local tmp"
     if [ -f /tmp/hostfile_gpinitsystem ]; then
         echo "INFO - Copy hostfile_gpinitsystem to ${gp_tmp_dir}"
-        cp /tmp/hostfile_gpinitsystem "${gp_tmp_dir}"
+        cp /tmp/gptempcfg/hostfile_gpinitsystem "${gp_tmp_dir}"
     fi
     debug "Copy pxf config to local tmp"
     if [ -d /tmp/pxf ]; then

@@ -23,8 +23,9 @@ services:
       # - ../docs/custom_init_scripts:/docker-entrypoint-initdb.d
       # - ./conf/${CONFIG_FOLDER}/gpinitsystem_config_singlenode:/tmp/gpinitsystem_config
       # - ./conf/hostlist_singlenode:/tmp/hostfile_gpinitsystem
-      - gpdb-config:/tmp/gpinitsystem_config:ro,subpath=gpinitsystem_config
-      - gpdb-config:/tmp/hostfile_gpinitsystem:ro,subpath=hostfile_gpinitsystem
+      # - gpdb-config:/tmp/gpinitsystem_config:ro,subpath=gpinitsystem_config
+      # - gpdb-config:/tmp/hostfile_gpinitsystem:ro,subpath=hostfile_gpinitsystem
+      - gpdb-config:/tmp/gptempcfg:ro
       - gpdb-secrets:${GREENPLUM_SECRETS_DIR}:ro
       - ./conf/pxf:/tmp/pxf
       # - ./conf/ssh/id_rsa:/home/gpadmin/.ssh/id_rsa
