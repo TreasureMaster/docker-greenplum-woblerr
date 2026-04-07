@@ -29,7 +29,7 @@ file_env() {
     if [ "${!var:-}" ]; then
         val="${!var}"
     elif [ "${!fileVar:-}" ]; then
-        if [ -f "${fileVar}" ]; then
+        if [ -f "${!fileVar}" ]; then
             val="$(< "${!fileVar}")"
         else
             error_and_exit "File ${fileVar} not found."
