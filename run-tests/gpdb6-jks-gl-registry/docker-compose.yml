@@ -13,8 +13,8 @@ services:
       - GREENPLUM_GPPERFMON_ENABLE=true
       - GREENPLUM_DISKQUOTA_ENABLE=true
       - GREENPLUM_PXF_ENABLE=true
-      - GREENPLUM_PASSWORD_FILE=/run/secrets/gpdb_password
-      - GREENPLUM_GPMON_PASSWORD_FILE=/run/secrets/gpmon_password
+      - GREENPLUM_PASSWORD_FILE=${GREENPLUM_SECRETS_DIR}/gpdb_password
+      - GREENPLUM_GPMON_PASSWORD_FILE=${GREENPLUM_SECRETS_DIR}/gpmon_password
     # secrets:
     #   - gpdb_password
     #   - gpmon_password
@@ -25,8 +25,7 @@ services:
       # - ./conf/hostlist_singlenode:/tmp/hostfile_gpinitsystem
       - gpdb-config:/tmp/gpinitsystem_config:ro,subpath=gpinitsystem_config
       - gpdb-config:/tmp/hostfile_gpinitsystem:ro,subpath=hostfile_gpinitsystem
-      - gpdb-secrets:/run/secrets/gpdb_password:ro,subpath=gpdb_password
-      - gpdb-secrets:/run/secrets/gpmon_password:ro,subpath=gpmon_password
+      - gpdb-secrets:${GREENPLUM_SECRETS_DIR}:ro
       - ./conf/pxf:/tmp/pxf
       # - ./conf/ssh/id_rsa:/home/gpadmin/.ssh/id_rsa
       # - ./conf/ssh/id_rsa.pub:/home/gpadmin/.ssh/id_rsa.pub
