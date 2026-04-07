@@ -21,8 +21,10 @@ services:
     volumes:
       - gpdb-master-data:/data
       # - ../docs/custom_init_scripts:/docker-entrypoint-initdb.d
-      - ./conf/${CONFIG_FOLDER}/gpinitsystem_config_singlenode:/tmp/gpinitsystem_config
-      - ./conf/hostlist_singlenode:/tmp/hostfile_gpinitsystem
+      # - ./conf/${CONFIG_FOLDER}/gpinitsystem_config_singlenode:/tmp/gpinitsystem_config
+      # - ./conf/hostlist_singlenode:/tmp/hostfile_gpinitsystem
+      - gpdb-config:/tmp/gpinitsystem_config:ro,subpath=gpinitsystem_config
+      - gpdb-config:/tmp/hostfile_gpinitsystem,subpath=hostfile_gpinitsystem
       - ./conf/pxf:/tmp/pxf
       # - ./conf/ssh/id_rsa:/home/gpadmin/.ssh/id_rsa
       # - ./conf/ssh/id_rsa.pub:/home/gpadmin/.ssh/id_rsa.pub
@@ -159,7 +161,7 @@ services:
       - registry-net
 
   dwh-init:
-    image: dwh-init:0.3.10
+    image: dwh-init:0.4.0
     container_name: dwh-init
     depends_on:
       registry:
@@ -173,6 +175,7 @@ services:
       - .env
     volumes:
       - gitlab-bootstrap:/shared/bootstrap
+      - gpdb-config:/init/gpconf
     networks:
       - registry-net
       - dwh-net
@@ -186,6 +189,7 @@ volumes:
   registry-data:
   gitlab-bootstrap:
   gpdb-master-data:
+  gpdb-config:
 
 secrets:
   gpdb_password:
