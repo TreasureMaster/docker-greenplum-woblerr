@@ -9,4 +9,4 @@ PGPASSWORD="$GREENPLUM_PASSWORD" psql -v ON_ERROR_STOP=1 --username "$GREENPLUM_
     GRANT adb_deploys TO adb_deploy_cdjks;
 EOSQL
 
-unset "${GP_PASSWORD_FILE}"
+unset GP_PASSWORD_FILE
