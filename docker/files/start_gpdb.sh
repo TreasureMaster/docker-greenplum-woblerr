@@ -3,11 +3,11 @@ set -Eeuo pipefail
 
 # Load libraries
 . /liblog.sh
+gp_custom_init_dir="/docker-entrypoint-initdb.d"
 . /libenv.sh
 
 gp_init_config_file="${GREENPLUM_DATA_DIRECTORY}/gpinitsystem_config"
 gp_init_host_file="${GREENPLUM_DATA_DIRECTORY}/hostfile_gpinitsystem"
-gp_custom_init_dir="/docker-entrypoint-initdb.d"
 gp_master_dir_name="master"
 gp_hostname=$(hostname)
 
