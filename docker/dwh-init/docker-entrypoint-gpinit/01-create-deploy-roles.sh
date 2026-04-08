@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-GREENPLUM_PASSWORD=$(cat /init/secrets/gpdb_password | tr -d '\n')
+GREENPLUM_PASSWORD=$(cat "${GREENPLUM_SECRETS_DIR}/gpdb_password" | tr -d '\n')
 
 PGPASSWORD="$GREENPLUM_PASSWORD" psql -v ON_ERROR_STOP=1 --username "$GREENPLUM_USER" --dbname "$GREENPLUM_DATABASE_NAME" <<-EOSQL
     CREATE ROLE adb_deploys WITH SUPERUSER CREATEROLE;
