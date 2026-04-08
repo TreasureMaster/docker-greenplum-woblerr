@@ -51,30 +51,13 @@
 В репозитории содержится информация о последних доступных версиях.
 Для конкретной версии вы можете создать собственный образ, используя соответствующий раздел [Build](#build).
 
-Greenplum 6:
-| GPDB Version | Ubuntu 22.04                   | Oracle Linux 8        | Platform                     |
-| ------------ | ------------------------------ | --------------------- | ---------------------------- |
-| 6.27.1       | `6.27.1`, `6.27.1-ubuntu22.04` | `6.27.1-oraclelinux8` | `linux/amd64`, `linux/arm64` |
-
-Greenplum 7:
-| GPDB Version | Ubuntu 22.04                 | Oracle Linux 8       | Platform                     |
-| ------------ | ---------------------------- | -------------------- | ---------------------------- |
-| 7.1.0        | `7.1.0`, `7.1.0-ubuntu22.04` | `7.1.0-oraclelinux8` | `linux/amd64`, `linux/arm64` |
-
-Greengage 6:
-| Greengage Version | Ubuntu 22.04                   | Oracle Linux 8        | Platform                     |
-| ----------------- | ------------------------------ | --------------------- | ---------------------------- |
-| 6.29.2            | `6.29.2`, `6.29.2-ubuntu22.04` | `6.29.2-oraclelinux8` | `linux/amd64`, `linux/arm64` |
-
-Greengage 7:
-| Greengage Version | Ubuntu 22.04                 | Oracle Linux 8       | Platform                     |
-| ----------------- | ---------------------------- | -------------------- | ---------------------------- |
-| 7.4.1             | `7.4.1`, `7.4.1-ubuntu22.04` | `7.4.1-oraclelinux8` | `linux/amd64`, `linux/arm64` |
-
-WarehousePG 6:
-| WarehousePG Version | Ubuntu 22.04                             | Oracle Linux 8             | Platform                     |
-| ------------------- | ---------------------------------------- | -------------------------- | ---------------------------- |
-| 6.27.2-WHPG         | `6.27.2-WHPG`, `6.27.2-WHPG-ubuntu22.04` | `6.27.2-WHPG-oraclelinux8` | `linux/amd64`, `linux/arm64` |
+| GPDB Version            | Ubuntu 22.04                             | Oracle Linux 8             | Platform                     |
+| ----------------------- | ---------------------------------------- | -------------------------- | ---------------------------- |
+| Greenplum 6.27.1        | `6.27.1`, `6.27.1-ubuntu22.04`           | `6.27.1-oraclelinux8`      | `linux/amd64`, `linux/arm64` |
+| Greenplum 7.1.0         | `7.1.0`, `7.1.0-ubuntu22.04`             | `7.1.0-oraclelinux8`       | `linux/amd64`, `linux/arm64` |
+| Greengage 6.29.2        | `6.29.2`, `6.29.2-ubuntu22.04`           | `6.29.2-oraclelinux8`      | `linux/amd64`, `linux/arm64` |
+| Greengage 7.4.1         | `7.4.1`, `7.4.1-ubuntu22.04`             | `7.4.1-oraclelinux8`       | `linux/amd64`, `linux/arm64` |
+| WarehousePG 6.27.2-WHPG | `6.27.2-WHPG`, `6.27.2-WHPG-ubuntu22.04` | `6.27.2-WHPG-oraclelinux8` | `linux/amd64`, `linux/arm64` |
 
 ## Загрузка
 Замените `tag` на нужную вам версию.

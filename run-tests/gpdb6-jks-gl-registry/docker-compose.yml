@@ -7,7 +7,8 @@ services:
     ports:
       - "${EXPOSE_MASTER_PORT}:5432"
     environment:
-      - GREENPLUM_DATABASE_NAME=adb
+      - GREENPLUM_DATABASE_NAME=${GREENPLUM_DATABASE_NAME}
+      - GREENPLUM_USER=${GREENPLUM_USER}
       - GREENPLUM_PXF_BASE_DIRECTORY=/var/lib/pxf
       - GREENPLUM_DEPLOYMENT=singlenode
       - GREENPLUM_START_DEBUG=true
@@ -28,7 +29,9 @@ services:
       # - gpdb-config:/tmp/hostfile_gpinitsystem:ro,subpath=hostfile_gpinitsystem
       - gpdb-config:/tmp/gptempcfg:ro
       - gpdb-secrets:${GREENPLUM_SECRETS_DIR}:ro
-      - ./conf/pxf:/tmp/pxf
+      - gpdb-pxf:/tmp/pxf:ro
+      - gpdb-init:/docker-entrypoint-initdb.d:ro
+      # - ./conf/pxf:/tmp/pxf
       # - ./conf/ssh/id_rsa:/home/gpadmin/.ssh/id_rsa
       # - ./conf/ssh/id_rsa.pub:/home/gpadmin/.ssh/id_rsa.pub
     depends_on:
@@ -166,7 +169,7 @@ services:
       - registry-net
 
   dwh-init:
-    image: dwh-init:0.4.1
+    image: dwh-init:0.4.2
     container_name: dwh-init
     depends_on:
       registry:
@@ -182,6 +185,8 @@ services:
       - gitlab-bootstrap:/shared/bootstrap
       - gpdb-config:/init/gpconf
       - gpdb-secrets:/init/gpsecrets
+      - gpdb-pxf:/init/pxf
+      - gpdb-init:/init/docker-entrypoint-gpinit
     networks:
       - registry-net
       - dwh-net
@@ -197,6 +202,8 @@ volumes:
   gpdb-master-data:
   gpdb-config:
   gpdb-secrets:
+  gpdb-pxf:
+  gpdb-init:
 
 # secrets:
 #   gpdb_password:

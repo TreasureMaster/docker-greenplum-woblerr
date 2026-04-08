@@ -25,6 +25,8 @@ COPY ./gitlab-rails-init/* ./gitlab-rails-init/
 COPY ./projects/* ./projects/
 COPY ./gpconf/* ./gpconf/
 COPY ./gpsecrets/* ./gpsecrets/
+COPY ./pxf/ ./pxf/
+COPY ./docker-entrypoint-gpinit/ ./docker-entrypoint-gpinit/
 
 # ENTRYPOINT ["/init-entrypoint.sh"]
 ENTRYPOINT ["./run-dwh.sh"]
