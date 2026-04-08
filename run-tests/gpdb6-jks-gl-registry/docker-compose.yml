@@ -3,7 +3,7 @@ services:
   master:
     image: ${IMAGE_NAME}:${TAG}
     container_name: master
-    hostname: master
+    hostname: ${GREENPLUM_HOSTNAME}
     ports:
       - "${EXPOSE_MASTER_PORT}:5432"
     environment:
@@ -170,7 +170,7 @@ services:
       - registry-net
 
   dwh-init:
-    image: dwh-init:0.4.2
+    image: dwh-init:0.4.3
     container_name: dwh-init
     depends_on:
       registry:
