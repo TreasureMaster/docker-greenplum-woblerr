@@ -28,8 +28,8 @@ credentials:
           - usernamePassword:
               scope: GLOBAL
               id: "adb-prod-admin"
-              username: "admin_user"
-              password: "jkspass123"
+              username: "adb_deploy_cdjks"
+              password: "PaswdQ802"
               description: "Учетка для доступа к ADB"
 
 jobs:
