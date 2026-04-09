@@ -18,6 +18,7 @@ services:
       - GREENPLUM_PASSWORD_FILE=${GREENPLUM_SECRETS_DIR}/gpdb_password
       - GREENPLUM_GPMON_PASSWORD_FILE=${GREENPLUM_SECRETS_DIR}/gpmon_password
       - ADB_DEPLOY_CDJKS_PASSWORD=${ADB_DEPLOY_CDJKS_PASSWORD}
+      - ADB_EXEC_DWH_PASSWORD=${ADB_EXEC_DWH_PASSWORD}
     # secrets:
     #   - gpdb_password
     #   - gpmon_password
