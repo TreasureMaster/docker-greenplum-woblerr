@@ -41,7 +41,7 @@ services:
       gitlab:
         condition: service_healthy
     networks:
-      - ${DOCKER_NETWORK}
+      - dwh-net
 
   gitlab:
     image: gitlab/gitlab-ce:${GITLAB_VERSION}
@@ -96,7 +96,7 @@ services:
       retries: 10
       start_period: ${START_PERIOD}s
     networks:
-      - ${DOCKER_NETWORK}
+      - dwh-net
     # restart: always
 
   jenkins:
@@ -122,7 +122,7 @@ services:
       gitlab:
         condition: service_healthy
     networks:
-      - ${DOCKER_NETWORK}
+      - dwh-net
 
   registry:
     image: registry:3.0.0
@@ -151,7 +151,7 @@ services:
       start_period: 10s
     networks:
       - registry-net
-      - ${DOCKER_NETWORK}
+      - dwh-net
 
   registry-ui:
     image: joxit/docker-registry-ui:2.6.0
@@ -190,7 +190,7 @@ services:
       - gpdb-init:/init/docker-entrypoint-gpinit
     networks:
       - registry-net
-      - ${DOCKER_NETWORK}
+      - dwh-net
     # restart: "no"
 
 volumes:
@@ -213,7 +213,8 @@ volumes:
 #     file: ./secrets/gpmon_password
 
 networks:
-  "${DOCKER_NETWORK}":
+  dwh-net:
+    name: "${DOCKER_NETWORK}"
     driver: bridge
   registry-net:
     driver: bridge
