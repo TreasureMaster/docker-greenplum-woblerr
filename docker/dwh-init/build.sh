@@ -1,6 +1,6 @@
 #!/bin/bash
 
-IMAGE_TAG="dwh-init:0.4.6"
+IMAGE_TAG="dwh-init:0.4.7"
 
 # docker build --no-cache --progress=plain -t "$IMAGE_TAG" .
 docker build --progress=plain -t "$IMAGE_TAG" .
