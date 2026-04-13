@@ -67,7 +67,25 @@
 
 ### ToDo
 
-- [ ] объединение сервисов в единый `docker-compose.yml`
-- [ ] изменение `init-users.sh` на единый скрипт запуска `docker compose` и первоначальной инициализации
-- [ ] подготовить список системных учетных записей для gitlab
-- [ ] подготовить архивы проектов для gitlab
+- [x] объединение сервисов в единый `docker-compose.yml`
+- [x] изменение `init-users.sh` на единый скрипт запуска `docker compose` и первоначальной инициализации
+- [x] подготовить список системных учетных записей для gitlab
+- [x] подготовить архивы проектов для gitlab
+
+### Раскатка меты
+
+1. Gitlab
+   - [x] `adb-meta.git`
+   - [x] `airflow_elt.git`
+   - [ ] `cfg-private.git`
+2. Docker repository
+   - [x] `ansible:2.11.12`
+   - [x] `postgres:15.2`
+   - [x] `python:3.10.13`
+3. Ansible
+   - [ ] Связь с prodlog
+   - [ ] Скрипт `get_adb_dump_prod.sh`
+4. Пользователи
+   - [x] gitlab-пользователь cdjksnd
+   - [ ] prodlog-пользователь cdjks_dumper, запуск из ansible
+   - [ ] `conflog-prod-admin` в jenkins (`cdjks_prodlog_deploy` на продлоге)
