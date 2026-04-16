@@ -102,3 +102,20 @@ jobs:
           }
         }
       }
+
+      pipelineJob('DWH_GP/internal_manual/jks-automatic-refresh-mv') {
+        definition {
+          cpsScm {
+            scm {
+              git {
+                remote {
+                  url('${GITLAB_DWH_URL}/DWH/ADB/service-projects/automation/jks-automatic-refresh-mv.git')
+                  credentials('cdjksnd')
+                }
+                branches('*/master')
+              }
+            }
+            scriptPath('Jenkinsfile')
+          }
+        }
+      }
