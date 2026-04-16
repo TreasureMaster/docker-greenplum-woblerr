@@ -36,6 +36,8 @@ jobs:
   - script: |
       folder('DWH_GP') {}
       folder('DWH_GP/internal_manual') {}
+      folder('DWH_GP/manual') {}
+      folder('DWH_GP/manual/6.ADB_PROD') {}
 
       pipelineJob('DWH_GP/internal_manual/jks-automatic-all-adb-prod') {
         parameters {
