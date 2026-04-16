@@ -26,6 +26,7 @@ PROJECTS=(
     "DWH/ADB/service-projects/adb-platform.git"
     "DWH/ADB/dwh-gp.git"
     "DWH/ADB/service-projects/adb-internal-config.git"
+    "DWH/ADB/service-projects/automation/jks-automatic-refresh-mv.git"
 )
 
 # Архивы ищем в ./projects/<project-name>.tar.gz
