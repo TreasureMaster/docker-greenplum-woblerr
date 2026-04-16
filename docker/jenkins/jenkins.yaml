@@ -121,3 +121,25 @@ jobs:
           }
         }
       }
+
+      pipelineJob('DWH_GP/manual/jks-multithread-load-hub') {
+        parameters {
+          choiceParam('namespace', ['', 'dev', 'prod'], 'Выбор кластера для работы')
+          choiceParam('dbtype', ['', 'adb', 'template', 'stand'], 'Выбор типа БД.')
+          stringParam('dbname', '', 'Название БД для стендов.')
+        }
+        definition {
+          cpsScm {
+            scm {
+              git {
+                remote {
+                  url('${GITLAB_DWH_URL}/DWH/ADB/service-projects/automation/jks-multithread-load-hub.git')
+                  credentials('cdjksnd')
+                }
+                branches('*/master')
+              }
+            }
+            scriptPath('Jenkinsfile')
+          }
+        }
+      }
