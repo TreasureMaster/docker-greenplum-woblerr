@@ -295,7 +295,7 @@ add_all_users_to_entity() {
 
         add_user_to_entity "$entity_id" "$uid" "$access_level" "$entity_type"
         echo "Добавлен '$username' (ID=$uid) в ${entity_type} ${entity_id}"
-        ((count++))
+        count=$((count+1))
     done <<< "$usernames"
 
     echo "Добавлено: $count пользователей"
