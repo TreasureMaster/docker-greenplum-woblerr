@@ -26,19 +26,19 @@ credentials:
                 foldefName: 'DWH_GP'
         credentials:
           - usernamePassword:
-              scope: GLOBAL
+              # scope: GLOBAL
               id: "cdjksnd"
               username: "cdjks_user"
               password: "jkspass123"
               description: "Учетка для доступа к GitLab"
           - usernamePassword:
-              scope: GLOBAL
+              # scope: GLOBAL
               id: "adb-prod-admin"
               username: "adb_deploy_cdjks"
               password: "PaswdQ802"
               description: "Учетка для доступа к ADB"
           - usernamePassword:
-              scope: GLOBAL
+              # scope: GLOBAL
               id: "conflog-prod-admin"
               username: "cdjks_prodlog_deploy"
               password: "password1111"
