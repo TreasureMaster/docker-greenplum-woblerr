@@ -270,8 +270,8 @@ add_all_users_to_entity() {
     local count=0
     local usernames
     case "${USERS_SOURCE}" in
-        yaml) usernames=$(iterate_usernames_from_yaml "${USERSYAML}") ;;
-        csv) usernames=$(iterate_usernames_from_csv "${USERSCSV}") ;;
+        yaml) usernames=$(iterate_usernames_from_yaml "${USERS_YAML}") ;;
+        csv) usernames=$(iterate_usernames_from_csv "${USERS_CSV}") ;;
         *) echo "Неизвестный USERS_SOURCE"; return 1 ;;
     esac
 
