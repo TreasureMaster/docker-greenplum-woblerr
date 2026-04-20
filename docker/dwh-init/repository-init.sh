@@ -413,7 +413,7 @@ for full in "${!PROJECTS[@]}"; do
     # else
     #     echo "Проект ${PROJECT_NAME}: Reporter (20) для группы достаточно"
     # fi
-    if [[ " ${MAINTAINER_PROJECTS[*]} " =~ " ${PROJECTNAME} " ]]; then
+    if [[ " ${MAINTAINER_PROJECTS[*]} " =~ " ${PROJECT_NAME} " ]]; then
       add_all_users_to_entity "${PROJECT_ID}" 40 "project"
     fi
     echo "Проект создан, ID=${PROJECT_ID}"
