@@ -282,7 +282,7 @@ add_all_users_to_entity() {
         [[ -z "$username" || "$username" == null ]] && continue
 
         local uid
-        uid=$(get_userid_by_username "$username") || {
+        uid=$(get_user_id_by_username "$username") || {
             echo "Пользователь '$username' не найден, пропуск" >&2
             continue
         }
