@@ -170,7 +170,7 @@ iterate_usernames_from_csv() {
 
 #   [[ -z "${USERS_SOURCE:-}" ]] && return 0
 
-#   echo "Добавление пользователей из ${USERSSOURCE} в группу ID=${group_id} (access_level=${access_level})..."
+#   echo "Добавление пользователей из ${USERS_SOURCE} в группу ID=${group_id} (access_level=${access_level})..."
 
 #   local count=0
 #   local usernames
@@ -259,45 +259,45 @@ add_all_users_to_entity() {
     local entity_id="$1"
     local access_level="${2:-20}"
     local entity_type="${3:-group}"
-    
-    [[ -z "${USERSSOURCE:-}" ]] && return 0
-    
+
+    [[ -z "${USERS_SOURCE:-}" ]] && return 0
+
     local api_path="/api/v4"
     [[ "$entity_type" == "project" ]] && api_path="${api_path}/projects"
     
-    echo "Добавление пользователей из ${USERSSOURCE} в ${entity_type} ID=${entity_id} (access_level=${access_level})..."
-    
+    echo "Добавление пользователей из ${USERS_SOURCE} в ${entity_type} ID=${entity_id} (access_level=${access_level})..."
+
     local count=0
     local usernames
-    case "${USERSSOURCE}" in
+    case "${USERS_SOURCE}" in
         yaml) usernames=$(iterate_usernames_from_yaml "${USERSYAML}") ;;
         csv) usernames=$(iterate_usernames_from_csv "${USERSCSV}") ;;
-        *) echo "Неизвестный USERSSOURCE"; return 1 ;;
+        *) echo "Неизвестный USERS_SOURCE"; return 1 ;;
     esac
-    
+
     [[ -z "$usernames" ]] && { echo "Нет пользователей"; return 0; }
-    
+
     while IFS= read -r username; do
         username=$(echo "$username" | xargs)
         [[ -z "$username" || "$username" == null ]] && continue
-        
+
         local uid
         uid=$(get_userid_by_username "$username") || {
             echo "Пользователь '$username' не найден, пропуск" >&2
             continue
         }
-        
+
         # Проверка членства (адаптировать под project если нужно)
         if user_is_entity_member "$entity_id" "$uid" "$entity_type"; then
             echo "Пользователь '$username' (ID=$uid) уже в ${entity_type}, пропуск"
             continue
         fi
-        
+
         add_user_to_entity "$entity_id" "$uid" "$access_level" "$entity_type"
         echo "Добавлен '$username' (ID=$uid) в ${entity_type} ${entity_id}"
         ((count++))
     done <<< "$usernames"
-    
+
     echo "Добавлено: $count пользователей"
 }
 
