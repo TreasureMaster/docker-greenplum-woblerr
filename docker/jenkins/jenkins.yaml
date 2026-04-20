@@ -18,10 +18,10 @@ security:
 credentials:
   system:
     domainCredentials:
-      - domainCredentials:
+      - domain:
           name: 'Credentials DWH'
           description: 'Credentials for DWH teams'
-          domainSpecification:
+          specifications:
             - folderDomainSpecification:
                 foldefName: 'DWH_GP'
         credentials:
