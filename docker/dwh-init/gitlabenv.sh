@@ -24,6 +24,7 @@ declare -A PROJECTS=(
     ["DWH/ADB/service-projects/automation/jks-liquibase-all.git"]=""
     ["DWH/ADB/service-projects/dwh-shared-jenkins.git"]=""
     ["DWH/ADB/service-projects/adb-platform.git"]=""
+    ["DWH/ADB/service-projects/help-platform.git"]=""
     ["DWH/ADB/dwh-gp.git"]=""
     ["DWH/ADB/service-projects/adb-internal-config.git"]=""
     ["DWH/ADB/service-projects/automation/jks-automatic-refresh-mv.git"]=""
