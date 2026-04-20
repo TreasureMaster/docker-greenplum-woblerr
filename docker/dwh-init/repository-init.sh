@@ -241,7 +241,11 @@ user_is_entity_member() {
     local entity_type="${3:-group}"
     
     local api_path="/api/v4"
-    [[ "$entity_type" == "project" ]] && api_path="${api_path}/projects"
+    if [[ "$entity_type" == "project" ]]; then
+      api_path="${api_path}/projects"
+    else 
+      api_path="${api_path}/groups"
+    fi
     
     local status
     status=$(curl -s -o /dev/null -w "%{http_code}" \
