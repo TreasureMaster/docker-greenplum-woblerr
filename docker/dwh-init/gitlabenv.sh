@@ -20,14 +20,16 @@ ROOT_PASSWORD="${INITIAL_ROOT_PASSWORD}"
 #     "DWH/ADB/service-projects/automation/jks-test-one.git"
 #     "DWH/ADB/service-projects/automation/jks-test-two.git"
 # )
-PROJECTS=(
-    "DWH/ADB/service-projects/automation/jks-liquibase-all.git"
-    "DWH/ADB/service-projects/dwh-shared-jenkins.git"
-    "DWH/ADB/service-projects/adb-platform.git"
-    "DWH/ADB/dwh-gp.git"
-    "DWH/ADB/service-projects/adb-internal-config.git"
-    "DWH/ADB/service-projects/automation/jks-automatic-refresh-mv.git"
-    "DWH/ADB/service-projects/automation/jks-multithread-load-hub.git"
+declare -A PROJECTS=(
+    ["DWH/ADB/service-projects/automation/jks-liquibase-all.git"]=""
+    ["DWH/ADB/service-projects/dwh-shared-jenkins.git"]=""
+    ["DWH/ADB/service-projects/adb-platform.git"]=""
+    ["DWH/ADB/dwh-gp.git"]=""
+    ["DWH/ADB/service-projects/adb-internal-config.git"]=""
+    ["DWH/ADB/service-projects/automation/jks-automatic-refresh-mv.git"]=""
+    ["DWH/ADB/service-projects/automation/jks-multithread-load-hub.git"]=""
+    ["DWH/ADB/service-projects/automation/jks-automatic-deploy-help-platform.git"]=""
+    ["DWH/ADB/conflog.git"]="prodlog"
 )
 
 # Архивы ищем в ./projects/<project-name>.tar.gz

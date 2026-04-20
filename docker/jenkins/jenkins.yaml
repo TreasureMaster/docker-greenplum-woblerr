@@ -18,7 +18,13 @@ security:
 credentials:
   system:
     domainCredentials:
-      - credentials:
+      - domainCredentials:
+          name: 'Credentials DWH'
+          description: 'Credentials for DWH teams'
+          domainSpecification:
+            - folderDomainSpecification:
+                foldefName: 'DWH_GP'
+        credentials:
           - usernamePassword:
               scope: GLOBAL
               id: "cdjksnd"
@@ -31,6 +37,12 @@ credentials:
               username: "adb_deploy_cdjks"
               password: "PaswdQ802"
               description: "Учетка для доступа к ADB"
+          - usernamePassword:
+              scope: GLOBAL
+              id: "conflog-prod-admin"
+              username: "cdjks_prodlog_deploy"
+              password: "password1111"
+              description: "Учетка для доступа к продлогу"
 
 jobs:
   - script: |
@@ -38,6 +50,7 @@ jobs:
       folder('DWH_GP/internal_manual') {}
       folder('DWH_GP/manual') {}
       folder('DWH_GP/manual/6.ADB_PROD') {}
+      folder('DWH_GP/manual/2.Conflog') {}
 
       pipelineJob('DWH_GP/internal_manual/jks-automatic-all-adb-prod') {
         parameters {
@@ -140,6 +153,52 @@ jobs:
               }
             }
             scriptPath('Jenkinsfile')
+          }
+        }
+      }
+
+      pipelineJob('DWH_GP/manual/2.Conflog/jks-automatic-deploy-help-platform') {
+        parameters {
+          choiceParam('branchName', ['prodlog','devlog'], 'Целевая ветка conflog')
+          booleanParam('cleanOld', true, 'Очистка неиспользуемого в целевой ветке')
+          booleanParam('refactorDB', false, 'Рефакторинг БД')
+          booleanParam('runDeployDevlog01', false, 'Запустить автомат раскатки devlog01')
+          booleanParam('runDeployDevlog02', false, 'Запустить автомат раскатки devlog02')
+          booleanParam('runDeployProdlog', true, 'Запустить автомат раскатки prodlog')
+        }
+        definition {
+          cpsScm {
+            scm {
+              git {
+                remote {
+                  url('${GITLAB_DWH_URL}/DWH/ADB/service-projects/automation/jks-automatic-deploy-help-platform.git')
+                  credentials('cdjksnd')
+                }
+                branches('*/master')
+              }
+            }
+            scriptPath('Jenkinsfile')
+          }
+        }
+      }
+
+      pipelineJob('DWH_GP/manual/2.Conflog/jks-automatic-deploy-conflog-prod') {
+        parameters {
+          stringParam('deploybranch', 'prodlog', 'Имя ветки для применения')
+          booleanParam('refactoring', false, 'Режим рефакторинг?')
+        }
+        definition {
+          cpsScm {
+            scm {
+              git {
+                remote {
+                  url('${GITLAB_DWH_URL}/DWH/ADB/service-projects/automation/jks-liquibase-all.git')
+                  credentials('cdjksnd')
+                }
+                branches('*/master')
+              }
+            }
+            scriptPath('Jenkinsfile-deploy-conflog-prod')
           }
         }
       }

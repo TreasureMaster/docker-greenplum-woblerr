@@ -210,8 +210,8 @@ add_all_users_to_group() {
 # ---------------------------------------------------------------------------- #
 #                               3. Основной цикл                               #
 # ---------------------------------------------------------------------------- #
-
-for full in "${PROJECTS[@]}"; do
+# for full in "${PROJECTS[@]}"; do
+for full in "${!PROJECTS[@]}"; do
   echo
   echo "==== Обработка ${full} ===="
 
@@ -340,6 +340,16 @@ for full in "${PROJECTS[@]}"; do
 
   git push -u origin --all
   git push origin --tags || true
+
+  # Дополнительные ветки (только если указаны)
+  EXTRA_BRANCHES="${PROJECTS[$full]}"
+  if [[ -n "$EXTRA_BRANCHES" ]]; then
+      for branch in $EXTRA_BRANCHES; do
+          git checkout -b "$branch" master  # Создать от master (локальной)
+          git push -u origin "$branch"
+          echo "Дополнительная ветка запушена: $branch"
+      done
+  fi
 
   popd >/dev/null
   rm -rf "${WORKDIR}"
