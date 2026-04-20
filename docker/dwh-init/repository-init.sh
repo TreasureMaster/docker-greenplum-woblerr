@@ -116,14 +116,26 @@ user_is_group_member() {
 }
 
 # Добавить пользователя в группу как Reporter (20)
-add_user_to_group_reporter() {
-  local group_id="$1"
-  local user_id="$2"
+# add_user_to_group_reporter() {
+#   local group_id="$1"
+#   local user_id="$2"
 
-  curl -sS --request POST \
-    --header "PRIVATE-TOKEN: ${ROOT_TOKEN}" \
-    --data "user_id=${user_id}&access_level=20" \
-    "${GITLAB_URL}/api/v4/groups/${group_id}/members" >/dev/null
+#   curl -sS --request POST \
+#     --header "PRIVATE-TOKEN: ${ROOT_TOKEN}" \
+#     --data "user_id=${user_id}&access_level=20" \
+#     "${GITLAB_URL}/api/v4/groups/${group_id}/members" >/dev/null
+# }
+
+# Универсальная функция: добавить пользователя в группу с заданным access_level
+add_user_to_group() {
+    local group_id="$1"
+    local user_id="$2"
+    local access_level="$3"
+    
+    curl -sS --request POST \
+        --header "PRIVATE-TOKEN: ${ROOT_TOKEN}" \
+        --data "user_id=${user_id}&access_level=${access_level}" \
+        "${GITLAB_URL}/api/v4/groups/${group_id}/members" >/dev/null
 }
 
 # Обход пользователей из YAML (выводит username по одному в строке)
@@ -152,57 +164,141 @@ iterate_usernames_from_csv() {
 }
 
 # Универсальная функция: добавить всех пользователей в группу
-add_all_users_to_group() {
-  local group_id="$1"
+# add_all_users_to_group() {
+#   local group_id="$1"
+#   local access_level="${2:-20}"  # По умолчанию Reporter (20)
 
-  [[ -z "${USERS_SOURCE:-}" ]] && return 0
+#   [[ -z "${USERS_SOURCE:-}" ]] && return 0
 
-  echo "  Добавляю пользователей (${USERS_SOURCE}) в группу ID=${group_id} как Reporter..."
+#   echo "Добавление пользователей из ${USERSSOURCE} в группу ID=${group_id} (access_level=${access_level})..."
 
-  local count=0
-  local usernames
+#   local count=0
+#   local usernames
 
-  case "${USERS_SOURCE}" in
-    yaml)
-      usernames=$(iterate_usernames_from_yaml "${USERS_YAML}" || true)
-      ;;
-    csv)
-      usernames=$(iterate_usernames_from_csv "${USERS_CSV}" || true)
-      ;;
-    *)
-      echo "  Неизвестный источник пользователей: ${USERS_SOURCE}, пропуск" >&2
-      return 0
-      ;;
-  esac
+#   case "${USERS_SOURCE}" in
+#     yaml)
+#       usernames=$(iterate_usernames_from_yaml "${USERS_YAML}" || true)
+#       ;;
+#     csv)
+#       usernames=$(iterate_usernames_from_csv "${USERS_CSV}" || true)
+#       ;;
+#     *)
+#       echo "  Неизвестный источник пользователей: ${USERS_SOURCE}, пропуск" >&2
+#       return 0
+#       ;;
+#   esac
 
-  if [[ -z "${usernames}" ]]; then
-    echo "  В источнике ${USERS_SOURCE} пользователей не найдено или ошибка чтения"
-    return 0
-  fi
+#   if [[ -z "${usernames}" ]]; then
+#     echo "  В источнике ${USERS_SOURCE} пользователей не найдено или ошибка чтения"
+#     return 0
+#   fi
 
-  # Проходим по username'ам
-  while IFS= read -r username; do
-    username="${username//\"/}"
-    echo "[DEBUG]: Обработка пользователя ${username}"
-    [[ -z "${username}" || "${username}" == "null" ]] && continue
+#   # Проходим по username'ам
+#   while IFS= read -r username; do
+#     username="${username//\"/}"
+#     echo "[DEBUG]: Обработка пользователя ${username}"
+#     [[ -z "${username}" || "${username}" == "null" ]] && continue
 
-    local uid
-    if ! uid=$(get_user_id_by_username "${username}"); then
-      echo "    Пользователь ${username} не найден в GitLab, пропуск"
-      continue
-    fi
+#     local uid
+#     if ! uid=$(get_user_id_by_username "${username}"); then
+#       echo "    Пользователь ${username} не найден в GitLab, пропуск"
+#       continue
+#     fi
 
-    if user_is_group_member "${group_id}" "${uid}"; then
-      echo "    Пользователь ${username} (ID=${uid}) уже в группе, пропуск"
-      continue
-    fi
+#     if user_is_group_member "${group_id}" "${uid}"; then
+#       echo "    Пользователь ${username} (ID=${uid}) уже в группе, пропуск"
+#       continue
+#     fi
 
-    add_user_to_group_reporter "${group_id}" "${uid}"
-    echo "    Добавлен пользователь ${username} (ID=${uid}) в группу ID=${group_id} как Reporter"
-    count=$((count+1))
-  done <<< "${usernames}"
+#     add_user_to_group_reporter "${group_id}" "${uid}" "$access_level"
+#     echo "Добавлен пользователь ID=${uid} ('$username') в группу ${group_id} с уровнем (${access_level})"
+#     count=$((count+1))
+#   done <<< "${usernames}"
 
-  echo "  Добавление пользователей завершено, новых добавлено: ${count}"
+#   echo "  Добавление пользователей завершено, новых добавлено: ${count}"
+# }
+
+# Добавить одного пользователя в группу/проект
+add_user_to_entity() {
+    local entity_id="$1"
+    local user_id="$2"
+    local access_level="$3"
+    local entity_type="${4:-group}"
+    
+    local api_path="/api/v4"
+    [[ "$entity_type" == "project" ]] && api_path="${api_path}/projects"
+    
+    curl -sS --request POST \
+        --header "PRIVATE-TOKEN: ${ROOT_TOKEN}" \
+        --data "user_id=${user_id}&access_level=${access_level}" \
+        "${GITLAB_URL}${api_path}/${entity_id}/members" >/dev/null
+}
+
+# Проверка членства (нужна для избежания дублей)
+user_is_entity_member() {
+    local entity_id="$1"
+    local user_id="$2"
+    local entity_type="${3:-group}"
+    
+    local api_path="/api/v4"
+    [[ "$entity_type" == "project" ]] && api_path="${api_path}/projects"
+    
+    local status
+    status=$(curl -s -o /dev/null -w "%{http_code}" \
+        --header "PRIVATE-TOKEN: ${ROOT_TOKEN}" \
+        "${GITLAB_URL}${api_path}/${entity_id}/members/${user_id}")
+    
+    [[ "$status" == "200" ]]
+}
+
+# Универсальная: добавить всех пользователей в группу/проект
+# $1: ID (group_id или project_id)
+# $2: access_level (20=Reporter, 40=Maintainer)
+# $3: type (group|project, по умолчанию group)
+add_all_users_to_entity() {
+    local entity_id="$1"
+    local access_level="${2:-20}"
+    local entity_type="${3:-group}"
+    
+    [[ -z "${USERSSOURCE:-}" ]] && return 0
+    
+    local api_path="/api/v4"
+    [[ "$entity_type" == "project" ]] && api_path="${api_path}/projects"
+    
+    echo "Добавление пользователей из ${USERSSOURCE} в ${entity_type} ID=${entity_id} (access_level=${access_level})..."
+    
+    local count=0
+    local usernames
+    case "${USERSSOURCE}" in
+        yaml) usernames=$(iterate_usernames_from_yaml "${USERSYAML}") ;;
+        csv) usernames=$(iterate_usernames_from_csv "${USERSCSV}") ;;
+        *) echo "Неизвестный USERSSOURCE"; return 1 ;;
+    esac
+    
+    [[ -z "$usernames" ]] && { echo "Нет пользователей"; return 0; }
+    
+    while IFS= read -r username; do
+        username=$(echo "$username" | xargs)
+        [[ -z "$username" || "$username" == null ]] && continue
+        
+        local uid
+        uid=$(get_userid_by_username "$username") || {
+            echo "Пользователь '$username' не найден, пропуск" >&2
+            continue
+        }
+        
+        # Проверка членства (адаптировать под project если нужно)
+        if user_is_entity_member "$entity_id" "$uid" "$entity_type"; then
+            echo "Пользователь '$username' (ID=$uid) уже в ${entity_type}, пропуск"
+            continue
+        fi
+        
+        add_user_to_entity "$entity_id" "$uid" "$access_level" "$entity_type"
+        echo "Добавлен '$username' (ID=$uid) в ${entity_type} ${entity_id}"
+        ((count++))
+    done <<< "$usernames"
+    
+    echo "Добавлено: $count пользователей"
 }
 
 
@@ -211,6 +307,7 @@ add_all_users_to_group() {
 #                               3. Основной цикл                               #
 # ---------------------------------------------------------------------------- #
 # for full in "${PROJECTS[@]}"; do
+# local access_level=20  # По умолчанию Reporter
 for full in "${!PROJECTS[@]}"; do
   echo
   echo "==== Обработка ${full} ===="
@@ -268,7 +365,23 @@ for full in "${!PROJECTS[@]}"; do
   echo "Итоговая группа ID=${FINAL_GROUP_ID}"
 
   # Добавляем всех пользователей из users.yml/csv в эту группу как Reporter
-  add_all_users_to_group "${FINAL_GROUP_ID}"
+  # add_all_users_to_group "${FINAL_GROUP_ID}" 20  # Reporter для группы
+  add_all_users_to_entity "${FINAL_GROUP_ID}" 20 "group"
+
+  # Определяем роль для пользователей: Maintainer (40) или Reporter (20)
+  # for maint_proj in "${MAINTAINER_PROJECTS[@]}"; do
+  #     if [[ "$PROJECTNAME" == "$maint_proj" ]]; then
+  #         access_level=40  # Maintainer
+  #         break
+  #     else
+  #         access_level=20
+  #     fi
+  # done
+
+  # Добавляем пользователей с нужными правами
+  # add_all_users_to_group "${FINAL_GROUP_ID}" "$access_level"
+  # echo "Добавлены пользователи в группу ${FINAL_GROUP_ID} с правами $([[ $access_level == 40 ]] && echo 'Maintainer' || echo 'Reporter')"
+
 
   PROJECT_ID=""
   # Ищем проект по пути и группе
@@ -291,6 +404,17 @@ for full in "${!PROJECTS[@]}"; do
     if [[ "${PROJECT_ID}" == "null" || -z "${PROJECT_ID}" ]]; then
       echo "Не удалось создать проект ${PROJECT_NAME}" >&2
       exit 1
+    fi
+
+    # Если проект требует Maintainer — добавляем пользователей в проект с правами 40
+    # if [[ " ${MAINTAINER_PROJECTS[*]} " =~ " ${PROJECT_NAME} " ]]; then
+    #     echo "Проект ${PROJECT_NAME} требует Maintainer (40)"
+    #     add_all_users_to_project "${PROJECT_ID}" 40
+    # else
+    #     echo "Проект ${PROJECT_NAME}: Reporter (20) для группы достаточно"
+    # fi
+    if [[ " ${MAINTAINER_PROJECTS[*]} " =~ " ${PROJECTNAME} " ]]; then
+      add_all_users_to_entity "${PROJECT_ID}" 40 "project"
     fi
     echo "Проект создан, ID=${PROJECT_ID}"
   else

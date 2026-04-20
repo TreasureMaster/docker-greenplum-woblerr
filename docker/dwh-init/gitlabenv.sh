@@ -32,6 +32,10 @@ declare -A PROJECTS=(
     ["DWH/ADB/service-projects/automation/jks-automatic-deploy-help-platform.git"]=""
     ["DWH/ADB/conflog.git"]="prodlog"
 )
+# Репозитории, где пользователи добавляются как Maintainer (40)
+MAINTAINER_PROJECTS=(
+    "conflog"
+)
 
 # Архивы ищем в ./projects/<project-name>.tar.gz
 ARCHIVE_DIR="./projects"
