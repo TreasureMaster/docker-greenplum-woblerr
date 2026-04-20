@@ -224,10 +224,15 @@ add_user_to_entity() {
     local user_id="$2"
     local access_level="$3"
     local entity_type="${4:-group}"
-    
+
     local api_path="/api/v4"
-    [[ "$entity_type" == "project" ]] && api_path="${api_path}/projects"
-    
+    # [[ "$entity_type" == "project" ]] && api_path="${api_path}/projects"
+    if [[ "$entity_type" == "project" ]]; then
+      api_path="${api_path}/projects"
+    else 
+      api_path="${api_path}/groups"
+    fi
+
     curl -sS --request POST \
         --header "PRIVATE-TOKEN: ${ROOT_TOKEN}" \
         --data "user_id=${user_id}&access_level=${access_level}" \
