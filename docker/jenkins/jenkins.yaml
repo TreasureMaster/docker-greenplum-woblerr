@@ -41,13 +41,13 @@ credentials:
             scope: GLOBAL
             id: "conflog-prod-admin"
             username: "cdjks_prodlog_deploy"
-            password: "password1111"
+            password: "password111"
             description: "Учетка для доступа к продлогу"
         - usernamePassword:
             scope: GLOBAL
             id: "conflog-dev-admin"
             username: "cdjks_prodlog_deploy"
-            password: "password1111"
+            password: "password111"
             description: "Учетка для доступа к девлогу (fake)"
 
 jobs:
