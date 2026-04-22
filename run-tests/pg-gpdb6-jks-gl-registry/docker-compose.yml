@@ -19,6 +19,8 @@ services:
       - GREENPLUM_GPMON_PASSWORD_FILE=${GREENPLUM_SECRETS_DIR}/gpmon_password
       - ADB_DEPLOY_CDJKS_PASSWORD=${ADB_DEPLOY_CDJKS_PASSWORD}
       - ADB_EXEC_DWH_PASSWORD=${ADB_EXEC_DWH_PASSWORD}
+      - JENKINS_SSH_USER=${JENKINS_SSH_USER}
+      - JENKINS_SSH_PASS=${JENKINS_SSH_PASS}
     # secrets:
     #   - gpdb_password
     #   - gpmon_password
