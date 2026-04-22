@@ -31,6 +31,8 @@ declare -A PROJECTS=(
     ["DWH/ADB/service-projects/automation/jks-multithread-load-hub.git"]=""
     ["DWH/ADB/service-projects/automation/jks-automatic-deploy-help-platform.git"]=""
     ["DWH/ADB/conflog.git"]="prodlog"
+    ["DWH/ADB/service-projects/automation/jks-automatic-pxf.git"]=""
+    ["DWH/ADB/BASE-CFG/cfg-private.git"]=""
 )
 # Репозитории, где пользователи добавляются как Maintainer (40)
 MAINTAINER_PROJECTS=(

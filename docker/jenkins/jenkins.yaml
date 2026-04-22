@@ -49,6 +49,12 @@ credentials:
             username: "cdjks_prodlog_deploy"
             password: "password111"
             description: "Учетка для доступа к девлогу (fake)"
+        - usernamePassword:
+            scope: GLOBAL
+            id: "svc_cdjks_adprod-pass"
+            username: "svc_cdjks_adprod"
+            password: "password111"
+            description: "Доступ к greenplum под gpadmin"
 
 jobs:
   - script: |
@@ -205,6 +211,23 @@ jobs:
               }
             }
             scriptPath('Jenkinsfile-deploy-conflog-prod')
+          }
+        }
+      }
+
+      pipelineJob('DWH_GP/internal_manual/jks-dynamic-pxf-prod') {
+        definition {
+          cpsScm {
+            scm {
+              git {
+                remote {
+                  url('${GITLAB_DWH_URL}/DWH/ADB/service-projects/automation/jks-automatic-pxf.git')
+                  credentials('cdjksnd')
+                }
+                branches('*/master')
+              }
+            }
+            scriptPath('Jenkinsfile-dynamic-pxf-prod')
           }
         }
       }

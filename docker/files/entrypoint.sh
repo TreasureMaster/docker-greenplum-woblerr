@@ -39,6 +39,25 @@ if [ "${uid}" = "0" ]; then
         mkdir -p ${GREENPLUM_PXF_BASE_DIRECTORY}
         echo "export PXF_BASE=${GREENPLUM_PXF_BASE_DIRECTORY}" >> /home/${GREENPLUM_USER}/.bashrc
     fi
+    debug "Create jenkins user (for ci/cd - ansible)"
+    if ! id "$JENKINS_SSH_USER" &>/dev/null; then
+        echo "Создаём пользователя: $JENKINS_SSH_USER"
+        useradd -m -s /bin/bash "$JENKINS_SSH_USER"
+
+        # Устанавливаем пароль
+        echo "$JENKINS_SSH_USER:$JENKINS_SSH_PASS" | chpasswd
+
+        # Опционально: добавляем в группу sudo (если нужно)
+        # usermod -aG sudo "$JENKINS_SSH_USER"
+    fi
+    # Проверяем, установлено ли правило
+    debug "Add jenkins user enter as gpadmin"
+    if [ ! -f "$SUDOERS_FILE" ] || ! grep -qF "$GPADMIN_RULE" "$SUDOERS_FILE"; then
+        echo "Настраиваем sudo-права для $JENKINS_SSH_USER → gpadmin"
+        echo "$GPADMIN_RULE" > "$SUDOERS_FILE"
+        chmod 440 "$SUDOERS_FILE"  # Обязательные права для sudoers
+        chown root:root "$SUDOERS_FILE"
+    fi
     debug "Correction user:group"
     # Коррекция user:group, если они были переопределены в env.
     chown -R ${GREENPLUM_USER}:${GREENPLUM_GROUP} \

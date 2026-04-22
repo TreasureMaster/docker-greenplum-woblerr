@@ -9,7 +9,7 @@ services:
     environment:
       - GREENPLUM_DATABASE_NAME=${GREENPLUM_DATABASE_NAME}
       - GREENPLUM_USER=${GREENPLUM_USER}
-      - GREENPLUM_PXF_BASE_DIRECTORY=/var/lib/pxf
+      - GREENPLUM_PXF_BASE_DIRECTORY=${GREENPLUM_PXF_BASE_DIRECTORY}
       - GREENPLUM_DEPLOYMENT=singlenode
       - GREENPLUM_START_DEBUG=true
       - GREENPLUM_GPPERFMON_ENABLE=true
@@ -194,7 +194,7 @@ services:
       - registry-net
 
   dwh-init:
-    image: dwh-init:0.6.4
+    image: dwh-init:0.7.0
     container_name: dwh-init
     depends_on:
       registry:
