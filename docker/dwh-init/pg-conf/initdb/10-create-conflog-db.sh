@@ -20,11 +20,14 @@ PGPASSWORD="$CONFLOG_PASSWORD" psql -v ON_ERROR_STOP=1 --username "$CONFLOG_USER
 	CREATE ROLE rl_owner_db;
 	CREATE ROLE rl_lm_worker;
 	CREATE ROLE rl_log_worker;
+	CREATE ROLE db_prod_log01_all;
 	CREATE USER cdjks_prodlog_deploy WITH PASSWORD '${CDJKS_PRODLOG_DEPLOY_PASSWORD}';
 	CREATE USER cdjks_dumper WITH PASSWORD '${CDJKS_DUMPER_PASSWORD}';
+	CREATE USER svc_dw_kafka_prod WITH PASSWORD '${KAFKA_PASSWORD}';
 	GRANT CREATE ON DATABASE db_prod_log01 TO rl_owner_db;
 	GRANT CONNECT ON DATABASE db_prod_log01 TO rl_owner_db;
 	GRANT db_prod_log01 TO rl_owner_db;
+	GRANT db_prod_log01_all TO svc_dw_kafka_prod;
 
 	GRANT rl_owner_db TO cdjks_prodlog_deploy;
 	GRANT rl_reader	TO cdjks_prodlog_deploy;
