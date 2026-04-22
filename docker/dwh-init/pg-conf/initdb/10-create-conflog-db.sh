@@ -24,6 +24,7 @@ PGPASSWORD="$CONFLOG_PASSWORD" psql -v ON_ERROR_STOP=1 --username "$CONFLOG_USER
 	CREATE USER cdjks_prodlog_deploy WITH PASSWORD '${CDJKS_PRODLOG_DEPLOY_PASSWORD}';
 	CREATE USER cdjks_dumper WITH PASSWORD '${CDJKS_DUMPER_PASSWORD}';
 	CREATE USER svc_dw_kafka_prod WITH PASSWORD '${KAFKA_PASSWORD}';
+	CREATE USER srv_prodlog01 WITH PASSWORD '${PXF_PASSWORD}';
 	GRANT CREATE ON DATABASE db_prod_log01 TO rl_owner_db;
 	GRANT CONNECT ON DATABASE db_prod_log01 TO rl_owner_db;
 	GRANT db_prod_log01 TO rl_owner_db;
@@ -35,6 +36,8 @@ PGPASSWORD="$CONFLOG_PASSWORD" psql -v ON_ERROR_STOP=1 --username "$CONFLOG_USER
 	GRANT rl_log_worker	TO cdjks_prodlog_deploy;
 
 	GRANT rl_reader	TO cdjks_dumper;
+
+	GRANT rl_reader	TO srv_prodlog01;
 
 	GRANT rl_lm_worker TO afprod;
 	GRANT rl_log_worker	TO afprod;

@@ -6,11 +6,11 @@
     </property>
     <property>
         <name>jdbc.url</name>
-        <value>jdbc:postgresql://external-postgres:5432/test_log01</value>
+        <value>jdbc:postgresql://postgres:5432/db_prod_log01</value>
     </property>
     <property>
         <name>jdbc.user</name>
-        <value>usr_prodlog01</value>
+        <value>srv_prodlog01</value>
     </property>
     <property>
         <name>jdbc.password</name>
