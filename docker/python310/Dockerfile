@@ -22,7 +22,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         libgfortran5 \
     && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /app
+# WORKDIR /app
 
 # Копируем установленные пакеты из builder
 COPY --from=builder /usr/local/lib/python3.10/site-packages \
