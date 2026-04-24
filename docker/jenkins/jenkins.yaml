@@ -265,3 +265,57 @@ jobs:
           }
         }
       }
+
+      pipelineJob('DWH_GP/manual/6.ADB_PROD/jks-automatic-s2t-to-xlsx-prod') {
+        definition {
+          cpsScm {
+            scm {
+              git {
+                remote {
+                  url('${GITLAB_DWH_URL}/DWH/ADB/service-projects/automation/jks-s2t-to-xlsx.git')
+                  credentials('cdjksnd')
+                }
+                branches('*/master')
+              }
+            }
+            scriptPath('Jenkinsfile-get-data-from-database')
+          }
+        }
+      }
+
+      pipelineJob('DWH_GP/manual/6.ADB_PROD/jks-automatic-bdv-to-xlsx-prod') {
+        definition {
+          cpsScm {
+            scm {
+              git {
+                remote {
+                  url('${GITLAB_DWH_URL}/DWH/ADB/service-projects/automation/jks-s2t-to-xlsx.git')
+                  credentials('cdjksnd')
+                }
+                branches('*/master')
+              }
+            }
+            scriptPath('Jenkinsfile-get-data-from-database_bdv_logic')
+          }
+        }
+      }
+
+      pipelineJob('DWH_GP/manual/6.ADB_PROD/jks-automatic-generate-and-deploy-detail-dags_PROD') {
+        parameters {
+          booleanParam('unpauseDags', false, 'Снимать даги с паузы после деплоя?')
+        }
+        definition {
+          cpsScm {
+            scm {
+              git {
+                remote {
+                  url('${GITLAB_DWH_URL}/DWH/ADB/service-projects/automation/jks-automatic-generate-and-deploy-detail-dags.git')
+                  credentials('cdjksnd')
+                }
+                branches('*/master')
+              }
+            }
+            scriptPath('PROD/Jenkinsfile')
+          }
+        }
+      }
