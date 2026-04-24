@@ -231,3 +231,37 @@ jobs:
           }
         }
       }
+
+      pipelineJob('DWH_GP/manual/6.ADB_PROD/jks-do-prm-task-prod') {
+        definition {
+          cpsScm {
+            scm {
+              git {
+                remote {
+                  url('${GITLAB_DWH_URL}/DWH/ADB/service-projects/automation/jks-do-prm-task.git')
+                  credentials('cdjksnd')
+                }
+                branches('*/master')
+              }
+            }
+            scriptPath('Jenkinsfile-jks-do-prm-task-prod')
+          }
+        }
+      }
+
+      pipelineJob('DWH_GP/manual/6.ADB_PROD/jks-generate-roles-on-adb-prod') {
+        definition {
+          cpsScm {
+            scm {
+              git {
+                remote {
+                  url('${GITLAB_DWH_URL}/DWH/ADB/service-projects/automation/jks_greenplum.git')
+                  credentials('cdjksnd')
+                }
+                branches('*/master')
+              }
+            }
+            scriptPath('Jenkinsfiles/Jenkinsfile-generate-roles-on-adb-prod')
+          }
+        }
+      }

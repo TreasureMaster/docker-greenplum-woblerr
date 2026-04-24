@@ -33,6 +33,11 @@ declare -A PROJECTS=(
     ["DWH/ADB/conflog.git"]="prodlog"
     ["DWH/ADB/service-projects/automation/jks-automatic-pxf.git"]=""
     ["DWH/ADB/BASE-CFG/cfg-private.git"]=""
+    ["DWH/ADB/service-projects/automation/jks-do-prm-task.git"]=""
+    ["DWH/ADB/service-projects/automation/jks_greenplum.git"]=""
+    ["DWH/ADB/dwh-service-test.git"]=""
+    ["DWH/ADB/BASE-CFG/cfg-schemas.git"]=""
+    ["DWH/ADB/service-projects/automation/roles_ddl_repo.git"]=""
 )
 # Репозитории, где пользователи добавляются как Maintainer (40)
 MAINTAINER_PROJECTS=(
