@@ -10,7 +10,7 @@ HOME_DIR="/home/${USERNAME}"
 
 if ! id -u "$USERNAME" &>/dev/null; then
     echo "Creating user: $USERNAME"
-    adduser -D -h "$HOME_DIR" -s /bin/sh "$USERNAME"
+    adduser -D -h "$HOME_DIR" -s /bin/bash "$USERNAME"
 
     # Пример: добавление в группу для доступа к общим директориям
     # addgroup "$USERNAME" dockerhost
