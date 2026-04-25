@@ -19,7 +19,7 @@ services:
     volumes:
       - pgdb-conflog-data:/var/lib/postgresql/data
       # - ./pg-conf/initdb:/docker-entrypoint-initdb.d
-      - ./preinitdb:/docker-entrypoint-preinitdb.d:ro
+      - ./preinitdb:/docker-entrypoint-preinit.d:ro
     ports:
       - "${EXPOSE_POSTGRES_PORT}:5432"
     networks:
