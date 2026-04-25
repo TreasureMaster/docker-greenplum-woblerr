@@ -58,6 +58,7 @@ services:
     volumes:
       - pgdb-conflog-data:/var/lib/postgresql/data
       - pgdb-init:/docker-entrypoint-initdb.d:ro
+      - pgdb-preinit:/docker-entrypoint-preinit.d:ro
       # - ./pg-conf/initdb:/docker-entrypoint-initdb.d
     ports:
       - "${EXPOSE_POSTGRES_PORT}:5432"
@@ -196,7 +197,7 @@ services:
       - registry-net
 
   dwh-init:
-    image: dwh-init:0.9.0
+    image: dwh-init:0.10.0
     container_name: dwh-init
     depends_on:
       registry:
@@ -215,6 +216,7 @@ services:
       - gpdb-pxf:/init/pxf
       - gpdb-init:/init/docker-entrypoint-gpinit
       - pgdb-init:/init/initdb
+      - pgdb-preinit:/init/preinitdb
     networks:
       - registry-net
       - dwh-net
@@ -234,6 +236,7 @@ volumes:
   gpdb-init:
   pgdb-conflog-data:
   pgdb-init:
+  pgdb-preinit:
 
 # secrets:
 #   gpdb_password:

@@ -55,6 +55,12 @@ credentials:
             username: "svc_cdjks_adprod"
             password: "password111"
             description: "Доступ к greenplum под gpadmin"
+        - usernamePassword:
+            scope: GLOBAL
+            id: "svc_cdjks_prodlog-pass"
+            username: "cdjks_dumper"
+            password: "password111"
+            description: "Доступ к prodlog для получения дампа"
 
 jobs:
   - script: |
@@ -316,6 +322,27 @@ jobs:
               }
             }
             scriptPath('PROD/Jenkinsfile')
+          }
+        }
+      }
+
+      pipelineJob('DWH_GP/manual/6.ADB_PROD/automatic-bdv-v3-adb-prod-META') {
+        parameters {
+          booleanParam('deployDags', true, 'Задеплоить даги на AF prod')
+          booleanParam('unpauseDags', false, 'Снимать даги с паузы после деплоя?')
+        }
+        definition {
+          cpsScm {
+            scm {
+              git {
+                remote {
+                  url('${GITLAB_DWH_URL}/DWH/ADB/service-projects/automation/jks-liquibase-all.git')
+                  credentials('cdjksnd')
+                }
+                branches('*/master')
+              }
+            }
+            scriptPath('pipelines-prod/Jenkinsfile-automatic-bdv-v3-adb-prod-meta')
           }
         }
       }
