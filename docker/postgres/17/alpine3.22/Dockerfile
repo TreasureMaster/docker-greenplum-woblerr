@@ -196,6 +196,7 @@ ENV PGDATA /var/lib/postgresql/data
 RUN install --verbose --directory --owner postgres --group postgres --mode 1777 "$PGDATA"
 VOLUME /var/lib/postgresql/data
 
+RUN mkdir /docker-entrypoint-preinit.d
 COPY --chmod=0755 preinit-entrypoint.sh docker-entrypoint.sh docker-ensure-initdb.sh /usr/local/bin/
 # RUN chmod u+x /usr/local/bin/preinit-entrypoint.sh
 RUN ln -sT docker-ensure-initdb.sh /usr/local/bin/docker-enforce-initdb.sh
