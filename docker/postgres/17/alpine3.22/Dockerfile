@@ -196,6 +196,16 @@ ENV PGDATA /var/lib/postgresql/data
 RUN install --verbose --directory --owner postgres --group postgres --mode 1777 "$PGDATA"
 VOLUME /var/lib/postgresql/data
 
+# --- SSH server (OpenSSH) ---
+RUN set -eux; \
+    apk add --no-cache openssh-server openssh-client; \
+    mkdir -p /var/run/sshd; \
+    ssh-keygen -A; \
+    # базовая настройка авторизации по паролю
+    sed -i 's/#PasswordAuthentication.*/PasswordAuthentication yes/' /etc/ssh/sshd_config; \
+    sed -i 's/#PermitRootLogin.*/PermitRootLogin no/' /etc/ssh/sshd_config; \
+    echo "PermitEmptyPasswords no" >> /etc/ssh/sshd_config
+
 RUN mkdir /docker-entrypoint-preinit.d
 COPY --chmod=0755 preinit-entrypoint.sh docker-entrypoint.sh docker-ensure-initdb.sh /usr/local/bin/
 # RUN chmod u+x /usr/local/bin/preinit-entrypoint.sh
