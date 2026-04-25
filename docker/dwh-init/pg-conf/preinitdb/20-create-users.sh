@@ -19,6 +19,18 @@ else
     echo "User $CDJKS_DUMPER_USER already exists, skipping."
 fi
 
+# Формируем AllowUsers динамически
+# Можно добавить сюда postgres, других сервисных пользователей и т.п.
+ALLOWED_USERS="$CDJKS_DUMPER_USER"
+
+# Удаляем старые строки AllowUsers, если были
+sed -i '/^AllowUsers/d' /etc/ssh/sshd_config
+
+# Добавляем новую строку AllowUsers
+echo "AllowUsers ${ALLOWED_USERS}" >> /etc/ssh/sshd_config
+
+echo "Configured SSH user(s): ${ALLOWED_USERS}"
+
 # Если нужно дать права на выполнение скриптов в конкретной директории:
 # TARGET_DIR="/opt/my-scripts"
 # [ -d "$TARGET_DIR" ] && chmod -R a+rx "$TARGET_DIR" || true
