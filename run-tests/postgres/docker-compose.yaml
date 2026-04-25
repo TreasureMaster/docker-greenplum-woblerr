@@ -1,8 +1,3 @@
-# Этот файл используется для создания кластера Greenplum
-# с конфигурацией в отдельных контейнерах на отдельных хостах:
-# 1 master - mdw-хост
-# 2 primary сегменты без зеркал (sdw*-хосты)
-
 services:
 
   postgres:
@@ -12,13 +7,9 @@ services:
     environment:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=afprod
-    # env_file:
-    #   - ./pg-conf/initdb/.env.pxf
-    # secrets:
-    #   - postgres_password
     volumes:
       - pgdb-conflog-data:/var/lib/postgresql/data
-      # - ./pg-conf/initdb:/docker-entrypoint-initdb.d
+      - ./pg-conf/initdb:/docker-entrypoint-initdb.d
       - ./preinitdb:/docker-entrypoint-preinit.d:ro
     ports:
       - "${EXPOSE_POSTGRES_PORT}:5432"
@@ -29,5 +20,4 @@ networks:
   dwh:
 
 volumes:
-  gpdb-master-data:
   pgdb-conflog-data:
