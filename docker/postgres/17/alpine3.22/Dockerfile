@@ -206,6 +206,9 @@ RUN set -eux; \
     sed -i 's/#PermitRootLogin.*/PermitRootLogin no/' /etc/ssh/sshd_config; \
     echo "PermitEmptyPasswords no" >> /etc/ssh/sshd_config
 
+# --- Python для Ansible ---
+RUN apk add --no-cache python3
+
 RUN mkdir /docker-entrypoint-preinit.d
 COPY --chmod=0755 preinit-entrypoint.sh docker-entrypoint.sh docker-ensure-initdb.sh /usr/local/bin/
 # RUN chmod u+x /usr/local/bin/preinit-entrypoint.sh
