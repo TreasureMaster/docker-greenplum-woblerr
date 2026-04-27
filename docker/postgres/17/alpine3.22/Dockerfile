@@ -207,7 +207,8 @@ RUN set -eux; \
     echo "PermitEmptyPasswords no" >> /etc/ssh/sshd_config
 
 # --- Python для Ansible ---
-RUN apk add --no-cache python3
+RUN apk add --no-cache python3 py3-six && \
+    ln -sf python3 /usr/bin/python
 
 RUN mkdir /docker-entrypoint-preinit.d
 COPY --chmod=0755 preinit-entrypoint.sh docker-entrypoint.sh docker-ensure-initdb.sh /usr/local/bin/
