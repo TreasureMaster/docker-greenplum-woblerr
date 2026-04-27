@@ -11,7 +11,9 @@ HOME_DIR="/home/${CDJKS_DUMPER_USER}"
 
 if ! id -u "$CDJKS_DUMPER_USER" &>/dev/null; then
     echo "Creating user: $CDJKS_DUMPER_USER"
-    adduser -D -h "$HOME_DIR" -s /bin/bash "$CDJKS_DUMPER_USER"
+    # NOTE переход с alpine на debian
+    # adduser -D -h "$HOME_DIR" -s /bin/bash "$CDJKS_DUMPER_USER"
+    useradd -m -d "$HOME_DIR" -s /bin/bash "$CDJKS_DUMPER_USER"
     echo "$CDJKS_DUMPER_USER:$CDJKS_DUMPER_PASSWORD" | chpasswd
 
     echo "User $CDJKS_DUMPER_USER created with home $HOME_DIR"
