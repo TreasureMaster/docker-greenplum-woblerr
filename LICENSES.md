@@ -14,6 +14,7 @@
 | `registry 3.0`             | Apache License 2.0                        | локальный репозиторий docker-образов            |
 | `docker-registry-ui 2.6.0` | AGPL 3.0                                  | веб-интерфейс локального репозитория docker     |
 | `alpine 3.22`              | GPL 3, MIT и BSD                          | для сборки `dwh-init`                           |
+| `redis 7.2.13`             | BSD 3-Clause                              | для работы `airflow`                            |
 | `dwh-init`                 | ???                                       | установочный образ нашей системы `dwh-gp`       |
 
 # Список лицензий используемых докер-образов
@@ -31,6 +32,7 @@
 | `registry`           | Apache License 2.0 |                                                              |
 | `docker-registry-ui` | AGPL 3.0           | *опционально*                                                |
 | `alpine`             | MIT                | базовый образ для `dwh-init`                                 |
+| `redis`              | BSD 3-Clause       | для работы `airflow`                                         |
 | `dwh-init`           | ???                | наш                                                          |
 
 
