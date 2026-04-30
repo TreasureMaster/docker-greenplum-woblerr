@@ -236,6 +236,7 @@ services:
 
   airflow-webserver:
     image: ${AF_WEB_IMAGE}:${AF_WEB_TAG}
+    container_name: airflow-webserver
     volumes:
       - af_data:/opt/bitnami/airflow
       # - '/opt/bitnami/airflow/dags:/opt/bitnami/airflow/dags'
@@ -289,6 +290,7 @@ services:
 
   airflow-scheduler:
     image: ${AF_SCH_IMAGE}:${AF_SCH_TAG}
+    container_name: airflow-scheduler
     volumes:
       - af_data:/opt/bitnami/airflow
       # - '/opt/bitnami/airflow/dags:/opt/bitnami/airflow/dags'
@@ -332,6 +334,7 @@ services:
 
   airflow-worker01:
     image: ${AF_WORKER_IMAGE}:${AF_WORKER_TAG}
+    container_name: airflow-worker01
     volumes:
       - af_data:/opt/bitnami/airflow
       # - '/opt/bitnami/airflow/dags:/opt/bitnami/airflow/dags'
