@@ -376,7 +376,7 @@ services:
       airflow-scheduler:
         condition: service_started
     networks:
-      - dwh-init
+      - dwh-net
       - airflow-tier
 
 volumes:
