@@ -21,9 +21,6 @@ services:
       - ADB_EXEC_DWH_PASSWORD=${ADB_EXEC_DWH_PASSWORD}
       - JENKINS_SSH_USER=${JENKINS_SSH_USER}
       - JENKINS_SSH_PASS=${JENKINS_SSH_PASS}
-    # secrets:
-    #   - gpdb_password
-    #   - gpmon_password
     volumes:
       - gpdb-master-data:/data
       # - ../docs/custom_init_scripts:/docker-entrypoint-initdb.d
@@ -227,8 +224,6 @@ services:
     container_name: redis
     hostname: redis
     command: redis-server --requirepass ${REDIS_PASSWORD}
-    # ports:
-    #   - "6379:6379"
     volumes:
       - redis_data:/data
     depends_on:
@@ -256,12 +251,12 @@ services:
       AIRFLOW_DATABASE_USERNAME: ${POSTGRESQL_USERNAME}
       AIRFLOW_DATABASE_PASSWORD: ${POSTGRESQL_PASSWORD}
       # redis
-      REDIS_HOST: redis
+      REDIS_HOST: ${REDIS_HOST}
       REDIS_PASSWORD: ${REDIS_PASSWORD}
       # airflow common
       AIRFLOW_EXECUTOR: ${AIRFLOW_EXECUTOR}
       AIRFLOW_LOAD_EXAMPLES: ${AIRFLOW_LOAD_EXAMPLES}
-      AIRFLOW_WEBSERVER_HOST: airflow-webserver
+      AIRFLOW_WEBSERVER_HOST: ${AIRFLOW_WEBSERVER_HOST}
       AIRFLOW_BASE_URL: S{AIRFLOW_BASE_URL}
       AIRFLOW__WEBSERVER__BASE_URL: ${AIRFLOW__WEBSERVER__BASE_URL}
       # default: 16
@@ -275,21 +270,8 @@ services:
       # AIRFLOW__WEBSERVER__WORKERS: 9
       AIRFLOW__API__AUTH_BACKENDS: airflow.api.auth.backend.basic_auth, airflow.api.auth.backend.session
       # ldap
-      # AIRFLOW_LDAP_ENABLE: yes
-      # AIRFLOW_LDAP_URI: ${AIRFLOW_LDAP_URI}
-      # AIRFLOW_LDAP_SEARCH: ${AIRFLOW_LDAP_SEARCH}
-      # AIRFLOW_LDAP_BIND_USER: ${AIRFLOW_LDAP_BIND_USER}
-      # AIRFLOW_LDAP_BIND_PASSWORD: ${AIRFLOW_LDAP_BIND_PASSWORD}
-      # AIRFLOW_LDAP_ROLES_MAPPING: ${AIRFLOW_LDAP_ROLES_MAPPING}
-      # AIRFLOW_LDAP_UID_FIELD: sAMAccountName
-      # AIRFLOW_LDAP_USER_REGISTRATION_ROLE: Public
       # smtp
-      # AIRFLOW__SMTP__SMTP_HOST: ${AIRFLOW__SMTP__SMTP_HOST}
-      # AIRFLOW__SMTP__SMTP_PORT: ${AIRFLOW__SMTP__SMTP_PORT}
-      # AIRFLOW__SMTP__SMTP_USER: ${AIRFLOW__SMTP__SMTP_USER}
-      # AIRFLOW__SMTP__SMTP_PASSWORD: ${AIRFLOW__SMTP__SMTP_PASSWORD}
-      # AIRFLOW__SMTP__SMTP_MAIL_FROM: ${AIRFLOW__SMTP__SMTP_MAIL_FROM}
-    hostname: airflow-webserver
+    hostname: ${AIRFLOW_WEBSERVER_HOST}
     ports:
       - 8080:8080
     depends_on:
@@ -303,6 +285,98 @@ services:
         condition: service_started
     networks:
       - dwh-net
+      - airflow-tier
+
+  airflow-scheduler:
+    image: ${AF_SCH_IMAGE}:${AF_SCH_TAG}
+    volumes:
+      - af_data:/opt/bitnami/airflow
+      # - '/opt/bitnami/airflow/dags:/opt/bitnami/airflow/dags'
+      # - '/opt/bitnami/airflow/logs:/opt/bitnami/airflow/logs/'
+      # - '/opt/bitnami/airflow/plugins:/opt/bitnami/airflow/plugins'
+      # - '/etc/pki/ca-trust/source/anchors/:/usr/local/share/ca-certificates/'
+    environment:
+      # secrets
+      AIRFLOW_FERNET_KEY: ${AIRFLOW_FERNET_KEY}
+      AIRFLOW_SECRET_KEY: ${AIRFLOW_SECRET_KEY}
+      # postgres
+      AIRFLOW_DATABASE_HOST: ${AIRFLOW_DATABASE_HOST}
+      AIRFLOW_DATABASE_NAME: ${POSTGRESQL_DATABASE}
+      AIRFLOW_DATABASE_USERNAME: ${POSTGRESQL_USERNAME}
+      AIRFLOW_DATABASE_PASSWORD: ${POSTGRESQL_PASSWORD}
+      # redis
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      # airflow common
+      AIRFLOW_WEBSERVER_HOST: ${AIRFLOW_WEBSERVER_HOST}
+      AIRFLOW_EXECUTOR: ${AIRFLOW_EXECUTOR}
+      AIRFLOW_LOAD_EXAMPLES: ${AIRFLOW_LOAD_EXAMPLES}
+      # default: 16
+      # AIRFLOW__CORE__MAX_ACTIVE_TASKS_PER_DAG: 32
+      # smtp
+    hostname: airflow-scheduler
+    depends_on:
+      dwh-init:
+        condition: service_completed_successfully
+      gitlab:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      postgres:
+        condition: service_started
+      airflow-webserver:
+        condition: service_started
+    networks:
+      - dwh-net
+      - airflow-tier
+
+  airflow-worker01:
+    image: ${AF_WORKER_IMAGE}:${AF_WORKER_TAG}
+    volumes:
+      - af_data:/opt/bitnami/airflow
+      # - '/opt/bitnami/airflow/dags:/opt/bitnami/airflow/dags'
+      # - '/opt/bitnami/airflow/logs:/opt/bitnami/airflow/logs/'
+      # - '/opt/bitnami/airflow/plugins:/opt/bitnami/airflow/plugins'
+      # - '/etc/pki/ca-trust/source/anchors/:/usr/local/share/ca-certificates/'
+    environment:
+      # secrets
+      AIRFLOW_FERNET_KEY: ${AIRFLOW_FERNET_KEY}
+      AIRFLOW_SECRET_KEY: ${AIRFLOW_FERNET_KEY}
+      # postgres
+      AIRFLOW_DATABASE_HOST: ${AIRFLOW_DATABASE_HOST}
+      AIRFLOW_DATABASE_NAME: ${POSTGRESQL_DATABASE}
+      AIRFLOW_DATABASE_USERNAME: ${POSTGRESQL_USERNAME}
+      AIRFLOW_DATABASE_PASSWORD: ${POSTGRESQL_PASSWORD}
+      # redis
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      # airflow common
+      AIRFLOW_EXECUTOR: ${AIRFLOW_EXECUTOR}
+      AIRFLOW_LOAD_EXAMPLES: ${AIRFLOW_LOAD_EXAMPLES}
+      AIRFLOW_WEBSERVER_HOST: ${AIRFLOW_WEBSERVER_HOST}
+      AIRFLOW__WEBSERVER__BASE_URL: ${AIRFLOW__WEBSERVER__BASE_URL}
+      AIRFLOW__LOGGING__WORKER_LOG_SERVER_PORT: 8793
+      # default: 16
+      # AIRFLOW__CELERY__WORKER_CONCURRENCY: 8
+      # smtp
+    hostname: airflow-worker01
+    expose:
+      - 8793
+    depends_on:
+      dwh-init:
+        condition: service_completed_successfully
+      gitlab:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      postgres:
+        condition: service_started
+      airflow-webserver:
+        condition: service_started
+      airflow-scheduler:
+        condition: service_started
+    networks:
+      - dwh-init
       - airflow-tier
 
 volumes:
@@ -322,12 +396,6 @@ volumes:
   pgdb-preinit:
   redis_data:
   af_data:
-
-# secrets:
-#   gpdb_password:
-#     file: ./secrets/gpdb_password
-#   gpmon_password:
-#     file: ./secrets/gpmon_password
 
 networks:
   dwh-net:
