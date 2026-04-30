@@ -3,6 +3,11 @@ FROM bitnami-airflow:2.9.3-debian-12-r11-t11
 # 1. Установка gosu (пример для Debian-based, для Alpine замените на apk add)
 USER root
 
+# Добавляем tini, gnupg
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends tini gnupg \
+    && rm -rf /var/lib/apt/lists/*
+
 # grab gosu for easy step-down from root
 # https://github.com/tianon/gosu/releases
 ENV GOSU_VERSION 1.19
@@ -39,10 +44,6 @@ RUN set -eux; \
     sed -i 's/^#\?PermitRootLogin.*/PermitRootLogin no/' /etc/ssh/sshd_config; \
     echo "PermitEmptyPasswords no" >> /etc/ssh/sshd_config
 
-# Добавляем tini
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends tini \
-    && rm -rf /var/lib/apt/lists/*
 
 # RUN apt-get update \
 #     && apt-get install -y --no-install-recommends gosu openssh-server \
