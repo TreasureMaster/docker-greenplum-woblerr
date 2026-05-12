@@ -30,22 +30,24 @@ if command -v sshd >/dev/null 2>&1; then
 fi
 
 # 4. Исправляем права на каталоги Airflow (важно при монтировании томов от root)
-if [ "$CURRENT_UID" = "0" ]; then
-    echo "[preinit] Fixing ownership for Airflow directories..."
-    chown -R "${TARGET_UID}:${TARGET_GID}" \
-        /opt/bitnami/airflow \
-        /bitnami/airflow \
-        /bitnami/python 2>/dev/null || true
-fi
+# if [ "$CURRENT_UID" = "0" ]; then
+#     echo "[preinit] Fixing ownership for Airflow directories..."
+#     chown -R "${TARGET_UID}:${TARGET_GID}" \
+#         /opt/bitnami/airflow \
+#         /bitnami/airflow \
+#         /bitnami/python 2>/dev/null || true
+# fi
 
 # 5. Передаём управление официальному entrypoint
 # Если запущены от root → используем gosu для переключения на целевого пользователя
 # Если уже от non-root → запускаем напрямую
-ls -la /opt/bitnami/scripts/airflow/
-if [ "$CURRENT_UID" = "0" ]; then
-    echo "[preinit] switching to base user"
-    exec gosu "${TARGET_UID}:${TARGET_GID}" /opt/bitnami/scripts/airflow/entrypoint.sh "$@"
-else
-    echo "[preinit] started form base user"
-    exec /opt/bitnami/scripts/airflow/entrypoint.sh "$@"
-fi
+# ls -la /opt/bitnami/scripts/airflow/
+# if [ "$CURRENT_UID" = "0" ]; then
+#     echo "[preinit] switching to base user"
+#     exec gosu "${TARGET_UID}:${TARGET_GID}" /opt/bitnami/scripts/airflow/entrypoint.sh "$@"
+# else
+#     echo "[preinit] started form base user"
+#     exec /opt/bitnami/scripts/airflow/entrypoint.sh "$@"
+# fi
+
+exec /opt/bitnami/scripts/airflow/entrypoint.sh "$@"
