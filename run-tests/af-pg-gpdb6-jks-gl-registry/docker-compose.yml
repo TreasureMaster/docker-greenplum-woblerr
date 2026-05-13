@@ -203,7 +203,8 @@ services:
       - redis_data:/data
     depends_on:
       dwh-init:
-        condition: service_completed_successfully
+        # condition: service_completed_successfully
+        condition: service_started
       gitlab:
         condition: service_healthy
     networks:
