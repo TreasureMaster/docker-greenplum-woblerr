@@ -52,6 +52,7 @@ RUN set -eux; \
 # 2. Копируем preinit-скрипт
 RUN mkdir /docker-entrypoint-preinit.d
 COPY --chmod=0755 preinit-entrypoint.sh /usr/local/bin/
+COPY libpostgresqlclient.sh /opt/bitnami/scripts/
 
 # 3. Переопределяем ENTRYPOINT (CMD оставляем стандартным)
 # ENTRYPOINT ["/usr/local/bin/preinit-entrypoint.sh"]
