@@ -90,10 +90,16 @@ CREATE_PAYLOAD="$(
        last_name:   $lastname,
        email:       $email,
        password:    $password,
-       roles:      ( $roles_csv | split(",") | map(. | gsub("^\\s+|\\s+$"; "")) )
+       roles:       (
+                     $roles_csv
+                     | split(",")
+                     | map(. | gsub("^\\s+|\\s+$"; ""))       # убираем пробелы
+                     | map({name: .})                         # превращаем в объекты { "name": "Admin" }
+                    )
      }'
 )"
     #    roles: [$role_name]
+    #    roles:      ( $roles_csv | split(",") | map(. | gsub("^\\s+|\\s+$"; "")) )
 
 CREATE_RESPONSE="$(
   curl -sS -w "\n%{http_code}" \
