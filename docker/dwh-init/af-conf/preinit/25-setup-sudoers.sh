@@ -27,11 +27,13 @@ cat > "$SUDOERS_FILE" << EOF
 # Сгенерировано автоматически: $(date)
 
 # Разрешить создание директорий в целевой папке
-${ADPROD_DEPLOY_USER} ALL = NOPASSWD: /bin/mkdir -p ${TARGET_DIR}/*
-${ADPROD_DEPLOY_USER} ALL = NOPASSWD: /bin/chmod *[0-7][0-7][0-7] ${TARGET_DIR}/*
+Cmnd_Alias MKDIR_DAGS = /bin/mkdir -p ${TARGET_DIR}/*
+Cmnd_Alias CHMOD_DAGS = /bin/chmod *[0-7][0-7][0-7] ${TARGET_DIR}/*
 
 # Разрешить rsync для синхронизации файлов
-${ADPROD_DEPLOY_USER} ALL = NOPASSWD: /usr/bin/rsync --server *
+Cmnd_Alias RSYNC_DAGS = /usr/bin/rsync --server *
+
+${ADPROD_DEPLOY_USER} ALL = NOPASSWD: MKDIR_DAGS, CHMOD_DAGS, RSYNC_DAGS
 
 # Опционально: разрешить chown/chgrp если нужно
 # ${ADPROD_DEPLOY_USER} ALL = NOPASSWD: /bin/chown ${ADPROD_DEPLOY_USER}:${ADPROD_DEPLOY_USER} ${TARGET_DIR}/*
