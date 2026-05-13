@@ -203,7 +203,6 @@ services:
       - redis_data:/data
     depends_on:
       dwh-init:
-        # condition: service_completed_successfully
         condition: service_started
       gitlab:
         condition: service_healthy
@@ -220,6 +219,7 @@ services:
       # - '/opt/bitnami/airflow/logs:/opt/bitnami/airflow/logs/'
       # - '/opt/bitnami/airflow/plugins:/opt/bitnami/airflow/plugins'
     environment:
+      # BITNAMI_DEBUG: true
       # secrets
       AIRFLOW_FERNET_KEY: ${AIRFLOW_FERNET_KEY}
       AIRFLOW_SECRET_KEY: ${AIRFLOW_SECRET_KEY}
@@ -254,7 +254,6 @@ services:
       - 8080:8080
     depends_on:
       dwh-init:
-        # condition: service_completed_successfully
         condition: service_started
       gitlab:
         condition: service_healthy
@@ -276,6 +275,7 @@ services:
       # - '/opt/bitnami/airflow/plugins:/opt/bitnami/airflow/plugins'
       # - '/etc/pki/ca-trust/source/anchors/:/usr/local/share/ca-certificates/'
     environment:
+      # BITNAMI_DEBUG: true
       # secrets
       AIRFLOW_FERNET_KEY: ${AIRFLOW_FERNET_KEY}
       AIRFLOW_SECRET_KEY: ${AIRFLOW_SECRET_KEY}
@@ -297,7 +297,7 @@ services:
     hostname: airflow-scheduler
     depends_on:
       dwh-init:
-        condition: service_completed_successfully
+        condition: service_started
       gitlab:
         condition: service_healthy
       redis:
@@ -320,6 +320,7 @@ services:
       # - '/opt/bitnami/airflow/plugins:/opt/bitnami/airflow/plugins'
       # - '/etc/pki/ca-trust/source/anchors/:/usr/local/share/ca-certificates/'
     environment:
+      # BITNAMI_DEBUG: true
       # secrets
       AIRFLOW_FERNET_KEY: ${AIRFLOW_FERNET_KEY}
       AIRFLOW_SECRET_KEY: ${AIRFLOW_FERNET_KEY}
@@ -346,7 +347,7 @@ services:
       - 8793
     depends_on:
       dwh-init:
-        condition: service_completed_successfully
+        condition: service_started
       gitlab:
         condition: service_healthy
       redis:
