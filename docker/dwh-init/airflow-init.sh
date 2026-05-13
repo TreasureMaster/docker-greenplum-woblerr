@@ -90,7 +90,6 @@ CREATE_PAYLOAD="$(
        last_name:   $lastname,
        email:       $email,
        password:    $password,
-       active:      true,
        roles:      ( $roles_csv | split(",") | map(. | gsub("^\\s+|\\s+$"; "")) )
      }'
 )"
