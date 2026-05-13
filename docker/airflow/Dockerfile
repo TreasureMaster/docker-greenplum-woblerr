@@ -5,7 +5,7 @@ USER root
 
 # Добавляем tini, gnupg
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends tini gnupg \
+    && apt-get install -y --no-install-recommends tini gnupg sudo \
     && rm -rf /var/lib/apt/lists/*
 
 # grab gosu for easy step-down from root

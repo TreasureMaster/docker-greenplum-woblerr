@@ -193,31 +193,6 @@ services:
     networks:
       - registry-net
 
-  dwh-init:
-    image: dwh-init:0.10.3
-    container_name: dwh-init
-    depends_on:
-      registry:
-        condition: service_healthy
-      gitlab:
-        condition: service_healthy
-    environment:
-      - IMAGES_DIR=/opt/offline-images
-      - MODE=safe
-    env_file:
-      - .env
-    volumes:
-      - gitlab-bootstrap:/shared/bootstrap
-      - gpdb-config:/init/gpconf
-      - gpdb-secrets:/init/gpsecrets
-      - gpdb-pxf:/init/pxf
-      - gpdb-init:/init/docker-entrypoint-gpinit
-      - pgdb-init:/init/initdb
-      - pgdb-preinit:/init/preinitdb
-    networks:
-      - registry-net
-      - dwh-net
-    # restart: "no"
 
   redis:
     image: ${REDIS_IMAGE_NAME}:${REDIS_TAG}
@@ -239,6 +214,7 @@ services:
     container_name: airflow-webserver
     volumes:
       - af_data:/opt/bitnami/airflow
+      - af-preinit:/docker-entrypoint-preinit.d
       # - '/opt/bitnami/airflow/dags:/opt/bitnami/airflow/dags'
       # - '/opt/bitnami/airflow/logs:/opt/bitnami/airflow/logs/'
       # - '/opt/bitnami/airflow/plugins:/opt/bitnami/airflow/plugins'
@@ -277,7 +253,8 @@ services:
       - 8080:8080
     depends_on:
       dwh-init:
-        condition: service_completed_successfully
+        # condition: service_completed_successfully
+        condition: service_started
       gitlab:
         condition: service_healthy
       redis:
@@ -383,6 +360,33 @@ services:
       - dwh-net
       - airflow-tier
 
+  dwh-init:
+    image: dwh-init:0.11.0
+    container_name: dwh-init
+    depends_on:
+      registry:
+        condition: service_healthy
+      gitlab:
+        condition: service_healthy
+    environment:
+      - IMAGES_DIR=/opt/offline-images
+      - MODE=safe
+    env_file:
+      - .env
+    volumes:
+      - gitlab-bootstrap:/shared/bootstrap
+      - gpdb-config:/init/gpconf
+      - gpdb-secrets:/init/gpsecrets
+      - gpdb-pxf:/init/pxf
+      - gpdb-init:/init/docker-entrypoint-gpinit
+      - pgdb-init:/init/initdb
+      - pgdb-preinit:/init/preinitdb
+      - af-preinit:/init/af-preinit
+    networks:
+      - registry-net
+      - dwh-net
+    # restart: "no"
+
 volumes:
   gitlab_config:
   gitlab_logs:
@@ -400,6 +404,7 @@ volumes:
   pgdb-preinit:
   redis_data:
   af_data:
+  af-preinit:
 
 networks:
   dwh-net:

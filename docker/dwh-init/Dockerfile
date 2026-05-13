@@ -28,6 +28,7 @@ COPY ./gpsecrets/* ./gpsecrets/
 COPY ./pxf/ ./pxf/
 COPY ./docker-entrypoint-gpinit/ ./docker-entrypoint-gpinit/
 COPY ./pg-conf/ ./
+COPY ./af-conf/preinit/ ./af-preinit/
 
 # ENTRYPOINT ["/init-entrypoint.sh"]
 ENTRYPOINT ["./run-dwh.sh"]
