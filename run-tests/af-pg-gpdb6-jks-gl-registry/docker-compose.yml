@@ -363,7 +363,7 @@ services:
       - airflow-tier
 
   dwh-init:
-    image: dwh-init:0.11.0
+    image: dwh-init:0.11.1
     container_name: dwh-init
     depends_on:
       registry:

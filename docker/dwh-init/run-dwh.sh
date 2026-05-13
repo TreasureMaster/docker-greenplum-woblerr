@@ -79,5 +79,12 @@ echo ""
 echo "=== Running repository-init.sh ==="
 . ./repository-init.sh
 
+# ---------------------------------------------------------------------------- #
+#                         6. Инициализируем Airflow                            #
+# ---------------------------------------------------------------------------- #
+echo ""
+echo "=== Running airflow-init.sh ==="
+. ./airflow-init.sh
+
 echo ""
 echo "All initialization complete!"

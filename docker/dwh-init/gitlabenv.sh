@@ -42,6 +42,7 @@ declare -A PROJECTS=(
     ["DWH/ADB/service-projects/automation/jks-automatic-generate-and-deploy-detail-dags.git"]=""
     ["DWH/ADB/service-projects/airflow_elt.git"]=""
     ["DWH/ADB/service-projects/adb-meta.git"]=""
+    ["DWH/ADB/service-projects/automation/jks_airflow.git"]=""
 )
 # Репозитории, где пользователи добавляются как Maintainer (40)
 MAINTAINER_PROJECTS=(

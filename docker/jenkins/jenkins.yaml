@@ -61,6 +61,12 @@ credentials:
             username: "cdjks_dumper"
             password: "password111"
             description: "Доступ к prodlog для получения дампа"
+        - usernamePassword:
+            scope: GLOBAL
+            id: "ad-afdev01_API"
+            username: "svc_cdjks_afapi"
+            password: "password111"
+            description: "Доступ к Airflow API"
 
 jobs:
   - script: |
@@ -343,6 +349,40 @@ jobs:
               }
             }
             scriptPath('pipelines-prod/Jenkinsfile-automatic-bdv-v3-adb-prod-meta')
+          }
+        }
+      }
+
+      pipelineJob('DWH_GP/internal_manual/jks-automatic-airflow-pausedDags-master') {
+        definition {
+          cpsScm {
+            scm {
+              git {
+                remote {
+                  url('${GITLAB_DWH_URL}/DWH/ADB/service-projects/automation/jks_airflow.git')
+                  credentials('cdjksnd')
+                }
+                branches('*/master')
+              }
+            }
+            scriptPath('Jenkinsfile_pausedDags')
+          }
+        }
+      }
+
+      pipelineJob('DWH_GP/manual/6.ADB_PROD/jks-automatic-airflow_varsDagsDeploy_master') {
+        definition {
+          cpsScm {
+            scm {
+              git {
+                remote {
+                  url('${GITLAB_DWH_URL}/DWH/ADB/service-projects/automation/jks_airflow.git')
+                  credentials('cdjksnd')
+                }
+                branches('*/master')
+              }
+            }
+            scriptPath('Jenkinsfile_varsDagsDeploy')
           }
         }
       }
