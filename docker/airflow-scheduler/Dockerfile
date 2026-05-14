@@ -8,7 +8,7 @@ USER root
 
 # 2. Добавляем tini, gnupg, sudo
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends tini gnupg sudo \
+    && apt-get install -y --no-install-recommends tini gnupg sudo rsync \
     && rm -rf /var/lib/apt/lists/*
 
 # 3. grab gosu for easy step-down from root
