@@ -50,7 +50,9 @@ RUN set -eux; \
 # 5. Копируем preinit-скрипт
 RUN mkdir /docker-entrypoint-preinit.d && \
     ln -s /opt/bitnami/python/bin/python3 /usr/bin/python3 && \
-    ln -s /opt/bitnami/python/bin/python /usr/bin/python
+    ln -s /opt/bitnami/python/bin/python /usr/bin/python && \
+    echo "/opt/bitnami/python/lib" > /etc/ld.so.conf.d/bitnami-python.conf && \
+    ldconfig
 COPY --chmod=0755 preinit-entrypoint.sh /usr/local/bin/
 COPY libpostgresqlclient.sh /opt/bitnami/scripts/
 
