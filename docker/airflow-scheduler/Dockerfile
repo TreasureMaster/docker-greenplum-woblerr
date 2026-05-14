@@ -1,5 +1,8 @@
 FROM bitnami-airflow-scheduler:2.9.3-debian-12-r7-t11
 
+# Часть пути для запуска компонента Airflow в preinit
+ENV AF_ENTRYPOINT_PATH=airflow-scheduler
+
 # 1. Установка gosu (пример для Debian-based, для Alpine замените на apk add)
 USER root
 
@@ -51,4 +54,4 @@ COPY libpostgresqlclient.sh /opt/bitnami/scripts/
 
 # 6. Переопределяем ENTRYPOINT (CMD оставляем стандартным)
 ENTRYPOINT ["/usr/bin/tini", "--", "/usr/local/bin/preinit-entrypoint.sh"]
-CMD ["/opt/bitnami/scripts/airflow/run.sh"]
+CMD ["/opt/bitnami/scripts/airflow-scheduler/run.sh"]

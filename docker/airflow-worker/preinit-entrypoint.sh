@@ -50,4 +50,4 @@ fi
 #     exec /opt/bitnami/scripts/airflow/entrypoint.sh "$@"
 # fi
 
-exec /opt/bitnami/scripts/airflow/entrypoint.sh "$@"
+exec /opt/bitnami/scripts/${AF_ENTRYPOINT_PATH}/entrypoint.sh "$@"
