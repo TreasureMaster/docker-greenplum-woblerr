@@ -48,7 +48,9 @@ RUN set -eux; \
     echo "PermitEmptyPasswords no" >> /etc/ssh/sshd_config
 
 # 5. Копируем preinit-скрипт
-RUN mkdir /docker-entrypoint-preinit.d
+RUN mkdir /docker-entrypoint-preinit.d && \
+    ln -s /opt/bitnami/python/bin/python3 /usr/bin/python3 && \
+    ln -s /opt/bitnami/python/bin/python /usr/bin/python
 COPY --chmod=0755 preinit-entrypoint.sh /usr/local/bin/
 COPY libpostgresqlclient.sh /opt/bitnami/scripts/
 

@@ -1,5 +1,8 @@
 FROM bitnami-airflow:2.9.3-debian-12-r11-t11
 
+# Часть пути для запуска компонента Airflow в preinit
+ENV AF_ENTRYPOINT_PATH=airflow
+
 # 1. Установка gosu (пример для Debian-based, для Alpine замените на apk add)
 USER root
 
@@ -49,8 +52,10 @@ RUN set -eux; \
 #     && apt-get install -y --no-install-recommends gosu openssh-server \
 #     && rm -rf /var/lib/apt/lists/*
 
-# 2. Копируем preinit-скрипт
-RUN mkdir /docker-entrypoint-preinit.d
+# 2. Копируем preinit-скрипт и создаем ссылки на python для ansible
+RUN mkdir /docker-entrypoint-preinit.d && \
+    ln -s /opt/bitnami/python/bin/python3 /usr/bin/python3 && \
+    ln -s /opt/bitnami/python/bin/python /usr/bin/python
 COPY --chmod=0755 preinit-entrypoint.sh /usr/local/bin/
 COPY libpostgresqlclient.sh /opt/bitnami/scripts/
 
