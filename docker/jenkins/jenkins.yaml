@@ -386,3 +386,23 @@ jobs:
           }
         }
       }
+
+      pipelineJob('DWH_GP/manual/6.ADB_PROD/automatic-bdv-v3-adb-prod-DEPLOY_DAG') {
+        parameters {
+          booleanParam('unpauseDags', false, 'Снимать даги с паузы после деплоя?')
+        }
+        definition {
+          cpsScm {
+            scm {
+              git {
+                remote {
+                  url('${GITLAB_DWH_URL}/DWH/ADB/service-projects/automation/jks_airflow.git')
+                  credentials('cdjksnd')
+                }
+                branches('*/master')
+              }
+            }
+            scriptPath('Jenkinsfile_adb-prod-deploy-dag-bdv-v3')
+          }
+        }
+      }
