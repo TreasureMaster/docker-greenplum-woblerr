@@ -406,3 +406,20 @@ jobs:
           }
         }
       }
+
+      pipelineJob('DWH_GP/manual/6.ADB_PROD/Generate_src_upload_Dags_PROD') {
+        definition {
+          cpsScm {
+            scm {
+              git {
+                remote {
+                  url('${GITLAB_DWH_URL}/DWH/ADB/service-projects/automation/jks-automatic-generate-and-deploy-detail-dags.git')
+                  credentials('cdjksnd')
+                }
+                branches('*/master')
+              }
+            }
+            scriptPath('SRC-UPLOAD/PROD/Jenkinsfile')
+          }
+        }
+      }
