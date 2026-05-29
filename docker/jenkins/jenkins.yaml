@@ -423,3 +423,23 @@ jobs:
           }
         }
       }
+
+      pipelineJob('DWH_GP/manual/6.ADB_PROD/jks-automatic-airflow-unpausedDags-master') {
+        parameters {
+          booleanParam('dagScanWait', true, 'Ждать сканирование дагов Airflow? (обязательно при деплое новых дагов)')
+        }
+        definition {
+          cpsScm {
+            scm {
+              git {
+                remote {
+                  url('${GITLAB_DWH_URL}/DWH/ADB/service-projects/automation/jks_airflow.git')
+                  credentials('cdjksnd')
+                }
+                branches('*/master')
+              }
+            }
+            scriptPath('unpausedDags.Jenkinsfile')
+          }
+        }
+      }
