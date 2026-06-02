@@ -14,7 +14,7 @@ JENKINS_INNER_URL="${JENKINS_INNER_URL}"
 JENKINS_ADMIN_USER="${START_ADMIN_USERNAME}"
 JENKINS_ADMIN_PASSWORD="${START_ADMIN_PASSWORD}"
 # 2) для какого пользака (прибито гвоздями, потом выдернуть)
-GITLAB_API_USER="${GITLAB_API_USER:-cdjksnd}"
+GITLAB_API_USER="${GITLAB_API_USER:-cdjks_user}"
 GITLAB_API_TOKEN_NAME="${GITLAB_API_TOKEN_NAME:-airflow-config-update}"
 # 3) Проект без .git, для которого нужен токен
 GITLAB_API_PROJECT="cfg-airflow"
