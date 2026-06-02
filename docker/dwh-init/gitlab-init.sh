@@ -144,7 +144,8 @@ echo "${USERS}" | while IFS= read -r user_json; do
 
     if [[ "${username}" == "${GITLAB_API_USER}" ]]; then
         echo "[INFO]: Создаём GitLab API token для ${username}"
-        TOKEN_EXPIRES_AT="$(date -d '+360 days' +%F)"
+        # TOKEN_EXPIRES_AT="$(date -d '+360 days' +%F)"
+        TOKEN_EXPIRES_AT="$(date -u -d "@$(( $(date -u +%s) + 360*24*60*60 ))" +%F)"
         token_result=$(create_gitlab_impersonation_token "${user_id}" "${GITLAB_API_TOKEN_NAME}" "${TOKEN_EXPIRES_AT}")
         GITLAB_API_TOKEN=$(echo "${token_result}" | jq -r '.token // empty')
 
