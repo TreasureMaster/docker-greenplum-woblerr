@@ -86,5 +86,12 @@ echo ""
 echo "=== Running airflow-init.sh ==="
 . ./airflow-init.sh
 
+# ---------------------------------------------------------------------------- #
+#                             7. Настройка Jenkins                             #
+# ---------------------------------------------------------------------------- #
+echo ""
+echo "=== Running jenkins-init.sh ==="
+. ./jenkins-init.sh
+
 echo ""
 echo "All initialization complete!"

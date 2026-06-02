@@ -8,6 +8,18 @@
 GITLAB_CONTAINER="${GITLAB_CONTAINER_NAME}"
 ROOT_USERNAME="root"
 ROOT_PASSWORD="${INITIAL_ROOT_PASSWORD}"
+# Костыль: надо добавить в credentials jenkins токен работы с Gitlab
+# 1) креды для соединения с api jenkins
+JENKINS_INNER_URL="${JENKINS_INNER_URL}"
+JENKINS_ADMIN_USER="${START_ADMIN_USERNAME}"
+JENKINS_ADMIN_PASSWORD="${START_ADMIN_PASSWORD}"
+# 2) для какого пользака (прибито гвоздями, потом выдернуть)
+GITLAB_API_USER="${GITLAB_API_USER:-cdjksnd}"
+GITLAB_API_TOKEN_NAME="${GITLAB_API_TOKEN_NAME:-airflow-config-update}"
+# 3) Проект без .git, для которого нужен токен
+GITLAB_API_PROJECT="cfg-airflow"
+# 4) ID необходимого проекта (не заполняем, определяется далее в скрипте)
+GITLAB_API_PROJECT_ID=""
 
 # Полные пути проектов в GitLab (с .git)
 # Пути должны быть аналогичны тому, как они располагаются в gitlab
@@ -43,6 +55,8 @@ declare -A PROJECTS=(
     ["DWH/ADB/service-projects/airflow_elt.git"]=""
     ["DWH/ADB/service-projects/adb-meta.git"]=""
     ["DWH/ADB/service-projects/automation/jks_airflow.git"]=""
+    ["DWH/ADB/service-projects/automation/jks-airflow-params-update.git"]=""
+    ["DWH/ADB/BASE-CFG/cfg-airflow.git"]=""
 )
 # Репозитории, где пользователи добавляются как Maintainer (40)
 MAINTAINER_PROJECTS=(

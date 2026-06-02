@@ -57,7 +57,25 @@ fi
 echo "ROOT_TOKEN получен"
 
 # ---------------------------------------------------------------------------- #
-#                         2. Создаём пользователей через API                   #
+#                        2. Создание токена пользователя                       #
+# ---------------------------------------------------------------------------- #
+
+create_gitlab_impersonation_token() {
+    local user_id="$1"
+    local token_name="$2"
+
+    curl -sS --request POST \
+        --header "PRIVATE-TOKEN: ${ROOT_TOKEN}" \
+        --header "Content-Type: application/json" \
+        --data "{
+            \"name\": \"${token_name}\",
+            \"scopes\": [\"read_api\"]
+        }" \
+        "${GITLAB_URL}/api/v4/users/${user_id}/impersonation_tokens"
+}
+
+# ---------------------------------------------------------------------------- #
+#                         3. Создаём пользователей через API                   #
 # ---------------------------------------------------------------------------- #
 echo "=== Создаём пользователей из users.yaml ==="
 
@@ -121,10 +139,24 @@ echo "${USERS}" | while IFS= read -r user_json; do
     else
         echo "[ERROR]: Ошибка создания ${username}: ${result}" >&2
     fi
+
+    if [[ "${username}" == "${GITLAB_API_USER}" ]]; then
+        echo "[INFO]: Создаём GitLab API token для ${username}"
+        token_result=$(create_gitlab_impersonation_token "${user_id}" "${GITLAB_API_TOKEN_NAME}")
+        GITLAB_API_TOKEN=$(echo "${token_result}" | jq -r '.token // empty')
+
+        if [[ -z "${GITLAB_API_TOKEN}" ]]; then
+            echo "[ERROR]: Не удалось получить token для ${username}: ${token_result}" >&2
+            exit 1
+        fi
+
+        export GITLAB_API_TOKEN
+        echo "[INFO]: GITLAB_API_TOKEN установлен в переменную окружения"
+    fi
 done
 
 # ---------------------------------------------------------------------------- #
-#                         3. Запрет регистрации через API                      #
+#                         4. Запрет регистрации через API                      #
 # ---------------------------------------------------------------------------- #
 echo "=== Запрещаем регистрацию ==="
 

@@ -15,6 +15,12 @@ security:
   #       - id: "admin"
   #         password: "admin-password"
 
+# globalNodeProperties:
+#     - envVars:
+#         env:
+#           - key: "GITLAB_API_PROJECT_ID"
+#             value: "0"
+
 credentials:
   system:
     domainCredentials:
@@ -67,11 +73,22 @@ credentials:
             username: "svc_cdjks_afapi"
             password: "password111"
             description: "Доступ к Airflow API"
+        - string:
+              scope: GLOBAL
+              id: "airflow-config-update"
+              secret: ""
+              description: "GitLab API token"
+        - string:
+              scope: GLOBAL
+              id: "gitlab-api-project-id"
+              secret: ""
+              description: "GitLab API project id (for Airflow params update)"
 
 jobs:
   - script: |
       folder('DWH_GP') {}
       folder('DWH_GP/internal_manual') {}
+      folder('DWH_GP/internal_manual/1.Airflow') {}
       folder('DWH_GP/manual') {}
       folder('DWH_GP/manual/6.ADB_PROD') {}
       folder('DWH_GP/manual/2.Conflog') {}
@@ -440,6 +457,26 @@ jobs:
               }
             }
             scriptPath('Jenkinsfile_unpausedDags')
+          }
+        }
+      }
+
+      pipelineJob('DWH_GP/internal_manual/1.Airflow/jks-airflow-params-update') {
+        parameters {
+          choiceParam('airflowSection', ['Pool', 'Connection'], 'Выбор раздела Airflow для обновления параметров')
+        }
+        definition {
+          cpsScm {
+            scm {
+              git {
+                remote {
+                  url('${GITLAB_DWH_URL}/DWH/ADB/service-projects/automation/jks-airflow-params-update.git')
+                  credentials('cdjksnd')
+                }
+                branches('*/master')
+              }
+            }
+            scriptPath('Jenkinsfile-airflow-params-update')
           }
         }
       }
