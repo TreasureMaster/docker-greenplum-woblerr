@@ -93,7 +93,8 @@ USERS=$(yq -o=json '.' "${USERS_YAML}" | jq -c '.[]')
 
 RESERVED_USERNAMES=("admin" "root" "support" "help" "dashboard" "profile" "login" "signup" "users" "projects")
 
-echo "${USERS}" | while IFS= read -r user_json; do
+# echo "${USERS}" | while IFS= read -r user_json; do
+while IFS= read -r user_json; do
     username=$(echo "${user_json}" | jq -r '.username')
     email=$(echo "${user_json}" | jq -r '.email')
     name=$(echo "${user_json}" | jq -r '.name')
@@ -157,7 +158,7 @@ echo "${USERS}" | while IFS= read -r user_json; do
         export GITLAB_API_TOKEN
         echo "[INFO]: GITLAB_API_TOKEN установлен в переменную окружения"
     fi
-done
+done <<< "${USERS}"
 
 # ---------------------------------------------------------------------------- #
 #                         4. Запрет регистрации через API                      #
