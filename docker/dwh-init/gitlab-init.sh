@@ -63,13 +63,15 @@ echo "ROOT_TOKEN получен"
 create_gitlab_impersonation_token() {
     local user_id="$1"
     local token_name="$2"
+    local expires_at="${3:?}"
 
     curl -sS --request POST \
         --header "PRIVATE-TOKEN: ${ROOT_TOKEN}" \
         --header "Content-Type: application/json" \
         --data "{
             \"name\": \"${token_name}\",
-            \"scopes\": [\"read_api\"]
+            \"scopes\": [\"read_api\"],
+            \"expires_at\": \"${expires_at}\"
         }" \
         "${GITLAB_URL}/api/v4/users/${user_id}/impersonation_tokens"
 }
@@ -142,7 +144,8 @@ echo "${USERS}" | while IFS= read -r user_json; do
 
     if [[ "${username}" == "${GITLAB_API_USER}" ]]; then
         echo "[INFO]: Создаём GitLab API token для ${username}"
-        token_result=$(create_gitlab_impersonation_token "${user_id}" "${GITLAB_API_TOKEN_NAME}")
+        TOKEN_EXPIRES_AT="$(date -d '+360 days' +%F)"
+        token_result=$(create_gitlab_impersonation_token "${user_id}" "${GITLAB_API_TOKEN_NAME}" "${TOKEN_EXPIRES_AT}")
         GITLAB_API_TOKEN=$(echo "${token_result}" | jq -r '.token // empty')
 
         if [[ -z "${GITLAB_API_TOKEN}" ]]; then
