@@ -91,7 +91,8 @@ echo "=== Running airflow-init.sh ==="
 # ---------------------------------------------------------------------------- #
 echo ""
 echo "=== Running jenkins-init.sh ==="
-. ./jenkins-init.sh
+# . ./jenkins-init.sh
+. ./jenkins-init-debug.sh
 
 echo ""
 echo "All initialization complete!"
