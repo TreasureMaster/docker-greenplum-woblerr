@@ -73,16 +73,16 @@ credentials:
             username: "svc_cdjks_afapi"
             password: "password111"
             description: "Доступ к Airflow API"
-        - string:
-              scope: GLOBAL
-              id: "airflow-config-update"
-              secret: ""
-              description: "GitLab API token"
-        - string:
-              scope: GLOBAL
-              id: "gitlab-api-project-id"
-              secret: ""
-              description: "GitLab API project id (for Airflow params update)"
+        # - string:
+        #       scope: GLOBAL
+        #       id: "airflow-config-update"
+        #       secret: ""
+        #       description: "GitLab API token"
+        # - string:
+        #       scope: GLOBAL
+        #       id: "gitlab-api-project-id"
+        #       secret: ""
+        #       description: "GitLab API project id (for Airflow params update)"
 
 jobs:
   - script: |
