@@ -26,5 +26,12 @@ RUN mkdir -p /var/www/webdav /var/lib/dav \
 RUN ln -sf /dev/stdout /var/log/apache2/access.log \
     && ln -sf /dev/stderr /var/log/apache2/error.log
 
+# Копируем скрипт инициализации
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+# Назначаем скрипт основной точкой запуска контейнера
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+
 # Запуск Apache на переднем плане
-CMD ["apachectl", "-D", "FOREGROUND"]
+# CMD ["apachectl", "-D", "FOREGROUND"]
