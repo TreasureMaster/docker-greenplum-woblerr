@@ -2,18 +2,20 @@ FROM alpine:3.21
 
 # ENV TZ=Europe/Moscow
 
-RUN apk add --no-cache \
+RUN apt-get update && apt-get install -y \
     apache2 \
     apache2-webdav \
-    apache2-proxy \
     apache-mod-auth-ntlm-winbind \
-    samba \
+    # samba-common-bin \
+    # winbind \
     samba-client \
-    winbind \
+    samba-winbind \
     bash \
+    curl \
     ca-certificates \
     tzdata \
-    curl
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 RUN mkdir -p /var/www/webdav \
     /var/lib/dav \
