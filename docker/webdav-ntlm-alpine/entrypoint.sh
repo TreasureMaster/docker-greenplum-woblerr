@@ -42,4 +42,5 @@ chmod 750 /var/lib/samba/private/msg.sock 2>/dev/null || true
 
 echo "Пользователь настроен успешно. Запуск Apache..."
 # Запускаем Apache на переднем плане (стандартная команда)
-exec apachectl -D FOREGROUND
+# exec apachectl -D FOREGROUND
+exec httpd -D FOREGROUND
