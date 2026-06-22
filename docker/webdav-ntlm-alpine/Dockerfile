@@ -2,7 +2,7 @@ FROM alpine:3.21
 
 # ENV TZ=Europe/Moscow
 
-RUN apt-get update && apt-get install -y \
+RUN apk add --no-cache \
     apache2 \
     apache2-webdav \
     apache-mod-auth-ntlm-winbind \
@@ -13,9 +13,7 @@ RUN apt-get update && apt-get install -y \
     bash \
     curl \
     ca-certificates \
-    tzdata \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+    tzdata
 
 RUN mkdir -p /var/www/webdav \
     /var/lib/dav \
