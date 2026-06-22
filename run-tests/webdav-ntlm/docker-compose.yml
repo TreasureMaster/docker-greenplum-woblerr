@@ -1,6 +1,7 @@
 services:
   webdav-ntlm:
-    build: .
+    # build: .
+    image: webdav-ntlm:0.0.2-debian12
     container_name: webdav_ntlm_server
     ports:
       - "80:80"
@@ -8,7 +9,8 @@ services:
       - NTLM_USER=cdjks_s2t
       - NTLM_PASSWORD=password  # Задайте ваш пароль
     volumes:
-      - ./webdav-ntlm.conf:/etc/apache2/sites-enabled/000-default.conf:ro
+      # - ./webdav-ntlm.conf:/etc/apache2/sites-enabled/000-default.conf:ro
+      - ./conf:/etc/apache2/sites-enabled:ro
       # - ./shared_excel_files:/var/www/webdav
       - webdav-ntlm:/var/www/webdav
     # restart: always
