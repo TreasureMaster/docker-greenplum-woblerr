@@ -28,7 +28,12 @@ RUN a2enmod dav dav_fs headers rewrite ssl authn_core auth_basic authz_core
 
 # Если в репозитории есть NTLM-модуль — подключайте его здесь.
 # На практике пакет/имя модуля зависят от дистрибутива.
-RUN a2enmod auth_ntlm || true
+# RUN a2enmod auth_ntlm || true
+
+# NTLM-модуль здесь должен быть установлен отдельным пакетом или собран вручную.
+# Например, если пакет доступен в вашей базе:
+RUN apt-get update && apt-get install -y apache2-mod-auth-ntlm-winbind
+RUN a2enmod auth_ntlm_winbind
 
 # Создаем директории для файлов и базы блокировок WebDAV
 RUN mkdir -p /var/www/webdav /var/lib/dav \
