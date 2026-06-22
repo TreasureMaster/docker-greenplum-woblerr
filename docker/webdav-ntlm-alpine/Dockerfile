@@ -29,6 +29,7 @@ RUN sed -i 's/^#LoadModule dav_module/LoadModule dav_module/' /etc/apache2/httpd
 # Подключаем свой конфиг
 # COPY httpd.conf /etc/apache2/httpd.conf
 COPY webdav-ntlm.conf /etc/apache2/conf.d/webdav-ntlm.conf
+COPY smb.conf /etc/samba/smb.conf
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 

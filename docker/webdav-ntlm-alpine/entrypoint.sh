@@ -34,11 +34,14 @@ chown -R apache:apache /var/www/webdav /var/lib/dav || true
 chown root:www-data /var/lib/samba/private/msg.sock 2>/dev/null || true
 chmod 750 /var/lib/samba/private/msg.sock 2>/dev/null || true
 # Обязательно даем права на winbindd_privileged для корректной работы ntlm_auth от www-data
-# chown -R root:www-data /var/lib/samba/winbindd_privileged 2>/dev/null || true
-# chmod 750 /var/lib/samba/winbindd_privileged 2>/dev/null || true
+# 3. Обеспечиваем права для Apache (в Alpine процесс Apache часто работает под пользователем apache)
+# Создаем необходимые директории для сокетов winbind, если их нет
+mkdir -p /var/lib/samba/winbindd_privileged /var/run/samba
+chown -R root:www-data /var/lib/samba/winbindd_privileged 2>/dev/null || true
+chmod 750 /var/lib/samba/winbindd_privileged 2>/dev/null || true
 
 # Запускаем winbind в фоновом режиме, он жизненно необходим для ntlm_auth
-# winbindd -D
+winbindd -D
 
 echo "Пользователь настроен успешно. Запуск Apache..."
 # Запускаем Apache на переднем плане (стандартная команда)
