@@ -22,11 +22,11 @@ echo -e "$NTLM_PASSWORD\n$NTLM_PASSWORD" | smbpasswd -a -s "$NTLM_USER"
 chown root:www-data /var/lib/samba/private/msg.sock 2>/dev/null || true
 chmod 750 /var/lib/samba/private/msg.sock 2>/dev/null || true
 # Обязательно даем права на winbindd_privileged для корректной работы ntlm_auth от www-data
-chown -R root:www-data /var/lib/samba/winbindd_privileged 2>/dev/null || true
-chmod 750 /var/lib/samba/winbindd_privileged 2>/dev/null || true
+# chown -R root:www-data /var/lib/samba/winbindd_privileged 2>/dev/null || true
+# chmod 750 /var/lib/samba/winbindd_privileged 2>/dev/null || true
 
 # Запускаем winbind в фоновом режиме, он жизненно необходим для ntlm_auth
-winbindd -D
+# winbindd -D
 
 echo "Пользователь настроен успешно. Запуск Apache..."
 # Запускаем Apache на переднем плане (стандартная команда)
