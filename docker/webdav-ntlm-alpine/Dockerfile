@@ -8,8 +8,10 @@ RUN apk add --no-cache \
     apache-mod-auth-ntlm-winbind \
     # samba-common-bin \
     # winbind \
-    samba-client \
+    # samba-client \
+    samba \
     samba-winbind \
+    samba-winbind-clients \
     bash \
     curl \
     ca-certificates \
