@@ -6,14 +6,24 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Устанавливаем Apache, модуль NTLM и утилиты для работы с паролями
 RUN apt-get update && apt-get install -y \
     apache2 \
+    apache2-dev \
     winbind \
     samba \
     apache2-utils \
+    git \
+    make \
+    gcc \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
+# Скачиваем и собираем модуль mod_authn_ntlm для работы с ntlm_auth (Samba)
+RUN git clone https://github.com /tmp/mod_authn_ntlm \
+    && cd /tmp/mod_authn_ntlm \
+    && axs2 -i -a -c mod_authn_ntlm.c \
+    && rm -rf /tmp/mod_authn_ntlm
+
 # Включаем модули WebDAV в конфигурации Apache
-RUN a2enmod dav && a2enmod dav_fs && a2enmod authn_core && a2enmod authz_core
+RUN a2enmod dav && a2enmod dav_fs && a2enmod authn_core && a2enmod authz_core && a2enmod authn_ntlm
 
 # Создаем директории для файлов и базы блокировок WebDAV
 RUN mkdir -p /var/www/webdav /var/lib/dav \

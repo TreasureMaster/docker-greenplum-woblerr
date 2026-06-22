@@ -1,5 +1,5 @@
 #!/bin/bash
 
-IMAGE_TAG="webdav-ntlm:0.0.2-debian12"
+IMAGE_TAG="dwh/webdav-ntlm:0.0.3"
 
 docker build --no-cache --progress=plain -t "$IMAGE_TAG" .
