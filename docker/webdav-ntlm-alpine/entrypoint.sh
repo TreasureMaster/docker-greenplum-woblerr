@@ -11,14 +11,22 @@ echo "Настройка пользователя $NTLM_USER для NTLM..."
 
 # 1. Создаем пользователя в Linux (без домашней директории и возможности зайти по SSH)
 if ! id "$NTLM_USER" &>/dev/null; then
-    useradd -M -s /usr/sbin/nologin "$NTLM_USER"
+    # useradd -M -s /usr/sbin/nologin "$NTLM_USER"
+    adduser -D -H -s /sbin/nologin "$NTLM_USER"
 fi
 
 # 2. Задаем ему системный пароль и пароль для Samba/Swinbind (NTLM)
-echo -e "$NTLM_PASSWORD\n$NTLM_PASSWORD" | passwd "$NTLM_USER"
-echo -e "$NTLM_PASSWORD\n$NTLM_PASSWORD" | smbpasswd -a -s "$NTLM_USER"
+# echo -e "$NTLM_PASSWORD\n$NTLM_PASSWORD" | passwd "$NTLM_USER"
+# echo -e "$NTLM_PASSWORD\n$NTLM_PASSWORD" | smbpasswd -a -s "$NTLM_USER"
 
-mkdir -p /var/www/webdav /var/lib/dav
+# Устанавливаем системный пароль
+echo "${NTLM_USER}:${NTLM_PASSWORD}" | chpasswd
+
+# Добавляем пользователя в Samba
+# smbpasswd есть в samba-client / samba-common-bin в зависимости от образа
+printf "%s\n%s\n" "$NTLM_PASSWORD" "$NTLM_PASSWORD" | smbpasswd -a -s "$NTLM_USER"
+
+mkdir -p /var/www/webdav /var/lib/dav /run/apache2 /var/log/apache2
 touch /var/lib/dav/DavLock
 chown -R apache:apache /var/www/webdav /var/lib/dav || true
 
