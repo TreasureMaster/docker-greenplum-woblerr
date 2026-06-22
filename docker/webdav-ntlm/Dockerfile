@@ -6,8 +6,8 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Устанавливаем Apache, модуль NTLM и утилиты для работы с паролями
 RUN apt-get update && apt-get install -y \
     apache2 \
-    libapache2-mod-dav \
-    libapache2-mod-dav-fs \
+    # libapache2-mod-dav \
+    # libapache2-mod-dav-fs \
     samba-common-bin \
     winbind \
     cifs-utils \
