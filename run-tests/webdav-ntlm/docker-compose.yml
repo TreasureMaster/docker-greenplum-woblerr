@@ -1,7 +1,7 @@
 services:
   webdav-ntlm:
     # build: .
-    image: dwh/webdav-ntlm:0.0.5-alpine
+    image: dwh/webdav-ntlm:0.0.6-alpine
     container_name: webdav_ntlm_server
     ports:
       - "80:80"
@@ -10,7 +10,7 @@ services:
       - NTLM_PASSWORD=password  # Задайте ваш пароль
     volumes:
       # - ./webdav-ntlm.conf:/etc/apache2/sites-enabled/000-default.conf:ro
-      - ./conf:/etc/apache2/sites-enabled:ro
+      # - ./conf:/etc/apache2/sites-enabled:ro
       # - ./shared_excel_files:/var/www/webdav
       - webdav-ntlm:/var/www/webdav
     # restart: always
