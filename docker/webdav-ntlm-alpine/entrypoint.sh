@@ -41,8 +41,8 @@ chown -R root:www-data /var/lib/samba/winbindd_privileged 2>/dev/null || true
 chmod 750 /var/lib/samba/winbindd_privileged 2>/dev/null || true
 
 # Создаем папки для s2t
-mkdir -p /var/www/webdav/_api/web/GetFolderByServerRelativeUrl('DocLib/S2T/Актуальные/S2T_RDV')/Files
-mkdir -p /var/www/webdav/_api/web/GetFolderByServerRelativeUrl('DocLib/S2T/Актуальные/S2T_STG')/Files
+mkdir -p "/var/www/webdav/_api/web/GetFolderByServerRelativeUrl('DocLib/S2T/Актуальные/S2T_RDV')/Files"
+mkdir -p "/var/www/webdav/_api/web/GetFolderByServerRelativeUrl('DocLib/S2T/Актуальные/S2T_STG')/Files"
 chown -R 82:82 /var/www/webdav
 chmod -R 775 /var/www/webdav
 
