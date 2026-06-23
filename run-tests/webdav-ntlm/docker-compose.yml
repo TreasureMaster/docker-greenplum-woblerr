@@ -39,11 +39,9 @@ services:
       - "445:445"
     environment:
       # --- ШАРА 1: Общая папка для Jenkins и Аналитиков ---
-      - NAME1=shared_reports
-      - USER1=cdjks_s2t
-      - PASS1=password
-      # - USER2=analyst_user
-      # - PASS2=password_analyst
+      - NAME=shared_reports
+      - USER=cdjks_s2t
+      - PASS=password
 
       # --- ШАРА 2: Приватная папка только для Менеджеров ---
       # (Jenkins и аналитики сюда зайти не смогут)
