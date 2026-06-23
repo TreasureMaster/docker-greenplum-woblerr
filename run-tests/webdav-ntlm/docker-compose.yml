@@ -32,5 +32,34 @@ services:
   #   depends_on:
   #     - webdav-ntlm
 
+  samba-share:
+    image: dockurr/samba:4.23.8
+    container_name: samba_server
+    ports:
+      - "445:445"
+    environment:
+      # --- ШАРА 1: Общая папка для Jenkins и Аналитиков ---
+      - NAME1=shared_reports
+      - USER1=cdjks_s2t
+      - PASS1=password
+      # - USER2=analyst_user
+      # - PASS2=password_analyst
+
+      # --- ШАРА 2: Приватная папка только для Менеджеров ---
+      # (Jenkins и аналитики сюда зайти не смогут)
+      # - NAME2=managers_private
+      # - USER3=manager_user
+      # - PASS3=password_manager
+
+      # --- Пользователь apache для доступа из webdav-ntlm
+      - UID=82
+      - GID=82
+    volumes:
+      # Важно: монтируем папки из volume в соответствующие подкаталоги /storage
+      - webdav-ntlm:/storage/shared_reports
+      # - managers-data:/storage/managers_private
+    # restart: always
+
 volumes:
   webdav-ntlm:
+  # managers-data:
