@@ -365,7 +365,7 @@ services:
       - airflow-tier
 
   dwh-init:
-    image: dwh-init:0.12.0
+    image: dwh-init:0.12.1
     container_name: dwh-init
     depends_on:
       registry:
@@ -401,6 +401,8 @@ services:
       - NTLM_PASSWORD=${NTLM_PASSWORD}  # Задайте ваш пароль
     volumes:
       - webdav-ntlm:/var/www/webdav
+    depends_on:
+      - dwh-init
     # restart: always
     networks:
       - dwh-net
@@ -422,6 +424,8 @@ services:
     volumes:
       # Важно: монтируем папки из volume в соответствующие подкаталоги /storage
       - webdav-ntlm:/storage/shared_reports
+    depends_on:
+      - webdav-ntlm
     # restart: always
     # networks:
     #   - dwh-net

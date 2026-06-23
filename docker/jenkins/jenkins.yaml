@@ -73,6 +73,12 @@ credentials:
             username: "svc_cdjks_afapi"
             password: "password111"
             description: "Доступ к Airflow API"
+        - usernamePassword:
+            scope: GLOBAL
+            id: "svc_cdjks_s2t-pass"
+            username: "cdjks_s2t"
+            password: "password"
+            description: "Доступ к файловой шаре s2t"
         # - string:
         #       scope: GLOBAL
         #       id: "airflow-config-update"
