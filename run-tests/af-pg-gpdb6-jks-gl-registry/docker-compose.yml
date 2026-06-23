@@ -392,7 +392,7 @@ services:
     # restart: "no"
 
   webdav-ntlm:
-    image: dwh/webdav-ntlm:0.0.8-alpine
+    image: dwh/webdav-ntlm:0.0.9-alpine
     container_name: webdav_ntlm_server
     # ports:
     #   - "80:80"
@@ -414,7 +414,7 @@ services:
       - "445:445"
     environment:
       # --- ШАРА 1: Общая папка для Jenkins и Аналитиков ---
-      - NAME=shared_reports
+      - NAME=_api
       - USER=${NTLM_USER}
       - PASS=${NTLM_PASSWORD}
 
@@ -423,7 +423,7 @@ services:
       - GID=82
     volumes:
       # Важно: монтируем папки из volume в соответствующие подкаталоги /storage
-      - webdav-ntlm:/storage/shared_reports
+      - webdav-ntlm:/storage/_api
     depends_on:
       - webdav-ntlm
     # restart: always
