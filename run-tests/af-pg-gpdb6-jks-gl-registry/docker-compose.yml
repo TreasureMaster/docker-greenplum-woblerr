@@ -391,9 +391,9 @@ services:
       - dwh-net
     # restart: "no"
 
-  webdav-ntlm:
+  ntlm-server:
     image: dwh/webdav-ntlm:0.0.9-alpine
-    container_name: webdav_ntlm_server
+    container_name: ntlm-server
     hostname: ntlm-server
     # ports:
     #   - "80:80"
