@@ -40,7 +40,7 @@ services:
     environment:
       # --- ШАРА 1: Общая папка для Jenkins и Аналитиков ---
       # - NAME=shared_reports
-      - NAME=_api
+      - NAME=information
       - USER=cdjks_s2t
       - PASS=password
 
