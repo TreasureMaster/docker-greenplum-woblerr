@@ -414,7 +414,7 @@ services:
       - "445:445"
     environment:
       # --- ШАРА 1: Общая папка для Jenkins и Аналитиков ---
-      - NAME=_api
+      - NAME=information
       - USER=${NTLM_USER}
       - PASS=${NTLM_PASSWORD}
 
@@ -423,7 +423,7 @@ services:
       - GID=82
     volumes:
       # Важно: монтируем папки из volume в соответствующие подкаталоги /storage
-      - webdav-ntlm:/storage/_api
+      - webdav-ntlm:/storage/information
     depends_on:
       - webdav-ntlm
     # restart: always
