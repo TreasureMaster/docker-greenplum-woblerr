@@ -7,8 +7,8 @@ RUN apk add --no-cache \
     apache2-webdav \
     apache-mod-auth-ntlm-winbind \
     # ДОБАВЛЯЕМ ДРАЙВЕРЫ ДЛЯ БАЗЫ БЛОКИРОВОК WEBDAV
+    apr-util-dbd \
     apr-util-dbd_sqlite3 \
-    apr-util-dbm_gdbm \
     samba \
     samba-winbind \
     samba-winbind-clients \
