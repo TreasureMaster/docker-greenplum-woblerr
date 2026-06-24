@@ -56,7 +56,7 @@ services:
     volumes:
       # Важно: монтируем папки из volume в соответствующие подкаталоги /storage
       # - webdav-ntlm:/storage/shared_reports
-      - webdav-ntlm:/storage/information
+      - webdav-ntlm:/storage
       # - managers-data:/storage/managers_private
     # restart: always
 
