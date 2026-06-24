@@ -424,7 +424,7 @@ services:
       - GID=82
     volumes:
       # Важно: монтируем папки из volume в соответствующие подкаталоги /storage
-      - webdav-ntlm:/storage/information
+      - webdav-ntlm:/storage
     depends_on:
       - ntlm-server
     # restart: always
