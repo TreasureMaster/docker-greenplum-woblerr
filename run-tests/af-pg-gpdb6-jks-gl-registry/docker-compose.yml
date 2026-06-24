@@ -394,6 +394,7 @@ services:
   webdav-ntlm:
     image: dwh/webdav-ntlm:0.0.9-alpine
     container_name: webdav_ntlm_server
+    hostname: ntlm-server
     # ports:
     #   - "80:80"
     environment:
