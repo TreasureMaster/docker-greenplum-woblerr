@@ -1,4 +1,4 @@
-FROM alpine:3.21
+FROM alpine:3.23
 
 # ENV TZ=Europe/Moscow
 
@@ -9,6 +9,9 @@ RUN apk add --no-cache \
     # ДОБАВЛЯЕМ ДРАЙВЕРЫ ДЛЯ БАЗЫ БЛОКИРОВОК WEBDAV
     # apr-util-dbd \
     # apr-util-dbd_sqlite3 \
+    gdbm \
+    gdbm-libs \
+    apr-util-dbm_gdbm \
     samba \
     samba-winbind \
     samba-winbind-clients \

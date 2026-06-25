@@ -1,6 +1,6 @@
 #!/bin/bash
 
-IMAGE_TAG="dwh/webdav-ntlm:0.0.10-alpine"
+IMAGE_TAG="dwh/webdav-ntlm:0.0.11-alpine"
 
 # docker build --no-cache --progress=plain -t "$IMAGE_TAG" .
 docker build --progress=plain -t "$IMAGE_TAG" .
