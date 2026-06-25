@@ -1,4 +1,4 @@
-FROM alpine:3.23
+FROM alpine:3.23.5
 
 # ENV TZ=Europe/Moscow
 
@@ -10,7 +10,6 @@ RUN apk add --no-cache \
     # apr-util-dbd \
     # apr-util-dbd_sqlite3 \
     gdbm \
-    gdbm-libs \
     apr-util-dbm_gdbm \
     samba \
     samba-winbind \
