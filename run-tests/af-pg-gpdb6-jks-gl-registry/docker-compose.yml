@@ -392,7 +392,7 @@ services:
     # restart: "no"
 
   ntlm-server:
-    image: dwh/webdav-ntlm:0.0.11-alpine
+    image: dwh/webdav-ntlm:0.0.12-alpine
     container_name: ntlm-server
     hostname: ntlm-server
     # ports:

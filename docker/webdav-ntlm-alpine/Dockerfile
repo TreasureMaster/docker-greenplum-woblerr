@@ -26,7 +26,8 @@ RUN mkdir -p /var/www/webdav \
 
 # Включаем модули Apache
 RUN sed -i 's/^#LoadModule dav_module/LoadModule dav_module/' /etc/apache2/httpd.conf && \
-    sed -i 's/^#LoadModule dav_fs_module/LoadModule dav_fs_module/' /etc/apache2/httpd.conf || true
+    sed -i 's/^#LoadModule dav_fs_module/LoadModule dav_fs_module/' /etc/apache2/httpd.conf && \
+    sed -i '/DavLockDB/i DBMType gdbm' /etc/apache2/conf.d/dav.conf || true
 
 # Подключаем свой конфиг
 # COPY httpd.conf /etc/apache2/httpd.conf
