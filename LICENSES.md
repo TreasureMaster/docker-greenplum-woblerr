@@ -1,21 +1,25 @@
 # Список лицензий используемых компонентов
 
-| Компонент                  | Лицензия                                  | Описание                                        |
-| -------------------------- | ----------------------------------------- | ----------------------------------------------- |
-| `docker-greenplum-woblerr` | MIT                                       | сборка докер-образа greenplum (*изменено*)      |
-| `jenkins`                  | MIT                                       | трубы jenkins                                   |
-| `gitlab-ce`                | MIT                                       | хранение кода                                   |
-| `airflow 2.9.3`            | Apache License 2.0                        | оркестрация потока операций по обработке данных |
-| `postgres`                 | PostgreSQL License                        | хранение данных (база данных)                   |
-| `greenplum 6.27.1`         | Apache License 2.0                        | хранение данных (база данных)                   |
-| `python`                   | Python Software Foundation License (PSFL) | исходный код на ЯП python                       |
-| `ansible`                  | GPL 3.0                                   | система управления конфигурациями               |
-| `liquibase 4.20.0`         | Apache License 2.0                        | система управления конфигурациями баз данных    |
-| `registry 3.0`             | Apache License 2.0                        | локальный репозиторий docker-образов            |
-| `docker-registry-ui 2.6.0` | AGPL 3.0                                  | веб-интерфейс локального репозитория docker     |
-| `alpine 3.22`              | GPL 3, MIT и BSD                          | для сборки `dwh-init`                           |
-| `redis 7.2.13`             | BSD 3-Clause                              | для работы `airflow`                            |
-| `dwh-init`                 | ???                                       | установочный образ нашей системы `dwh-gp`       |
+| Компонент                  | Лицензия                                  | Описание                                         |
+| -------------------------- | ----------------------------------------- | ------------------------------------------------ |
+| `docker-greenplum-woblerr` | MIT                                       | сборка докер-образа greenplum (*изменено*)       |
+| `jenkins`                  | MIT                                       | трубы jenkins                                    |
+| `gitlab-ce`                | MIT                                       | хранение кода                                    |
+| `airflow 2.9.3`            | Apache License 2.0                        | оркестрация потока операций по обработке данных  |
+| `postgres`                 | PostgreSQL License                        | хранение данных (база данных)                    |
+| `greenplum 6.27.1`         | Apache License 2.0                        | хранение данных (база данных)                    |
+| `python`                   | Python Software Foundation License (PSFL) | исходный код на ЯП python                        |
+| `ansible`                  | GPL 3.0                                   | система управления конфигурациями                |
+| `liquibase 4.20.0`         | Apache License 2.0                        | система управления конфигурациями баз данных     |
+| `registry 3.0`             | Apache License 2.0                        | локальный репозиторий docker-образов             |
+| `docker-registry-ui 2.6.0` | AGPL 3.0                                  | веб-интерфейс локального репозитория docker      |
+| `alpine 3.22/23`           | GPL 3, MIT и BSD                          | для сборки `dwh-init` и `ntlm-server`            |
+| `redis 7.2.13`             | BSD 3-Clause                              | для работы `airflow`                             |
+| `dwh-init`                 | ???                                       | установочный образ нашей системы `dwh-gp`        |
+| `gdbm 1.26`                | GPL 3.0                                   | GNU dbm — это набор процедур для работы с БД     |
+| `apache2 2.4.67`           | Apache License 2.0                        | Высокопроизводительный HTTP-сервер               |
+| `samba 4.22.10`            | GPL 3.0 и LGPL-3.0                        | Доступ к файловому пространству через SMB        |
+| `samba-winbind 4.22.10`    | GPL 3.0 и LGPL-3.0                        | Сервер для разрешения имен пользователей и групп |
 
 # Список лицензий используемых докер-образов
 
@@ -31,9 +35,11 @@
 | `liquibase`          | Apache License 2.0 |                                                              |
 | `registry`           | Apache License 2.0 |                                                              |
 | `docker-registry-ui` | AGPL 3.0           | *опционально*                                                |
-| `alpine`             | MIT                | базовый образ для `dwh-init`                                 |
+| `alpine`             | MIT                | базовый образ для `dwh-init` и `ntlm-server`                 |
 | `redis`              | BSD 3-Clause       | для работы `airflow`                                         |
-| `dwh-init`           | ???                | наш                                                          |
+| `dwh-init`           | ???                | наш докер-образ, но основа - Alpine                          |
+| `ntlm-server`        | ???                | наш докер-образ, но основа - Alpine                          |
+| `dockurr/samba`      | MIT                | `samba-server`                                               |
 
 
 * *изменено* означает, что исходный код был доработан нами. Соответственно, указана исходная лицензия.
