@@ -124,7 +124,7 @@ services:
     # restart: always
 
   jenkins:
-    image: jenkins/jenkins:${JENKINS_VERSION}
+    image: treasuremaster/jenkins:${JENKINS_VERSION}
     container_name: ${JENKINS_CONTAINER_NAME}
     hostname: ${JENKINS_URL}
     ports:
@@ -392,7 +392,7 @@ services:
     # restart: "no"
 
   ntlm-server:
-    image: dwh/webdav-ntlm:0.1.0-alpine
+    image: treasuremaster/webdav-ntlm:0.1.0-alpine
     container_name: ntlm-server
     hostname: ntlm-server
     # ports:
