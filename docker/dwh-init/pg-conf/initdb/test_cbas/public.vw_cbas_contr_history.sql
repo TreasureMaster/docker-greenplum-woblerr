@@ -1,4 +1,4 @@
-DROP TABLE public.vw_cbas_contr_history;
+DROP TABLE IF EXISTS public.vw_cbas_contr_history;
 
 CREATE TABLE public.vw_cbas_contr_history (
 	id text NULL, -- ИД записи в истории
