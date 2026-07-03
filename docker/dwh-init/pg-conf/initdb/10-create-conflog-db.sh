@@ -40,8 +40,9 @@ PGPASSWORD="$CONFLOG_PASSWORD" psql -v ON_ERROR_STOP=1 --username "$CONFLOG_USER
 
 	GRANT rl_reader	TO srv_prodlog01;
 
-	GRANT rl_lm_worker TO afprod;
-	GRANT rl_log_worker	TO afprod;
+	CREATE USER ${AFPROD_SUZ_USERNAME} WITH PASSWORD '${AFPROD_SUZ_PASSWORD}';
+	GRANT rl_lm_worker TO ${AFPROD_SUZ_USERNAME};
+	GRANT rl_log_worker	TO ${AFPROD_SUZ_USERNAME};
 
 	CREATE SCHEMA adb AUTHORIZATION rl_owner_db;
 	GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA adb TO rl_owner_db;
