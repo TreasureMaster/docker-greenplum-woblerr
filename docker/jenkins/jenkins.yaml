@@ -79,6 +79,24 @@ credentials:
             username: "cdjks_s2t"
             password: "password"
             description: "Доступ к файловой шаре s2t"
+        - usernamePassword:
+            scope: GLOBAL
+            id: "AFPROD-META"
+            username: "afprod"
+            password: "password111"
+            description: "СУЗ для коннекта Airflow с prodlog"
+        - usernamePassword:
+            scope: GLOBAL
+            id: "ADB-DEPLOY-PROD"
+            username: "adb_deploy"
+            password: "password111"
+            description: "Вспомогательный СУЗ для коннекта Airflow с adb"
+        - usernamePassword:
+            scope: GLOBAL
+            id: "ADB-EXEC-DWH"
+            username: "adb_exec_dwh_small"
+            password: "PaswdQ802"
+            description: "Основной СУЗ для коннекта Airflow с adb"
         # - string:
         #       scope: GLOBAL
         #       id: "airflow-config-update"
