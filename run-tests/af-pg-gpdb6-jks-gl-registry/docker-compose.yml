@@ -393,7 +393,7 @@ services:
     # restart: "no"
 
   ntlm-server:
-    image: treasuremaster/webdav-ntlm:0.1.0-alpine
+    image: treasuremaster/webdav-ntlm:0.1.1-alpine
     container_name: ntlm-server
     hostname: ntlm-server
     # ports:
