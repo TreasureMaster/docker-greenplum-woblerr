@@ -244,6 +244,8 @@ initialize_and_start_gpdb_segments() {
 
 initialize_and_start_gpdb() {
     debug "Initialize and start gpdb"
+    source "/home/${GREENPLUM_USER}/.bashrc"
+
     local pg_hba="${GREENPLUM_DATA_DIRECTORY}/${gp_master_dir_name}/${GREENPLUM_SEG_PREFIX}-1/pg_hba.conf"
     local pxf_env="${PXF_BASE}/conf/pxf-env.sh"
     local end_flag=""
