@@ -55,15 +55,21 @@ mkdir -p "/var/www/webdav/information/DocLib/Логическая модель B
 chown -R 82:82 /var/www/webdav
 chmod -R 775 /var/www/webdav
 
-# Удаляем старые PID файлы и сокеты winbind, оставшиеся от прошлого запуска.
-# Без этого winbindd -D видит старый lock и падает с ошибкой, завершая контейнер.
+# 5. Очистка PID и временных файлов перед стартом
 rm -f /var/run/samba/winbindd.pid
 rm -f /var/run/winbindd.pid
 rm -f /var/lib/samba/winbindd_privileged/pipe
+rm -f /var/run/samba/winbindd.sock
+rm -rf /var/run/samba/msg.lock/
 
-# 5. Запускаем winbind в фоновом режиме, он жизненно необходим для ntlm_auth
+# 6. Запускаем winbind БЕЗ флага -D.
 echo "[INFO]: Запуск Winbind..."
-winbindd -D
+# winbindd -D
+winbindd -F --no-process-group &
+
+# Даем winbind 2 секунды, чтобы он гарантированно успел создать сокеты
+# до того, как Apache начнет выполнять проверки ntlm_auth
+sleep 2
 
 echo "[INFO]: Запуск Apache..."
 # 6. Запускаем Apache на переднем плане (стандартная команда)
