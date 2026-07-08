@@ -133,19 +133,54 @@ while IFS= read -r user_json; do
         echo "[ERROR]: Ошибка создания ${username}: ${result}" >&2
     fi
 
+    # if [[ "${username}" == "${GITLAB_API_USER}" ]]; then
+    #     echo "[INFO]: Создаём GitLab API token для ${username}"
+    #     TOKEN_EXPIRES_AT="$(date -u -d "@$(( $(date -u +%s) + 360*24*60*60 ))" +%F)"
+    #     token_result=$(create_gitlab_impersonation_token "${user_id}" "${GITLAB_API_TOKEN_NAME}" "${TOKEN_EXPIRES_AT}")
+    #     GITLAB_API_TOKEN=$(echo "${token_result}" | jq -r '.token // empty')
+
+    #     if [[ -z "${GITLAB_API_TOKEN}" ]]; then
+    #         echo "[ERROR]: Не удалось получить token для ${username}: ${token_result}" >&2
+    #         exit 1
+    #     fi
+
+    #     export GITLAB_API_TOKEN
+    #     echo "[INFO]: GITLAB_API_TOKEN установлен в переменную окружения"
+    # fi
+
+    # Обработка токена для нужного пользователя
     if [[ "${username}" == "${GITLAB_API_USER}" ]]; then
-        echo "[INFO]: Создаём GitLab API token для ${username}"
+      echo "[INFO]: Проверка наличия GitLab API token для ${username}"
+      
+      # Если user_id не был получен ранее (потому что пользователь уже существует)
+      if [[ -z "${user_id}" || "${user_id}" == "null" ]]; then
+        user_id=$(curl -sS --header "PRIVATE-TOKEN: ${ROOT_TOKEN}" \
+          "${GITLAB_URL}/api/v4/users?username=${username}" | jq -r '.[0].id')
+      fi
+
+      # Ищем активный токен с нужным именем
+      existing_token=$(curl -sS --header "PRIVATE-TOKEN: ${ROOT_TOKEN}" \
+        "${GITLAB_URL}/api/v4/users/${user_id}/impersonation_tokens?state=active" \
+        | jq -r ".[] | select(.name==\"${GITLAB_API_TOKEN_NAME}\") | .token // empty" | head -n 1)
+
+      if [[ -n "${existing_token}" ]]; then
+        echo "[INFO]: Токен '${GITLAB_API_TOKEN_NAME}' уже существует в GitLab. Пропускаем создание."
+        export GITLAB_API_TOKEN_EXISTS="true"
+      else
+        echo "[INFO]: Токен не найден, создаем..."
         TOKEN_EXPIRES_AT="$(date -u -d "@$(( $(date -u +%s) + 360*24*60*60 ))" +%F)"
         token_result=$(create_gitlab_impersonation_token "${user_id}" "${GITLAB_API_TOKEN_NAME}" "${TOKEN_EXPIRES_AT}")
         GITLAB_API_TOKEN=$(echo "${token_result}" | jq -r '.token // empty')
 
         if [[ -z "${GITLAB_API_TOKEN}" ]]; then
-            echo "[ERROR]: Не удалось получить token для ${username}: ${token_result}" >&2
-            exit 1
+          echo "[ERROR]: Не удалось получить token для ${username}: ${token_result}" >&2
+          exit 1
         fi
 
         export GITLAB_API_TOKEN
-        echo "[INFO]: GITLAB_API_TOKEN установлен в переменную окружения"
+        export GITLAB_API_TOKEN_EXISTS="false"
+        echo "[INFO]: GITLAB_API_TOKEN создан и установлен в переменную окружения"
+      fi
     fi
 done <<< "${USERS}"
 

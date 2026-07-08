@@ -339,17 +339,17 @@ for full in "${!PROJECTS[@]}"; do
   else
     echo "Проект уже существует, ID=${PROJECT_ID}"
 
-    if [[ "${MODE}" == "safe" ]]; then
-      echo "Проверяю, пустой ли репозиторий..."
+    # if [[ "${MODE}" == "safe" ]]; then
+    #   echo "Проверяю, пустой ли репозиторий..."
 
-      if is_project_empty "${PROJECT_ID}"; then
-        echo "Репозиторий пустой — можно заливать код."
-      else
-        echo "Репозиторий НЕ пустой — в режиме SAFE пропускаем заливку."
-        # переходим к следующему проекту
-        continue
-      fi
-    fi
+    #   if is_project_empty "${PROJECT_ID}"; then
+    #     echo "Репозиторий пустой — можно заливать код."
+    #   else
+    #     echo "Репозиторий НЕ пустой — в режиме SAFE пропускаем заливку."
+    #     # переходим к следующему проекту
+    #     continue
+    #   fi
+    # fi
   fi
 
   # Костыль: определяем ID проекта cfg-airflow
@@ -357,6 +357,19 @@ for full in "${!PROJECTS[@]}"; do
     GITLAB_API_PROJECT_ID="${PROJECT_ID}"
     export GITLAB_API_PROJECT_ID
     echo "[INFO]: GITLAB_API_PROJECT_ID=${GITLAB_API_PROJECT_ID}"
+  fi
+
+  # Проверка на пустоту и пропуск (ПЕРЕМЕЩЕНО НИЖЕ)
+  if [[ "${MODE}" == "safe" && -n "${PROJECT_ID}" ]]; then
+    echo "Проверяю, пустой ли репозиторий..."
+
+    if is_project_empty "${PROJECT_ID}"; then
+      echo "Репозиторий пустой — можно заливать код."
+    else
+      echo "Репозиторий НЕ пустой — в режиме SAFE пропускаем заливку."
+      # переходим к следующему проекту
+      continue
+    fi
   fi
 
   # Работа с архивом ./projects/project-name.tar.gz

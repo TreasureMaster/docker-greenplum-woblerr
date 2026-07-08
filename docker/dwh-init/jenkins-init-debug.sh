@@ -141,6 +141,12 @@ jenkins_upsert_secret_text_credential() {
 
 wait_for_jenkins "${JENKINS_INNER_URL}" 30 10
 
+# === ПРОПУСК ПРИ ПОВТОРНОМ ЗАПУСКЕ ===
+if [[ "${GITLAB_API_TOKEN_EXISTS:-false}" == "true" ]]; then
+  echo "[JENKINS-INFO]: GitLab token already exists (GITLAB_API_TOKEN_EXISTS=true). Skipping Jenkins credentials setup."
+  exit 0
+fi
+
 if [[ -z "${GITLAB_API_TOKEN:-}" ]]; then
   echo "ERROR: GITLAB_API_TOKEN is empty"
   exit 1
