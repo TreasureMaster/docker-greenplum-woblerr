@@ -20,15 +20,6 @@ API_URL="${AIRFLOW_WEBSERVER_URL}/auth/fab/v1/users"
 
 echo "Using Airflow API at: ${API_URL}"
 
-# Проверяем доступность API (простой GET)
-# echo "Checking Airflow API availability..."
-# if ! curl -sS -o /dev/null -w "%{http_code}" \
-#     -u "${AIRFLOW_API_USER}:${AIRFLOW_API_PASSWORD}" \
-#     "${AIRFLOW_WEBSERVER_URL}/api/v1/health" | grep -qE '200|204'; then
-#   echo "Airflow API is not reachable or invalid credentials for ${AIRFLOW_API_USER}"
-#   exit 1
-# fi
-
 # === Ожидание доступности API с несколькими попытками ===
 MAX_RETRIES="${AIRFLOW_API_MAX_RETRIES:-20}"   # сколько раз пробовать
 SLEEP_SECONDS="${AIRFLOW_API_RETRY_DELAY:-10}"  # пауза между попытками (сек)
@@ -98,8 +89,6 @@ CREATE_PAYLOAD="$(
                     )
      }'
 )"
-    #    roles: [$role_name]
-    #    roles:      ( $roles_csv | split(",") | map(. | gsub("^\\s+|\\s+$"; "")) )
 
 CREATE_RESPONSE="$(
   curl -sS -w "\n%{http_code}" \

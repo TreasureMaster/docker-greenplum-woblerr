@@ -2,12 +2,6 @@
 
 set -euo pipefail
 
-# Переменные берутся из ENV docker-compose, не из файла
-# GITLAB_URL="${GITLAB_URL:-http://gitlab}"
-# ROOT_USERNAME="${ROOT_USERNAME:-root}"
-# ROOT_PASSWORD="${ROOT_PASSWORD}"
-# USERS_YAML="${USERS_YAML:-/usr/local/bin/gitlab-rails-init/users.yaml}"
-
 echo "=== Инициализация GitLab через API ==="
 
 # ---------------------------------------------------------------------------- #
@@ -43,10 +37,7 @@ get_root_pat() {
 }
 
 export ROOT_TOKEN
-# echo "[DEBUG]: Получение токена для дебага"
-# get_root_pat "${ROOT_USERNAME}" "${ROOT_PASSWORD}"
-# echo "[DEBUG]: реалтьное получение токена"
-# ROOT_TOKEN=$(get_root_pat "${ROOT_USERNAME}" "${ROOT_PASSWORD}")
+
 ROOT_TOKEN=$(get_root_pat)
 
 if [[ -z "${ROOT_TOKEN}" ]]; then
@@ -93,7 +84,6 @@ USERS=$(yq -o=json '.' "${USERS_YAML}" | jq -c '.[]')
 
 RESERVED_USERNAMES=("admin" "root" "support" "help" "dashboard" "profile" "login" "signup" "users" "projects")
 
-# echo "${USERS}" | while IFS= read -r user_json; do
 while IFS= read -r user_json; do
     username=$(echo "${user_json}" | jq -r '.username')
     email=$(echo "${user_json}" | jq -r '.email')
@@ -145,7 +135,6 @@ while IFS= read -r user_json; do
 
     if [[ "${username}" == "${GITLAB_API_USER}" ]]; then
         echo "[INFO]: Создаём GitLab API token для ${username}"
-        # TOKEN_EXPIRES_AT="$(date -d '+360 days' +%F)"
         TOKEN_EXPIRES_AT="$(date -u -d "@$(( $(date -u +%s) + 360*24*60*60 ))" +%F)"
         token_result=$(create_gitlab_impersonation_token "${user_id}" "${GITLAB_API_TOKEN_NAME}" "${TOKEN_EXPIRES_AT}")
         GITLAB_API_TOKEN=$(echo "${token_result}" | jq -r '.token // empty')

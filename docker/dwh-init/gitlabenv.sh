@@ -1,9 +1,5 @@
 #!/bin/bash
 
-# set -a
-# . .env
-# . .env.projects
-# set +a
 
 GITLAB_CONTAINER="${GITLAB_CONTAINER_NAME}"
 ROOT_USERNAME="root"
@@ -25,13 +21,9 @@ GITLAB_API_PROJECT_ID=""
 # Пути должны быть аналогичны тому, как они располагаются в gitlab
 # Шаблон пути - <group>/<subgroup>/.../<subgroup>/<project-name>.git
 # <project-name> должно совпадать с именем архива проекта tar.gz
-# PROJECTS=(
-#     "Platform/backend/hello-project.git"
-#     "Platform/frontend/hello-project.git"
-#     "INFRA/hello-world.git"
-#     "DWH/ADB/service-projects/automation/jks-test-one.git"
-#     "DWH/ADB/service-projects/automation/jks-test-two.git"
-# )
+# Значение ключа - это название git-ветки, куда должен записываться код.
+# пустое значение "" означает, что используется ветка master.
+# "prodlog" - используется ветка prodlog для записи кода.
 declare -A PROJECTS=(
     ["DWH/ADB/service-projects/automation/jks-liquibase-all.git"]=""
     ["DWH/ADB/service-projects/dwh-shared-jenkins.git"]=""

@@ -2,17 +2,9 @@
 # Главный скрипт запуска run-dwh.sh
 
 set -eu
-# set -a; . .env; set +a
-
-# if [ "$EUID" -ne 0 ]; then
-#     sudo echo "Далее нужны будут права sudo..."
-# fi
 
 # Загрузка переменных окружения
 . ./gitlabenv.sh
-
-# echo "Запускаем кластер..."
-# docker compose up -d
 
 
 echo "Starting DWH Cluster Initialization..."
@@ -61,7 +53,6 @@ fi
 # ---------------------------------------------------------------------------- #
 echo ""
 echo "=== Running gitlab-init.sh ==="
-# /usr/local/bin/gitlab-init.sh
 . ./gitlab-init.sh
 
 # ---------------------------------------------------------------------------- #
@@ -91,7 +82,6 @@ echo "=== Running airflow-init.sh ==="
 # ---------------------------------------------------------------------------- #
 echo ""
 echo "=== Running jenkins-init.sh ==="
-# . ./jenkins-init.sh
 . ./jenkins-init-debug.sh
 
 echo ""

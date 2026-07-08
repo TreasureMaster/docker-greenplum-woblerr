@@ -368,6 +368,11 @@ services:
   dwh-init:
     image: dwh-init:0.12.3
     container_name: dwh-init
+    # logging:
+    #   driver: "json-file"
+    #   options:
+    #     max-size: "100m"
+    #     max-file: "5"
     depends_on:
       registry:
         condition: service_healthy

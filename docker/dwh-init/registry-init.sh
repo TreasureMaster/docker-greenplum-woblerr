@@ -4,9 +4,6 @@ set -euo pipefail
 # ---------------------------------------------------------------------------- #
 #                         1. Конфигурация из ENV                               #
 # ---------------------------------------------------------------------------- #
-# REGISTRY_HOST="${REGISTRY_HOST:-local-registry}"
-# REGISTRY_PORT="${REGISTRY_PORT:-5000}"
-# REGISTRY_LOAD_ADDR="${REGISTRY_HOST}:${REGISTRY_PORT}"
 IMAGES_DIR="${IMAGES_DIR:-/opt/offline-images}"
 MODE="${MODE:-safe}"  # safe | force
 CRANE_FLAGS="--insecure"  # Разрешаем HTTP
