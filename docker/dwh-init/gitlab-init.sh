@@ -109,28 +109,32 @@ while IFS= read -r user_json; do
     
     if [[ -n "${existing}" ]]; then
         echo "[INFO]: Пользователь ${username} уже существует"
-        continue
-    fi
-
-    # Создаём пользователя
-    result=$(curl -sS --request POST \
-        --header "PRIVATE-TOKEN: ${ROOT_TOKEN}" \
-        --header "Content-Type: application/json" \
-        --data "{
-            \"username\": \"${username}\",
-            \"email\": \"${email}\",
-            \"name\": \"${name}\",
-            \"password\": \"${password}\",
-            \"skip_confirmation\": true
-        }" \
-        "${GITLAB_URL}/api/v4/users")
-
-    user_id=$(echo "${result}" | jq -r '.id // empty')
-
-    if [[ -n "${user_id}" && "${user_id}" != "null" ]]; then
-        echo "[INFO]: Создан пользователь: ${username} (ID=${user_id})"
+        # continue
+        if [[ -z "${user_id}" || "${user_id}" == "null" ]]; then
+            user_id=$(curl -sS --header "PRIVATE-TOKEN: ${ROOT_TOKEN}" \
+            "${GITLAB_URL}/api/v4/users?username=${username}" | jq -r '.[0].id')
+        fi
     else
-        echo "[ERROR]: Ошибка создания ${username}: ${result}" >&2
+        # Создаём пользователя
+        result=$(curl -sS --request POST \
+            --header "PRIVATE-TOKEN: ${ROOT_TOKEN}" \
+            --header "Content-Type: application/json" \
+            --data "{
+                \"username\": \"${username}\",
+                \"email\": \"${email}\",
+                \"name\": \"${name}\",
+                \"password\": \"${password}\",
+                \"skip_confirmation\": true
+            }" \
+            "${GITLAB_URL}/api/v4/users")
+
+        user_id=$(echo "${result}" | jq -r '.id // empty')
+
+        if [[ -n "${user_id}" && "${user_id}" != "null" ]]; then
+            echo "[INFO]: Создан пользователь: ${username} (ID=${user_id})"
+        else
+            echo "[ERROR]: Ошибка создания ${username}: ${result}" >&2
+        fi
     fi
 
     # if [[ "${username}" == "${GITLAB_API_USER}" ]]; then
@@ -152,11 +156,11 @@ while IFS= read -r user_json; do
     if [[ "${username}" == "${GITLAB_API_USER}" ]]; then
       echo "[INFO]: Проверка наличия GitLab API token для ${username}"
       
-      # Если user_id не был получен ранее (потому что пользователь уже существует)
-      if [[ -z "${user_id}" || "${user_id}" == "null" ]]; then
-        user_id=$(curl -sS --header "PRIVATE-TOKEN: ${ROOT_TOKEN}" \
-          "${GITLAB_URL}/api/v4/users?username=${username}" | jq -r '.[0].id')
-      fi
+    #   # Если user_id не был получен ранее (потому что пользователь уже существует)
+    #   if [[ -z "${user_id}" || "${user_id}" == "null" ]]; then
+    #     user_id=$(curl -sS --header "PRIVATE-TOKEN: ${ROOT_TOKEN}" \
+    #       "${GITLAB_URL}/api/v4/users?username=${username}" | jq -r '.[0].id')
+    #   fi
 
       # Ищем активный токен с нужным именем
       existing_token=$(curl -sS --header "PRIVATE-TOKEN: ${ROOT_TOKEN}" \
