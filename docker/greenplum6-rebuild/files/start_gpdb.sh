@@ -265,14 +265,20 @@ initialize_and_start_gpdb() {
     if [ -f "${pg_hba}" ]; then
         debug "Restart GPDB"
         gpdb_already_exists_flag=true
-        source "/home/${GREENPLUM_USER}/.bashrc"
+        # source "/home/${GREENPLUM_USER}/.bashrc"
+
+        # ФИКС: Создаем .pgpass для gpadmin ПЕРЕД стартом БД.
+        # На повторных запусках pg_hba.conf уже содержит 'md5', поэтому 
+        # утилиты (такие как pxf cluster sync) не смогут подключиться без пароля.
+        echo "*:5432:*:gpadmin:${GREENPLUM_PASSWORD}" > /home/${GREENPLUM_USER}/.pgpass
+        chmod 600 /home/${GREENPLUM_USER}/.pgpass
         # В случае использования постоянного тома и уже существующего каталога данных
         # необходимо настроить файл .pgpass для gpperfmon перед запуском GPDB.
         # В противном случае возникнет ошибка:
         # 3rd party error log: Performance Monitor - failed to connect to gpperfmon database: fe_sendauth: no password supplied
         if is_gpperfmon_enabled; then
             echo "*:5432:gpperfmon:gpmon:${GREENPLUM_GPMON_PASSWORD}" > /home/${GREENPLUM_USER}/.pgpass
-            chmod 600 /home/${GREENPLUM_USER}/.pgpass
+            # chmod 600 /home/${GREENPLUM_USER}/.pgpass
         fi
         echo 'INFO - Start GPDB'
         gpstart -a
