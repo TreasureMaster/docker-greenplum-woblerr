@@ -30,17 +30,6 @@ mkdir -p /var/www/webdav /var/lib/dav /run/apache2 /var/log/apache2
 touch /var/lib/dav/DavLock
 chown -R apache:apache /var/www/webdav /var/lib/dav || true
 
-# 3. Даем Apache (www-data) права на выполнение проверок через ntlm_auth
-# chown root:www-data /var/lib/samba/private/msg.sock 2>/dev/null || true
-# chmod 750 /var/lib/samba/private/msg.sock 2>/dev/null || true
-
-# Обязательно даем права на winbindd_privileged для корректной работы ntlm_auth от www-data
-# 3. Обеспечиваем права для Apache (в Alpine процесс Apache часто работает под пользователем apache)
-# Создаем необходимые директории для сокетов winbind, если их нет
-# mkdir -p /var/lib/samba/winbindd_privileged /var/run/samba
-# chown -R root:www-data /var/lib/samba/winbindd_privileged 2>/dev/null || true
-# chmod 750 /var/lib/samba/winbindd_privileged 2>/dev/null || true
-
 # 3. Обеспечиваем права на winbindd_privileged для Apache (UID/GID 82)
 mkdir -p /var/lib/samba/winbindd_privileged /var/run/samba
 chown root:apache /var/lib/samba/private/msg.sock 2>/dev/null || true
@@ -56,16 +45,19 @@ chown -R 82:82 /var/www/webdav
 chmod -R 775 /var/www/webdav
 
 # 5. Очистка PID и временных файлов перед стартом
-rm -f /var/run/samba/winbindd.pid
-rm -f /var/run/winbindd.pid
-rm -f /var/lib/samba/winbindd_privileged/pipe
-rm -f /var/run/samba/winbindd.sock
-rm -rf /var/run/samba/msg.lock/
+# rm -f /var/run/samba/winbindd.pid
+# rm -f /var/run/winbindd.pid
+# rm -f /var/lib/samba/winbindd_privileged/pipe
+# rm -f /var/run/samba/winbindd.sock
+# rm -rf /var/run/samba/msg.lock/
+# Грубая очистка ВСЕХ временных файлов, PID и блокировок Samba.
+rm -rf /var/run/samba/*
+rm -rf /var/cache/samba/*
 
 # 6. Запускаем winbind БЕЗ флага -D.
 echo "[INFO]: Запуск Winbind..."
-# winbindd -D
-winbindd -F --no-process-group &
+winbindd -D
+# winbindd -F --no-process-group &
 
 # Даем winbind 2 секунды, чтобы он гарантированно успел создать сокеты
 # до того, как Apache начнет выполнять проверки ntlm_auth
