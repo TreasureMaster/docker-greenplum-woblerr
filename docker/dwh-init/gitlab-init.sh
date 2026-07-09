@@ -110,10 +110,10 @@ while IFS= read -r user_json; do
     if [[ -n "${existing}" ]]; then
         echo "[INFO]: Пользователь ${username} уже существует"
         # continue
-        if [[ -z "${user_id}" || "${user_id}" == "null" ]]; then
+        # if [[ -z "${user_id}" || "${user_id}" == "null" ]]; then
             user_id=$(curl -sS --header "PRIVATE-TOKEN: ${ROOT_TOKEN}" \
             "${GITLAB_URL}/api/v4/users?username=${username}" | jq -r '.[0].id')
-        fi
+        # fi
     else
         # Создаём пользователя
         result=$(curl -sS --request POST \
