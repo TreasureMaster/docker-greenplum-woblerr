@@ -144,30 +144,32 @@ wait_for_jenkins "${JENKINS_INNER_URL}" 30 10
 # === ПРОПУСК ПРИ ПОВТОРНОМ ЗАПУСКЕ ===
 if [[ "${GITLAB_API_TOKEN_EXISTS:-false}" == "true" ]]; then
   echo "[JENKINS-INFO]: GitLab token already exists (GITLAB_API_TOKEN_EXISTS=true). Skipping Jenkins credentials setup."
-  exit 0
-fi
+  # exit 0
+else
+  echo "Upsert secret credential..."
+  if [[ -z "${GITLAB_API_TOKEN:-}" ]]; then
+    echo "ERROR: GITLAB_API_TOKEN is empty"
+    exit 1
+  fi
 
-if [[ -z "${GITLAB_API_TOKEN:-}" ]]; then
-  echo "ERROR: GITLAB_API_TOKEN is empty"
-  exit 1
-fi
-
-# токен для работы с Gitlab пользователя cdjksnd (прибито гвоздями)
-jenkins_upsert_secret_text_credential \
-  "${JENKINS_INNER_URL}" \
-  "${JENKINS_ADMIN_USER}" \
-  "${JENKINS_ADMIN_PASSWORD}" \
-  "airflow-config-update" \
-  "${GITLAB_API_TOKEN}" \
-  "GitLab API token"
-
-# И обновление ID проекта, для которого используется токен
-if [[ -n "${GITLAB_API_PROJECT_ID:-}" ]]; then
+  # токен для работы с Gitlab пользователя cdjksnd (прибито гвоздями)
   jenkins_upsert_secret_text_credential \
     "${JENKINS_INNER_URL}" \
     "${JENKINS_ADMIN_USER}" \
     "${JENKINS_ADMIN_PASSWORD}" \
-    "gitlab-api-project-id" \
-    "${GITLAB_API_PROJECT_ID}" \
-    "GitLab API project id"
+    "airflow-config-update" \
+    "${GITLAB_API_TOKEN}" \
+    "GitLab API token"
+
+  # И обновление ID проекта, для которого используется токен
+  if [[ -n "${GITLAB_API_PROJECT_ID:-}" ]]; then
+    jenkins_upsert_secret_text_credential \
+      "${JENKINS_INNER_URL}" \
+      "${JENKINS_ADMIN_USER}" \
+      "${JENKINS_ADMIN_PASSWORD}" \
+      "gitlab-api-project-id" \
+      "${GITLAB_API_PROJECT_ID}" \
+      "GitLab API project id"
+  fi
+
 fi
