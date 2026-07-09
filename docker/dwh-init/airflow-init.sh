@@ -50,15 +50,21 @@ while :; do
 done
 
 # Проверяем, существует ли уже пользователь
+API_ENDPOINT="${API_URL}?limit=1000"
 echo "Checking if user '${AIRFLOW_DEPLOY_USERNAME}' already exists..."
 EXISTING_USER_JSON="$(
   curl -sS \
     -u "${AIRFLOW_API_USER}:${AIRFLOW_API_PASSWORD}" \
-    "${API_URL}?username=${AIRFLOW_DEPLOY_USERNAME}"
+    "${API_ENDPOINT}"
 )"
 
 # Если API вернул объект с этим username — просто выходим
-EXISTING_USERNAME="$(echo "${EXISTING_USER_JSON}" | jq -r '.users[0].username // empty' || true)"
+# EXISTING_USERNAME="$(echo "${EXISTING_USER_JSON}" | jq -r '.users[0].username // empty' || true)"
+EXISTING_USERNAME="$(echo "${EXISTING_USER_JSON}" | jq -r --arg TARGET "${AIRFLOW_DEPLOY_USERNAME}" '.users[] | select(.username == $TARGET) | .username' 2>/dev/null || true)"
+
+echo "DEBUG: API Response is: ${EXISTING_USER_JSON}"
+echo "DEBUG: Extracted username is: '${EXISTING_USERNAME}'"
+echo "DEBUG: Target username is: '${AIRFLOW_DEPLOY_USERNAME}'"
 
 if [ -n "${EXISTING_USERNAME}" ] && [ "${EXISTING_USERNAME}" = "${AIRFLOW_DEPLOY_USERNAME}" ]; then
   echo "User '${AIRFLOW_DEPLOY_USERNAME}' already exists, skipping creation."
