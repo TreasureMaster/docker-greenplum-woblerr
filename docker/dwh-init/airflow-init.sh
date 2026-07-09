@@ -62,54 +62,54 @@ EXISTING_USERNAME="$(echo "${EXISTING_USER_JSON}" | jq -r '.users[0].username //
 
 if [ -n "${EXISTING_USERNAME}" ] && [ "${EXISTING_USERNAME}" = "${AIRFLOW_DEPLOY_USERNAME}" ]; then
   echo "User '${AIRFLOW_DEPLOY_USERNAME}' already exists, skipping creation."
-  exit 0
-fi
+  # exit 0
+else
+  echo "Creating user '${AIRFLOW_DEPLOY_USERNAME}'..."
+  CREATE_PAYLOAD="$(
+    jq -n \
+      --arg username   "${AIRFLOW_DEPLOY_USERNAME}" \
+      --arg firstname  "${AIRFLOW_DEPLOY_FIRSTNAME}" \
+      --arg lastname   "${AIRFLOW_DEPLOY_LASTNAME}" \
+      --arg email      "${AIRFLOW_DEPLOY_EMAIL}" \
+      --arg password   "${AIRFLOW_DEPLOY_PASSWORD}" \
+      --arg roles_csv  "${AIRFLOW_DEPLOY_ROLENAME}" \
+      '{
+         username:    $username,
+         first_name:  $firstname,
+         last_name:   $lastname,
+         email:       $email,
+         password:    $password,
+         roles:       (
+                       $roles_csv
+                       | split(",")
+                       | map(. | gsub("^\\s+|\\s+$"; ""))       # убираем пробелы
+                       | map({name: .})                         # превращаем в объекты { "name": "Admin" }
+                      )
+       }'
+  )"
 
-echo "Creating user '${AIRFLOW_DEPLOY_USERNAME}'..."
+  CREATE_RESPONSE="$(
+    curl -sS -w "\n%{http_code}" \
+      -u "${AIRFLOW_API_USER}:${AIRFLOW_API_PASSWORD}" \
+      -H "Content-Type: application/json" \
+      -X POST \
+      -d "${CREATE_PAYLOAD}" \
+      "${API_URL}"
+  )"
 
-CREATE_PAYLOAD="$(
-  jq -n \
-    --arg username   "${AIRFLOW_DEPLOY_USERNAME}" \
-    --arg firstname  "${AIRFLOW_DEPLOY_FIRSTNAME}" \
-    --arg lastname   "${AIRFLOW_DEPLOY_LASTNAME}" \
-    --arg email      "${AIRFLOW_DEPLOY_EMAIL}" \
-    --arg password   "${AIRFLOW_DEPLOY_PASSWORD}" \
-    --arg roles_csv  "${AIRFLOW_DEPLOY_ROLENAME}" \
-    '{
-       username:    $username,
-       first_name:  $firstname,
-       last_name:   $lastname,
-       email:       $email,
-       password:    $password,
-       roles:       (
-                     $roles_csv
-                     | split(",")
-                     | map(. | gsub("^\\s+|\\s+$"; ""))       # убираем пробелы
-                     | map({name: .})                         # превращаем в объекты { "name": "Admin" }
-                    )
-     }'
-)"
+  # Отделяем body и HTTP‑код
+  HTTP_BODY="$(echo "${CREATE_RESPONSE}" | head -n -1)"
+  HTTP_CODE="$(echo "${CREATE_RESPONSE}" | tail -n 1)"
 
-CREATE_RESPONSE="$(
-  curl -sS -w "\n%{http_code}" \
-    -u "${AIRFLOW_API_USER}:${AIRFLOW_API_PASSWORD}" \
-    -H "Content-Type: application/json" \
-    -X POST \
-    -d "${CREATE_PAYLOAD}" \
-    "${API_URL}"
-)"
+  if [ "${HTTP_CODE}" != "200" ] && [ "${HTTP_CODE}" != "201" ]; then
+    echo "Failed to create user. HTTP code: ${HTTP_CODE}"
+    echo "Response body:"
+    echo "${HTTP_BODY}"
+    exit 1
+  fi
 
-# Отделяем body и HTTP‑код
-HTTP_BODY="$(echo "${CREATE_RESPONSE}" | head -n -1)"
-HTTP_CODE="$(echo "${CREATE_RESPONSE}" | tail -n 1)"
-
-if [ "${HTTP_CODE}" != "200" ] && [ "${HTTP_CODE}" != "201" ]; then
-  echo "Failed to create user. HTTP code: ${HTTP_CODE}"
-  echo "Response body:"
+  echo "User '${AIRFLOW_DEPLOY_USERNAME}' created/updated successfully."
+  echo "Response:"
   echo "${HTTP_BODY}"
-  exit 1
-fi
 
-echo "User '${AIRFLOW_DEPLOY_USERNAME}' created/updated successfully."
-echo "Response:"
-echo "${HTTP_BODY}"
+fi
