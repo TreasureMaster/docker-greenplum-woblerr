@@ -165,9 +165,9 @@ while IFS= read -r user_json; do
       # Ищем активный токен с нужным именем
       existing_token=$(curl -sS --header "PRIVATE-TOKEN: ${ROOT_TOKEN}" \
         "${GITLAB_URL}/api/v4/users/${user_id}/impersonation_tokens?state=active" \
-        | jq -r ".[] | select(.name==\"${GITLAB_API_TOKEN_NAME}\") | .token // empty" | head -n 1)
+        | jq -r ".[] | select(.name==\"${GITLAB_API_TOKEN_NAME}\") | .id" | head -n 1)
 
-      if [[ -n "${existing_token}" ]]; then
+      if [[ -n "${existing_token}" && "${existing_token}" != "null" ]]; then
         echo "[INFO]: Токен '${GITLAB_API_TOKEN_NAME}' уже существует в GitLab. Пропускаем создание."
         export GITLAB_API_TOKEN_EXISTS="true"
       else

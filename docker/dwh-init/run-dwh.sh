@@ -6,7 +6,7 @@ set -eu
 # Загрузка переменных окружения
 . ./gitlabenv.sh
 
-
+echo ""
 echo "Starting DWH Cluster Initialization..."
 echo "   GitLab URL: ${GITLAB_URL}"
 echo "   Registry: ${REGISTRY_URL}"
@@ -59,7 +59,7 @@ echo "=== Running gitlab-init.sh ==="
 #                         4. Загружаем Docker-образы в registry                #
 # ---------------------------------------------------------------------------- #
 echo ""
-echo "=== Loading Docker images to registry ==="
+echo "=== Loading Docker images to registry (running registry-init.sh) ==="
 # Здесь можно вызвать load-images.sh или встроить логику
 . ./registry-init.sh
 
