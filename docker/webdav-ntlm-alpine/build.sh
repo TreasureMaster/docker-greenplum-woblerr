@@ -1,6 +1,6 @@
 #!/bin/bash
 
-IMAGE_TAG="treasuremaster/webdav-ntlm:0.1.4-alpine"
+IMAGE_TAG="treasuremaster/webdav-ntlm:0.1.5-alpine"
 
 # docker build --no-cache --progress=plain -t "$IMAGE_TAG" .
 docker build --progress=plain -t "$IMAGE_TAG" .
