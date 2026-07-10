@@ -51,18 +51,21 @@ chmod -R 775 /var/www/webdav
 # rm -f /var/run/samba/winbindd.sock
 # rm -rf /var/run/samba/msg.lock/
 # Грубая очистка ВСЕХ временных файлов, PID и блокировок Samba.
-rm -rf /var/run/samba/*
-rm -rf /var/cache/samba/*
+# rm -rf /var/run/samba/*
+# rm -rf /var/cache/samba/*
 
 # 6. Запускаем winbind БЕЗ флага -D.
-echo "[INFO]: Запуск Winbind..."
-winbindd -D
+# echo "[INFO]: Запуск Winbind..."
+# winbindd -D
 # winbindd -F --no-process-group &
 
 # Даем winbind 2 секунды, чтобы он гарантированно успел создать сокеты
 # до того, как Apache начнет выполнять проверки ntlm_auth
-sleep 2
+# sleep 2
 
-echo "[INFO]: Запуск Apache..."
+# echo "[INFO]: Запуск Apache..."
 # 6. Запускаем Apache на переднем плане (стандартная команда)
-exec httpd -D FOREGROUND
+# exec httpd -D FOREGROUND
+
+echo "[INFO]: Запуск Supervisor..."
+exec /usr/bin/supervisord -c /etc/supervisord.conf
