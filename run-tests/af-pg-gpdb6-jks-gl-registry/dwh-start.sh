@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-
 set -euo pipefail
 
 VERSION="0.12.4"
@@ -13,38 +12,48 @@ STATE_FILE=".config.sha"
 
 cd "$(dirname "$0")"
 
+echo "[INFO] Запуск скрипта деплоя для проекта: ${PROJECT_NAME}"
+
 # --- Проверка зависимостей ---
 
 command -v jq >/dev/null 2>&1 || {
-  echo "Ошибка: утилита 'jq' не найдена в PATH. Установите jq и повторите."
+  echo "[ERROR] Утилита 'jq' не найдена в PATH. Установите jq и повторите."
   exit 1
 }
 
 command -v yq >/dev/null 2>&1 || {
-  echo "Ошибка: утилита 'yq' не найдена в PATH. Установите yq (mikefarah/yq) и повторите."
+  echo "[ERROR] Утилита 'yq' не найдена в PATH. Установите yq (mikefarah/yq) и повторите."
   exit 1
 }
 
 command -v docker >/dev/null 2>&1 || {
-  echo "Ошибка: утилита 'docker' не найдена в PATH. Установите Docker и повторите."
+  echo "[ERROR] Утилита 'docker' не найдена в PATH. Установите Docker и повторите."
   exit 1
 }
 
 if command -v docker compose >/dev/null 2>&1; then
   COMPOSE_BIN="docker compose"
+  echo "[INFO] Используется 'docker compose' CLI"
 elif command -v docker-compose >/dev/null 2>&1; then
   COMPOSE_BIN="docker-compose"
+  echo "[INFO] Используется 'docker-compose' CLI"
 else
-  echo "Ошибка: ни 'docker compose', ни 'docker-compose' не найдены. Установите Docker Compose."
+  echo "[ERROR] Ни 'docker compose', ни 'docker-compose' не найдены. Установите Docker Compose."
   exit 1
 fi
 
 # --- Вспомогательные функции ---
 
 env_args=()
-[[ -f "$ENV_FILE" ]] && env_args+=(--env-file "$ENV_FILE")
+if [[ -f "$ENV_FILE" ]]; then
+  env_args+=(--env-file "$ENV_FILE")
+  echo "[INFO] Найден файл окружения: ${ENV_FILE}"
+else
+  echo "[INFO] Файл окружения ${ENV_FILE} не найден, запускаем без --env-file"
+fi
 
 get_image_from_tar() {
+  echo "[INFO] Извлекаю имя образа из архива: ${ARCHIVE}"
   tar -xzOf "$ARCHIVE" manifest.json 2>/dev/null \
     | jq -r '[.[] | .RepoTags] | add | .[0]' 2>/dev/null || true
 }
@@ -56,16 +65,32 @@ get_local_id() {
 load_archive_and_get_id() {
   local tmp_out tmp_tag tmp_id
   tmp_out="$(mktemp)"
-  docker load -i "$ARCHIVE" >"$tmp_out"
+  echo "[INFO] Выполняю docker load для архива: ${ARCHIVE}"
+
+  if ! docker load -i "$ARCHIVE" >"$tmp_out"; then
+    echo "[ERROR] docker load не удалось для архива ${ARCHIVE}"
+    rm -f "$tmp_out"
+    return 1
+  fi
+
   tmp_tag="$(awk -F':' '/Loaded image:/ {print $2 ":" $3; exit}' "$tmp_out" | xargs || true)"
   rm -f "$tmp_out"
 
-  if [[ -n "$tmp_tag" ]]; then
-    tmp_id="$(get_local_id "$tmp_tag")"
-    echo "$tmp_id"
-  else
-    echo ""
+  if [[ -z "$tmp_tag" ]]; then
+    echo "[ERROR] Не удалось определить тег образа после docker load"
+    return 1
   fi
+
+  echo "[INFO] После docker load получен образ: ${tmp_tag}"
+
+  tmp_id="$(get_local_id "$tmp_tag")"
+  if [[ -z "$tmp_id" ]]; then
+    echo "[ERROR] Не удалось получить Id образа '${tmp_tag}' после docker load"
+    return 1
+  fi
+
+  echo "[INFO] Id образа из архива: ${tmp_id}"
+  echo "$tmp_id"
 }
 
 get_compose_images() {
@@ -87,15 +112,26 @@ calc_config_sha() {
 need_recreate=0
 
 ARCHIVE_IMAGE="$(get_image_from_tar)"
+if [[ -n "$ARCHIVE_IMAGE" ]]; then
+  echo "[INFO] Образ из архива: ${ARCHIVE_IMAGE}"
+else
+  echo "[WARN] Не удалось извлечь образ из архива ${ARCHIVE}, проверка архивного образа будет пропущена"
+fi
 
 mapfile -t ALL_IMAGES < <(get_compose_images)
+
+echo "[INFO] Образы из docker-compose.yml:"
+for img in "${ALL_IMAGES[@]}"; do
+  [[ -z "$img" ]] && continue
+  echo "       - ${img}"
+done
 
 HUB_IMAGES=()
 
 for img in "${ALL_IMAGES[@]}"; do
   [[ -z "$img" ]] && continue
   if [[ -n "$ARCHIVE_IMAGE" && "$img" == "$ARCHIVE_IMAGE" ]]; then
-    :
+    echo "[INFO] Образ ${img} будет считаться локальным (из архива)"
   else
     HUB_IMAGES+=("$img")
   fi
@@ -104,21 +140,51 @@ done
 # Архивный образ
 if [[ -n "$ARCHIVE_IMAGE" ]]; then
   LOCAL_ID_BEFORE="$(get_local_id "$ARCHIVE_IMAGE")"
-  NEW_ID="$(load_archive_and_get_id)"
+  if [[ -n "$LOCAL_ID_BEFORE" ]]; then
+    echo "[INFO] Текущий Id локального архивного образа ${ARCHIVE_IMAGE}: ${LOCAL_ID_BEFORE}"
+  else
+    echo "[INFO] Локальный образ ${ARCHIVE_IMAGE} ещё не загружен"
+  fi
+
+  NEW_ID="$(load_archive_and_get_id)" || {
+    echo "[ERROR] Прерывание: ошибка при загрузке архивного образа"
+    exit 1
+  }
 
   if [[ -n "$LOCAL_ID_BEFORE" && -n "$NEW_ID" && "$LOCAL_ID_BEFORE" != "$NEW_ID" ]]; then
+    echo "[INFO] Id архивного образа изменился: требуется пересоздание контейнеров"
     need_recreate=1
+  elif [[ -n "$LOCAL_ID_BEFORE" && -n "$NEW_ID" ]]; then
+    echo "[INFO] Id архивного образа не изменился"
   fi
 fi
 
 # Образы из Docker Hub
 for img in "${HUB_IMAGES[@]}"; do
+  echo "[INFO] Проверяю образ из Docker Hub: ${img}"
   LOCAL_BEFORE="$(get_local_id "$img")"
-  docker pull "$img" >/dev/null 2>&1 || true
+  if [[ -n "$LOCAL_BEFORE" ]]; then
+    echo "       Текущий Id: ${LOCAL_BEFORE}"
+  else
+    echo "       Локального образа нет, будет загружен"
+  fi
+
+  docker pull "$img" >/dev/null 2>&1 || {
+    echo "       [WARN] Не удалось выполнить docker pull для ${img}, продолжаю"
+  }
+
   LOCAL_AFTER="$(get_local_id "$img")"
 
   if [[ -n "$LOCAL_BEFORE" && -n "$LOCAL_AFTER" && "$LOCAL_BEFORE" != "$LOCAL_AFTER" ]]; then
+    echo "       Id образа изменился: ${LOCAL_BEFORE} → ${LOCAL_AFTER}"
     need_recreate=1
+  elif [[ -n "$LOCAL_BEFORE" && -n "$LOCAL_AFTER" ]]; then
+    echo "       Id образа не изменился"
+  elif [[ -z "$LOCAL_BEFORE" && -n "$LOCAL_AFTER" ]]; then
+    echo "       Образ был загружен впервые: Id=${LOCAL_AFTER}"
+    need_recreate=1
+  else
+    echo "       [WARN] Не удалось получить Id образа после pull"
   fi
 done
 
@@ -129,24 +195,36 @@ current_sha="$(calc_config_sha)"
 prev_sha=""
 [[ -f "$STATE_FILE" ]] && prev_sha="$(cat "$STATE_FILE")"
 
+echo "[INFO] Текущий хеш конфигурации (compose + env): ${current_sha}"
+if [[ -n "$prev_sha" ]]; then
+  echo "[INFO] Предыдущий хеш конфигурации: ${prev_sha}"
+fi
+
 if [[ "$current_sha" != "$prev_sha" ]]; then
   config_changed=1
+  echo "[INFO] Конфигурация изменилась (docker-compose.yml и/или .env)"
   echo "$current_sha" > "$STATE_FILE"
+else
+  echo "[INFO] Конфигурация не изменилась"
 fi
 
 # --- Решение: up / up --force-recreate / start ---
 
 if [[ "$config_changed" -eq 1 ]]; then
-  # Конфигурация изменилась: пересоздать контейнеры гарантированно
+  echo "[INFO] Запускаю ${COMPOSE_BIN} up -d --force-recreate (изменена конфигурация)"
   "$COMPOSE_BIN" -p "$PROJECT_NAME" -f "$COMPOSE_FILE" "${env_args[@]}" up -d --force-recreate
 elif [[ "$need_recreate" -eq 1 ]]; then
-  # Образы изменились: пересоздать, но без доп. force-recreate
+  echo "[INFO] Запускаю ${COMPOSE_BIN} up -d (изменились образы)"
   "$COMPOSE_BIN" -p "$PROJECT_NAME" -f "$COMPOSE_FILE" "${env_args[@]}" up -d
 else
-  # Образы и конфиг не изменились
+  echo "[INFO] Образы и конфигурация не изменились"
   if "$COMPOSE_BIN" -p "$PROJECT_NAME" -f "$COMPOSE_FILE" "${env_args[@]}" ps -a --format json | grep -q .; then
+    echo "[INFO] Контейнеры уже существуют, запускаю ${COMPOSE_BIN} start"
     "$COMPOSE_BIN" -p "$PROJECT_NAME" -f "$COMPOSE_FILE" "${env_args[@]}" start
   else
+    echo "[INFO] Контейнеры ещё не созданы, запускаю ${COMPOSE_BIN} up -d"
     "$COMPOSE_BIN" -p "$PROJECT_NAME" -f "$COMPOSE_FILE" "${env_args[@]}" up -d
   fi
 fi
+
+echo "[INFO] Скрипт успешно завершён"
