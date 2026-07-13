@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+
 set -euo pipefail
 
 VERSION="0.12.4"
@@ -42,15 +43,22 @@ else
   exit 1
 fi
 
-# --- Вспомогательные функции ---
+# --- Загрузка .env в окружение и подготовка env_args ---
 
 env_args=()
+
 if [[ -f "$ENV_FILE" ]]; then
-  env_args+=(--env-file "$ENV_FILE")
   echo "[INFO] Найден файл окружения: ${ENV_FILE}"
+  echo "[INFO] Загружаю переменные окружения из ${ENV_FILE} для интерполяции compose"
+  set -a
+  . "$ENV_FILE"
+  set +a
+  env_args+=(--env-file "$ENV_FILE")
 else
   echo "[INFO] Файл окружения ${ENV_FILE} не найден, запускаем без --env-file"
 fi
+
+# --- Вспомогательные функции ---
 
 get_image_from_tar() {
   echo "[INFO] Извлекаю имя образа из архива: ${ARCHIVE}"
@@ -93,8 +101,31 @@ load_archive_and_get_id() {
   echo "$tmp_id"
 }
 
+# Извлекаем образы из compose с подстановкой переменных окружения
 get_compose_images() {
-  yq '.services[].image' "$COMPOSE_FILE" 2>/dev/null || true
+  local raw
+  mapfile -t raw < <(yq '.services[].image' "$COMPOSE_FILE" 2>/dev/null || true)
+
+  local resolved=()
+  local line expanded
+
+  for line in "${raw[@]}"; do
+    [[ -z "$line" ]] && continue
+    # Снимаем внешние кавычки, если есть
+    line="${line%\"}"
+    line="${line#\"}"
+
+    # Подстановка переменных окружения (${VAR}) как делает оболочка
+    expanded="$(eval "echo \"$line\"")"
+
+    if [[ "$expanded" == "$line" && "$line" == *'${'* ]]; then
+      echo "[WARN] Не удалось интерполировать переменные в строке образа: ${line}"
+    fi
+
+    resolved+=("$expanded")
+  done
+
+  printf '%s\n' "${resolved[@]}"
 }
 
 calc_config_sha() {
@@ -115,12 +146,12 @@ ARCHIVE_IMAGE="$(get_image_from_tar)"
 if [[ -n "$ARCHIVE_IMAGE" ]]; then
   echo "[INFO] Образ из архива: ${ARCHIVE_IMAGE}"
 else
-  echo "[WARN] Не удалось извлечь образ из архива ${ARCHIVE}, проверка архивного образа будет пропущена"
+  echo "[WARN] Не удалось извлечь образ из архива ${ARCHIVE}, проверка архивного образа будет частично ограничена"
 fi
 
 mapfile -t ALL_IMAGES < <(get_compose_images)
 
-echo "[INFO] Образы из docker-compose.yml:"
+echo "[INFO] Образы из docker-compose.yml (после интерполяции .env):"
 for img in "${ALL_IMAGES[@]}"; do
   [[ -z "$img" ]] && continue
   echo "       - ${img}"
