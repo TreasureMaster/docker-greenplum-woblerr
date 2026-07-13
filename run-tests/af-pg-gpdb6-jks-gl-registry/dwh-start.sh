@@ -5,7 +5,8 @@ set -euo pipefail
 VERSION="0.12.4"
 
 PROJECT_NAME="${PROJECT_NAME:-dwh-gp}"
-ARCHIVE="~/images/dwh-init--${VERSION}.tar.gz"
+ARCHIVE_DIR="$HOME/images"
+ARCHIVE="${ARCHIVE_DIR}/dwh-init--${VERSION}.tar.gz"
 COMPOSE_FILE="docker-compose.yml"
 ENV_FILE=".env"
 STATE_FILE=".config.sha"
