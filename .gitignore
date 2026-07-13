@@ -7,3 +7,4 @@ docker-compose/.secrets/*
 tmp/
 *.tar.gz
 *.zip
+.config.sha
