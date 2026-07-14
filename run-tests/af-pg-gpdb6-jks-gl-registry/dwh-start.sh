@@ -306,4 +306,37 @@ else
   fi
 fi
 
+# --- Ожидание завершения dwh-init и проверка результата ---
+
+INIT_SERVICE="dwh-init"
+
+# Находим имя контейнера по сервису и проекту
+INIT_CONTAINER="$("${COMPOSE_CMD[@]}" -p "$PROJECT_NAME" -f "$COMPOSE_FILE" ps -q "$INIT_SERVICE" 2>/dev/null || true)"
+
+if [[ -z "$INIT_CONTAINER" ]]; then
+  echo "[ERROR] Контейнер сервиса ${INIT_SERVICE} не найден, пропускаю проверку его результата"
+else
+  echo "[INFO] Ожидаю завершения инициализирующего контейнера ${INIT_SERVICE} (${INIT_CONTAINER})"
+  # Ждём завершения и получаем код выхода
+  docker wait "$INIT_CONTAINER" >/dev/null 2>&1 || true
+  EXIT_CODE="$(docker inspect --format '{{.State.ExitCode}}' "$INIT_CONTAINER" 2>/dev/null || echo "")"
+
+  if [[ -z "$EXIT_CODE" ]]; then
+    echo "[ERROR] Не удалось получить код выхода контейнера ${INIT_CONTAINER}"
+  elif [[ "$EXIT_CODE" -eq 0 ]]; then
+    echo "[INFO] Инициализация (${INIT_SERVICE}) завершилась успешно (ExitCode=0)"
+  else
+    echo "[ERROR] Инициализация (${INIT_SERVICE}) завершилась с ошибкой (ExitCode=${EXIT_CODE})"
+  fi
+fi
+
+# Проверка логов dwh-init
+if [[ "$EXIT_CODE" -eq 0 ]]; then
+  if docker logs "$INIT_CONTAINER" 2>/dev/null | grep -q "All initialization complete!"; then
+    echo "[INFO] Найдена строка 'All initialization complete!' в логах ${INIT_SERVICE}"
+  else
+    echo "[WARN] ExitCode=0, но строка 'All initialization complete!' в логах ${INIT_SERVICE} не найдена"
+  fi
+fi
+
 echo "[INFO] Скрипт успешно завершён"
