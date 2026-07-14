@@ -333,7 +333,7 @@ fi
 # Проверка логов dwh-init
 if [[ "$EXIT_CODE" -eq 0 ]]; then
   if docker logs "$INIT_CONTAINER" 2>/dev/null | grep -q "All initialization complete!"; then
-    echo "[INFO] Найдена строка 'All initialization complete!' в логах ${INIT_SERVICE}"
+    echo "[INFO] Подтверждение: найдена строка 'All initialization complete!' в логах ${INIT_SERVICE}"
   else
     echo "[WARN] ExitCode=0, но строка 'All initialization complete!' в логах ${INIT_SERVICE} не найдена"
   fi
