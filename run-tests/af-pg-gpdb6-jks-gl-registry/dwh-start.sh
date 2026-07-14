@@ -70,10 +70,10 @@ command -v docker >/dev/null 2>&1 || {
 }
 
 if command -v docker compose >/dev/null 2>&1; then
-  COMPOSE_BIN="docker compose"
+  COMPOSE_CMD=(docker compose)
   echo "[INFO] Используется 'docker compose' CLI"
 elif command -v docker-compose >/dev/null 2>&1; then
-  COMPOSE_BIN="docker-compose"
+  COMPOSE_CMD=(docker-compose)
   echo "[INFO] Используется 'docker-compose' CLI"
 else
   echo "[ERROR] Ни 'docker compose', ни 'docker-compose' не найдены. Установите Docker Compose."
@@ -287,22 +287,22 @@ fi
 # --- Решение: up / up --force-recreate / start ---
 
 if [[ "$FORCE_DEPLOY" == "true" ]]; then
-  echo "[INFO] Принудительный режим: запускаю ${COMPOSE_BIN} up -d --force-recreate"
-  "$COMPOSE_BIN" -p "$PROJECT_NAME" -f "$COMPOSE_FILE" "${env_args[@]}" up -d --force-recreate
+  echo "[INFO] Принудительный режим: запускаю ${COMPOSE_CMD[*]} up -d --force-recreate"
+  "${COMPOSE_CMD[@]}" -p "$PROJECT_NAME" -f "$COMPOSE_FILE" "${env_args[@]}" up -d --force-recreate
 elif [[ "$config_changed" -eq 1 ]]; then
-  echo "[INFO] Запускаю ${COMPOSE_BIN} up -d --force-recreate (изменена конфигурация)"
-  "$COMPOSE_BIN" -p "$PROJECT_NAME" -f "$COMPOSE_FILE" "${env_args[@]}" up -d --force-recreate
+  echo "[INFO] Запускаю ${COMPOSE_CMD[*]} up -d --force-recreate (изменена конфигурация)"
+  "${COMPOSE_CMD[@]}" -p "$PROJECT_NAME" -f "$COMPOSE_FILE" "${env_args[@]}" up -d --force-recreate
 elif [[ "$need_recreate" -eq 1 ]]; then
-  echo "[INFO] Запускаю ${COMPOSE_BIN} up -d (изменились образы)"
-  "$COMPOSE_BIN" -p "$PROJECT_NAME" -f "$COMPOSE_FILE" "${env_args[@]}" up -d
+  echo "[INFO] Запускаю ${COMPOSE_CMD[*]} up -d (изменились образы)"
+  "${COMPOSE_CMD[@]}" -p "$PROJECT_NAME" -f "$COMPOSE_FILE" "${env_args[@]}" up -d
 else
   echo "[INFO] Образы и конфигурация не изменились"
-  if "$COMPOSE_BIN" -p "$PROJECT_NAME" -f "$COMPOSE_FILE" "${env_args[@]}" ps -a --format json | grep -q .; then
-    echo "[INFO] Контейнеры уже существуют, запускаю ${COMPOSE_BIN} start"
-    "$COMPOSE_BIN" -p "$PROJECT_NAME" -f "$COMPOSE_FILE" "${env_args[@]}" start
+  if "${COMPOSE_CMD[@]}" -p "$PROJECT_NAME" -f "$COMPOSE_FILE" "${env_args[@]}" ps -a --format json | grep -q .; then
+    echo "[INFO] Контейнеры уже существуют, запускаю ${COMPOSE_CMD[*]} start"
+    "${COMPOSE_CMD[@]}" -p "$PROJECT_NAME" -f "$COMPOSE_FILE" "${env_args[@]}" start
   else
-    echo "[INFO] Контейнеры ещё не созданы, запускаю ${COMPOSE_BIN} up -d"
-    "$COMPOSE_BIN" -p "$PROJECT_NAME" -f "$COMPOSE_FILE" "${env_args[@]}" up -d
+    echo "[INFO] Контейнеры ещё не созданы, запускаю ${COMPOSE_CMD[*]} up -d"
+    "${COMPOSE_CMD[@]}" -p "$PROJECT_NAME" -f "$COMPOSE_FILE" "${env_args[@]}" up -d
   fi
 fi
 
