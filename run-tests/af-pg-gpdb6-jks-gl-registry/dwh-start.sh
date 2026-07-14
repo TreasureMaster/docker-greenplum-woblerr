@@ -13,7 +13,44 @@ STATE_FILE=".config.sha"
 
 cd "$(dirname "$0")"
 
+FORCE_DEPLOY=false
+START_DEBUG=false
+
+# --- Разбор аргументов ---
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -f|--force)
+      FORCE_DEPLOY=true
+      ;;
+    -v|--verbose)
+      START_DEBUG=true
+      ;;
+    --)
+      shift
+      break
+      ;;
+    -*)
+      echo "[ERROR] Неизвестный параметр: $1"
+      echo "       Используйте: -f|--force, -v|--verbose"
+      exit 1
+      ;;
+    *)
+      # позиционные аргументы сейчас не используем
+      ;;
+  esac
+  shift
+done
+
 echo "[INFO] Запуск скрипта деплоя для проекта: ${PROJECT_NAME}"
+$FORCE_DEPLOY && echo "[INFO] Включён режим принудительного деплоя (force)"
+$START_DEBUG && echo "[INFO] Включён подробный вывод (verbose/debug)"
+
+debug() {
+  if [[ "${START_DEBUG}" == "true" ]]; then
+    echo "[DEBUG] - $1" >&2
+  fi
+}
 
 # --- Проверка зависимостей ---
 
@@ -49,7 +86,7 @@ env_args=()
 
 if [[ -f "$ENV_FILE" ]]; then
   echo "[INFO] Найден файл окружения: ${ENV_FILE}"
-  echo "[INFO] Загружаю переменные окружения из ${ENV_FILE} для интерполяции compose"
+  debug "Загружаю переменные окружения из ${ENV_FILE} для интерполяции compose"
   set -a
   . "$ENV_FILE"
   set +a
@@ -61,22 +98,27 @@ fi
 # --- Вспомогательные функции ---
 
 get_image_from_tar() {
-  echo "[INFO] Извлекаю имя образа из архива: ${ARCHIVE}"
-  tar -xzOf "$ARCHIVE" manifest.json 2>/dev/null \
-    | jq -r '[.[] | .RepoTags] | add | .[0]' 2>/dev/null || true
+  local tag
+  tag="$(tar -xzOf "$ARCHIVE" manifest.json 2>/dev/null \
+    | jq -r '[.[] | .RepoTags] | add | .[0]' 2>/dev/null || true)"
+  # trim пробелов/табов/переводов строки
+  tag="${tag#"${tag%%[![:space:]]*}"}"
+  tag="${tag%"${tag##*[![:space:]]}"}"
+  printf '%s' "$tag"
 }
 
 get_local_id() {
+  debug "get_local_id func: аргумент='$1'"
   docker image inspect --format '{{.Id}}' "$1" 2>/dev/null || true
 }
 
 load_archive_and_get_id() {
   local tmp_out tmp_tag tmp_id
   tmp_out="$(mktemp)"
-  echo "[INFO] Выполняю docker load для архива: ${ARCHIVE}"
+  echo "[INFO] Выполняю docker load для архива: ${ARCHIVE}" >&2
 
   if ! docker load -i "$ARCHIVE" >"$tmp_out"; then
-    echo "[ERROR] docker load не удалось для архива ${ARCHIVE}"
+    echo "[ERROR] docker load не удалось для архива ${ARCHIVE}" >&2
     rm -f "$tmp_out"
     return 1
   fi
@@ -85,19 +127,19 @@ load_archive_and_get_id() {
   rm -f "$tmp_out"
 
   if [[ -z "$tmp_tag" ]]; then
-    echo "[ERROR] Не удалось определить тег образа после docker load"
+    echo "[ERROR] Не удалось определить тег образа после docker load" >&2
     return 1
   fi
 
-  echo "[INFO] После docker load получен образ: ${tmp_tag}"
+  echo "[INFO] После docker load получен образ: ${tmp_tag}" >&2
 
   tmp_id="$(get_local_id "$tmp_tag")"
   if [[ -z "$tmp_id" ]]; then
-    echo "[ERROR] Не удалось получить Id образа '${tmp_tag}' после docker load"
+    echo "[ERROR] Не удалось получить Id образа '${tmp_tag}' после docker load" >&2
     return 1
   fi
 
-  echo "[INFO] Id образа из архива: ${tmp_id}"
+  echo "[INFO] Id образа из архива: ${tmp_id}" >&2
   echo "$tmp_id"
 }
 
@@ -111,11 +153,8 @@ get_compose_images() {
 
   for line in "${raw[@]}"; do
     [[ -z "$line" ]] && continue
-    # Снимаем внешние кавычки, если есть
     line="${line%\"}"
     line="${line#\"}"
-
-    # Подстановка переменных окружения (${VAR}) как делает оболочка
     expanded="$(eval "echo \"$line\"")"
 
     if [[ "$expanded" == "$line" && "$line" == *'${'* ]]; then
@@ -142,7 +181,10 @@ calc_config_sha() {
 
 need_recreate=0
 
+echo "[INFO] Извлекаю имя образа из архива: ${ARCHIVE}"
 ARCHIVE_IMAGE="$(get_image_from_tar)"
+debug "Образ из архива (после trim): '${ARCHIVE_IMAGE}'"
+
 if [[ -n "$ARCHIVE_IMAGE" ]]; then
   echo "[INFO] Образ из архива: ${ARCHIVE_IMAGE}"
 else
@@ -151,10 +193,10 @@ fi
 
 mapfile -t ALL_IMAGES < <(get_compose_images)
 
-echo "[INFO] Образы из docker-compose.yml (после интерполяции .env):"
+debug "Образы из ${COMPOSE_FILE} (после интерполяции .env):"
 for img in "${ALL_IMAGES[@]}"; do
   [[ -z "$img" ]] && continue
-  echo "       - ${img}"
+  debug "       - ${img}"
 done
 
 HUB_IMAGES=()
@@ -170,7 +212,9 @@ done
 
 # Архивный образ
 if [[ -n "$ARCHIVE_IMAGE" ]]; then
+  debug "ARCHIVE_IMAGE='${ARCHIVE_IMAGE}'"
   LOCAL_ID_BEFORE="$(get_local_id "$ARCHIVE_IMAGE")"
+  debug "LOCAL_ID_BEFORE='${LOCAL_ID_BEFORE}'"
   if [[ -n "$LOCAL_ID_BEFORE" ]]; then
     echo "[INFO] Текущий Id локального архивного образа ${ARCHIVE_IMAGE}: ${LOCAL_ID_BEFORE}"
   else
@@ -200,22 +244,23 @@ for img in "${HUB_IMAGES[@]}"; do
     echo "       Локального образа нет, будет загружен"
   fi
 
-  docker pull "$img" >/dev/null 2>&1 || {
-    echo "       [WARN] Не удалось выполнить docker pull для ${img}, продолжаю"
-  }
+  if ! docker pull "$img" >/dev/null 2>&1; then
+    echo "       [ERROR] Не удалось выполнить docker pull для ${img}"
+    exit 1
+  fi
 
   LOCAL_AFTER="$(get_local_id "$img")"
 
-  if [[ -n "$LOCAL_BEFORE" && -n "$LOCAL_AFTER" && "$LOCAL_BEFORE" != "$LOCAL_AFTER" ]]; then
+  if [[ -z "$LOCAL_AFTER" ]]; then
+    echo "       [ERROR] После docker pull не удалось получить локальный Id для ${img}"
+    exit 1
+  fi
+
+  if [[ -n "$LOCAL_BEFORE" && "$LOCAL_BEFORE" != "$LOCAL_AFTER" ]]; then
     echo "       Id образа изменился: ${LOCAL_BEFORE} → ${LOCAL_AFTER}"
     need_recreate=1
-  elif [[ -n "$LOCAL_BEFORE" && -n "$LOCAL_AFTER" ]]; then
-    echo "       Id образа не изменился"
-  elif [[ -z "$LOCAL_BEFORE" && -n "$LOCAL_AFTER" ]]; then
-    echo "       Образ был загружен впервые: Id=${LOCAL_AFTER}"
-    need_recreate=1
   else
-    echo "       [WARN] Не удалось получить Id образа после pull"
+    echo "       Id образа не изменился"
   fi
 done
 
@@ -233,7 +278,7 @@ fi
 
 if [[ "$current_sha" != "$prev_sha" ]]; then
   config_changed=1
-  echo "[INFO] Конфигурация изменилась (docker-compose.yml и/или .env)"
+  echo "[INFO] Конфигурация изменилась (${COMPOSE_FILE} и/или ${ENV_FILE})"
   echo "$current_sha" > "$STATE_FILE"
 else
   echo "[INFO] Конфигурация не изменилась"
@@ -241,7 +286,10 @@ fi
 
 # --- Решение: up / up --force-recreate / start ---
 
-if [[ "$config_changed" -eq 1 ]]; then
+if [[ "$FORCE_DEPLOY" == "true" ]]; then
+  echo "[INFO] Принудительный режим: запускаю ${COMPOSE_BIN} up -d --force-recreate"
+  "$COMPOSE_BIN" -p "$PROJECT_NAME" -f "$COMPOSE_FILE" "${env_args[@]}" up -d --force-recreate
+elif [[ "$config_changed" -eq 1 ]]; then
   echo "[INFO] Запускаю ${COMPOSE_BIN} up -d --force-recreate (изменена конфигурация)"
   "$COMPOSE_BIN" -p "$PROJECT_NAME" -f "$COMPOSE_FILE" "${env_args[@]}" up -d --force-recreate
 elif [[ "$need_recreate" -eq 1 ]]; then
