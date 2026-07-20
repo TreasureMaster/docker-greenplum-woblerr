@@ -366,7 +366,7 @@ services:
       - airflow-tier
 
   dwh-init:
-    image: dwh-init:0.12.4
+    image: dwh-init:0.12.5
     container_name: dwh-init
     # logging:
     #   driver: "json-file"
