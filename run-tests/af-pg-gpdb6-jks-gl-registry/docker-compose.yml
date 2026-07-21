@@ -42,7 +42,8 @@ services:
       gitlab:
         condition: service_healthy
     networks:
-      - dwh-net
+      dwh-net:
+        ipv4_address: ${MASTER_IP}
 
   postgres:
     image: ${POSTGRES_IMAGE_NAME}:${POSTGRES_TAG}
@@ -66,7 +67,8 @@ services:
       gitlab:
         condition: service_healthy
     networks:
-      - dwh-net
+      dwh-net:
+        ipv4_address: ${POSTGRES_IP}
 
   gitlab:
     image: gitlab/gitlab-ce:${GITLAB_VERSION}
@@ -121,7 +123,8 @@ services:
       retries: 10
       start_period: ${START_PERIOD}s
     networks:
-      - dwh-net
+      dwh-net:
+        ipv4_address: ${GITLAB_IP}
     # restart: always
 
   jenkins:
@@ -147,7 +150,8 @@ services:
       gitlab:
         condition: service_healthy
     networks:
-      - dwh-net
+      dwh-net:
+        ipv4_address: ${JENKINS_IP}
 
   registry:
     image: registry:3.0.0
@@ -175,8 +179,10 @@ services:
       retries: 5
       start_period: 10s
     networks:
-      - registry-net
-      - dwh-net
+      registry-net:
+        ipv4_address: ${REGISTRY_IP}
+      dwh-net:
+        ipv4_address: ${DWH_REGISTRY_IP}
 
   registry-ui:
     image: joxit/docker-registry-ui:2.6.0
@@ -192,8 +198,8 @@ services:
     depends_on:
       - registry
     networks:
-      - registry-net
-
+      registry-net:
+        ipv4_address: ${REGISTRY_UI_IP}
 
   redis:
     image: ${REDIS_IMAGE_NAME}:${REDIS_TAG}
@@ -208,7 +214,8 @@ services:
       gitlab:
         condition: service_healthy
     networks:
-      - airflow-tier
+      airflow-tier:
+        ipv4_address: ${AIRFLOW_REDIS_IP}
 
   airflow-webserver:
     image: ${AF_WEB_IMAGE}:${AF_WEB_TAG}
@@ -263,8 +270,10 @@ services:
       postgres:
         condition: service_started
     networks:
-      - dwh-net
-      - airflow-tier
+      dwh-net:
+        ipv4_address: ${DWH_AIRFLOW_WEBSERVER_IP}
+      airflow-tier:
+        ipv4_address: ${AIRFLOW_WEBSERVER_IP}
 
   airflow-scheduler:
     image: ${AF_SCH_IMAGE}:${AF_SCH_TAG}
@@ -309,8 +318,10 @@ services:
       airflow-webserver:
         condition: service_started
     networks:
-      - dwh-net
-      - airflow-tier
+      dwh-net:
+        ipv4_address: ${DWH_AIRFLOW_SCHEDULER_IP}
+      airflow-tier:
+        ipv4_address: ${AIRFLOW_SCHEDULER_IP}
 
   airflow-worker01:
     image: ${AF_WORKER_IMAGE}:${AF_WORKER_TAG}
@@ -362,8 +373,10 @@ services:
       airflow-scheduler:
         condition: service_started
     networks:
-      - dwh-net
-      - airflow-tier
+      dwh-net:
+        ipv4_address: ${DWH_AIRFLOW_WORKER01_IP}
+      airflow-tier:
+        ipv4_address: ${AIRFLOW_WORKER01_IP}
 
   dwh-init:
     image: dwh-init:0.12.5
@@ -393,8 +406,10 @@ services:
       - pgdb-preinit:/init/preinitdb
       - af-preinit:/init/af-preinit
     networks:
-      - registry-net
-      - dwh-net
+      registry-net:
+        ipv4_address: ${REG_DWH_INIT_IP}
+      dwh-net:
+        ipv4_address: ${DWH_INIT_IP}
     # restart: "no"
 
   ntlm-server:
@@ -412,7 +427,8 @@ services:
       - dwh-init
     # restart: always
     networks:
-      - dwh-net
+      dwh-net:
+        ipv4_address: ${NTLM_SERVER_IP}
 
   samba-share:
     image: dockurr/samba:4.23.8
@@ -458,11 +474,34 @@ volumes:
   af-preinit:
   webdav-ntlm:
 
+# networks:
+#   dwh-net:
+#     name: "${DOCKER_NETWORK}"
+#     driver: bridge
+#   registry-net:
+#     driver: bridge
+#   airflow-tier:
+#     driver: bridge
+
 networks:
   dwh-net:
     name: "${DOCKER_NETWORK}"
     driver: bridge
+    ipam:
+      config:
+        - subnet: ${DWH_NET_SUBNET}
+          gateway: ${DWH_NET_GATEWAY}
+
   registry-net:
     driver: bridge
+    ipam:
+      config:
+        - subnet: ${REGISTRY_NET_SUBNET}
+          gateway: ${REGISTRY_NET_GATEWAY}
+
   airflow-tier:
     driver: bridge
+    ipam:
+      config:
+        - subnet: ${AIRFLOW_NET_SUBNET}
+          gateway: ${AIRFLOW_NET_GATEWAY}
