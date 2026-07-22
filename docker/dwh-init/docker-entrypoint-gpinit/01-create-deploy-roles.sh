@@ -9,10 +9,15 @@ PGPASSWORD="$GREENPLUM_PASSWORD" psql -v ON_ERROR_STOP=1 --username "$GREENPLUM_
     CREATE ROLE adb_deploy WITH SUPERUSER LOGIN PASSWORD '${ADB_DEPLOY_PASSWORD}';
     GRANT adb_deploys TO adb_deploy_cdjks;
     CREATE ROLE grp_admins;
+    GRANT CONNECT TO ${GREENPLUM_DATABASE_NAME} TO grp_admins;
     CREATE ROLE grp_supports;
+    GRANT CONNECT TO ${GREENPLUM_DATABASE_NAME} TO grp_supports;
     CREATE ROLE adb_exec_dwh;
+    GRANT CONNECT TO ${GREENPLUM_DATABASE_NAME} TO adb_exec_dwh;
     CREATE ROLE adb_exec_dwh_small WITH LOGIN PASSWORD '${ADB_EXEC_DWH_PASSWORD}';
     GRANT adb_exec_dwh to adb_exec_dwh_small;
+    CREATE EXTENSION IF NOT EXISTS pxf;
+    GRANT ALL ON PROTOCOL pxf TO adb_exec_dwh;
 EOSQL
 
 unset GP_PASSWORD_FILE

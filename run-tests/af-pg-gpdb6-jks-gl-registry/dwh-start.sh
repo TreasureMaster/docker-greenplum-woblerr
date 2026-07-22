@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-VERSION="0.12.5"
+VERSION="0.12.6"
 
 PROJECT_NAME="${PROJECT_NAME:-dwh-gp}"
 ARCHIVE_DIR="$HOME/images"
@@ -340,14 +340,5 @@ else
     docker logs --tail 50 "$INIT_CONTAINER" || true
   fi
 fi
-
-# # Проверка логов dwh-init
-# if [[ "$EXIT_CODE" -eq 0 ]]; then
-#   if docker logs "$INIT_CONTAINER" 2>/dev/null | grep -q "All initialization complete!"; then
-#     echo "[INFO] Подтверждение: найдена строка 'All initialization complete!' в логах ${INIT_SERVICE}"
-#   else
-#     echo "[WARN] ExitCode=0, но строка 'All initialization complete!' в логах ${INIT_SERVICE} не найдена"
-#   fi
-# fi
 
 echo "[INFO] Скрипт успешно завершён"
