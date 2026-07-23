@@ -49,7 +49,7 @@ COMMENT ON TABLE dbo.tcountry IS 'Справочник стран';
 COMMENT ON COLUMN dbo.tcountry."CountryID" IS 'ID';
 COMMENT ON COLUMN dbo.tcountry."Name" IS 'Наименование';
 COMMENT ON COLUMN dbo.tcountry."Brief" IS 'Сокращение';
-COMMENT ON COLUMN dbo.tcountry."fundid" IS 'Денежная единица (tFund.FundID)';
+COMMENT ON COLUMN dbo.tcountry."FundID" IS 'Денежная единица (tFund.FundID)';
 COMMENT ON COLUMN dbo.tcountry."ParentID" IS 'Для населенных пунктов - страна (tCountry.CountryID)';
 COMMENT ON COLUMN dbo.tcountry."Name2" IS 'Наименование 2';
 COMMENT ON COLUMN dbo.tcountry."CountryType" IS 'Тип 0 Не определен 1 Страна 2 Населенный пункт 3 Регион 4 Район 5 Location Codes';
