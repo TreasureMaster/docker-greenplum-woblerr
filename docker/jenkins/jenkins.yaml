@@ -114,6 +114,7 @@ jobs:
       folder('DWH_GP') {}
       folder('DWH_GP/internal_manual') {}
       folder('DWH_GP/internal_manual/1.Airflow') {}
+      folder('DWH_GP/internal_manual/2.DWH') {}
       folder('DWH_GP/manual') {}
       folder('DWH_GP/manual/6.ADB_PROD') {}
       folder('DWH_GP/manual/2.Conflog') {}
