@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-VERSION="0.12.7"
+VERSION="0.12.8"
 
 PROJECT_NAME="${PROJECT_NAME:-dwh-gp}"
 ARCHIVE_DIR="$HOME/images"
