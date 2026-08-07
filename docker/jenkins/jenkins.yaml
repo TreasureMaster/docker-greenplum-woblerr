@@ -505,3 +505,20 @@ jobs:
           }
         }
       }
+
+      pipelineJob('DWH_GP/internal_manual/2.DWH/jks-crutch-update') {
+        definition {
+          cpsScm {
+            scm {
+              git {
+                remote {
+                  url('${GITLAB_DWH_URL}/DWH/ADB/service-projects/automation/jks-crutch-update.git')
+                  credentials('cdjksnd')
+                }
+                branches('*/master')
+              }
+            }
+            scriptPath('Jenkinsfile-dwh-gp-crutch')
+          }
+        }
+      }
