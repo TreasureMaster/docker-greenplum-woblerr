@@ -9,8 +9,8 @@ def instance = Jenkins.getInstance()
 // Создаём админа
 def hudsonRealm = new HudsonPrivateSecurityRealm(false)
 hudsonRealm.createAccount(
-    System.getenv('START_ADMIN_USERNAME') ?: 'admin',
-    System.getenv('START_ADMIN_PASSWORD') ?: 'password'
+    System.getenv('START_ADMIN_USERNAME') ?: 'jksdwhuser',
+    System.getenv('START_ADMIN_PASSWORD') ?: 'jks_passdwh1810'
 )
 instance.setSecurityRealm(hudsonRealm)
 

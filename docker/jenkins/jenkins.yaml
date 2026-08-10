@@ -60,8 +60,8 @@ credentials:
             scope: GLOBAL
             id: "svc_cdjks_adprod-pass"
             username: "svc_cdjks_adprod"
-            password: "password111"
-            description: "Доступ к greenplum под gpadmin"
+            password: "omeHyRspqGC3n4ZF"
+            description: "Доступ к greenplum по ssh"
         - usernamePassword:
             scope: GLOBAL
             id: "svc_cdjks_prodlog-pass"
@@ -98,16 +98,6 @@ credentials:
             username: "adb_exec_dwh_small"
             password: "PaswdQ802"
             description: "Основной СУЗ для коннекта Airflow с adb"
-        # - string:
-        #       scope: GLOBAL
-        #       id: "airflow-config-update"
-        #       secret: ""
-        #       description: "GitLab API token"
-        # - string:
-        #       scope: GLOBAL
-        #       id: "gitlab-api-project-id"
-        #       secret: ""
-        #       description: "GitLab API project id (for Airflow params update)"
 
 jobs:
   - script: |

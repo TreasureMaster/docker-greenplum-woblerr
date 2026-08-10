@@ -6,7 +6,6 @@ set -a; . /docker-entrypoint-preinit.d/.env; set +a
 echo "Running root initialization..."
 
 # Создание пользователя (идемпотентно)
-# ADPROD_DEPLOY_USER="svc_cdjks_adprod"
 HOME_DIR="/home/${ADPROD_DEPLOY_USER}"
 
 if ! id -u "$ADPROD_DEPLOY_USER" &>/dev/null; then
