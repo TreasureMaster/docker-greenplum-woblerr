@@ -166,8 +166,8 @@ services:
       OTEL_METRICS_EXPORTER: none
       OTEL_LOGS_EXPORTER: none
       REGISTRY_LOG_LEVEL: info
-    ports:
-      - "${REGISTRY_EXTERNAL_PORT}:5000"   # опционально, если нужно с хоста
+    # ports:
+    #   - "${REGISTRY_EXTERNAL_PORT}:5000"   # опционально, если нужно с хоста
     volumes:
       - registry-data:/var/lib/registry
       # проброс не нужен. Это как пример
