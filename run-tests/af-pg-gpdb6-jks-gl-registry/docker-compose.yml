@@ -379,7 +379,7 @@ services:
         ipv4_address: ${AIRFLOW_WORKER01_IP}
 
   dwh-init:
-    image: dwh-init:0.12.8
+    image: dwh-init:${DWH_GP_VERSION}
     container_name: dwh-init
     # logging:
     #   driver: "json-file"

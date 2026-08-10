@@ -2,7 +2,9 @@
 
 set -euo pipefail
 
-VERSION="0.12.8"
+# Версия DWH-GP-INIT
+VERSION=$(sed -n 's/^DWH_GP_VERSION=["'"'"']*\([^"'"'"']*\)["'"'"']*/\1/p' .env)
+echo "Версия установщика DWH-GP: ${VERSION}"
 
 PROJECT_NAME="${PROJECT_NAME:-dwh-gp}"
 ARCHIVE_DIR="$HOME/images"

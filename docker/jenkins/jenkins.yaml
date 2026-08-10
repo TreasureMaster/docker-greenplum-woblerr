@@ -72,7 +72,7 @@ credentials:
             scope: GLOBAL
             id: "ad-afdev01_API"
             username: "svc_cdjks_afapi"
-            password: "password111"
+            password: "WDK3jmh0ov2K3RkO"
             description: "Доступ к Airflow API"
         - usernamePassword:
             scope: GLOBAL
