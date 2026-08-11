@@ -130,6 +130,29 @@
 - файл `pg_conf/initdb/.env` в докер-сборке `dwh-init`. Для активации необходима пересборка докер-образа `dwh-init`.
 - файл `docker/dwh-init/pxf/servers/pg_log/jdbc-site.xml`. Для активации необходима пересборка докер-образа `dwh-init`.
 
+##### cdjks_prodlog_deploy
+
+Название: `CDJKS_PRODLOG_DEPLOY_PASSWORD` - доступ к БД prodlog из Jenkins
+Назначение: используется для запросов к метаинформации `help-platform` из Jenkins
+Изменение:
+- файл `pg_conf/initdb/.env` в докер-сборке `dwh-init`. Для активации необходима пересборка докер-образа `dwh-init`.
+- файл `jenkins.yaml`. Для активации необходима пересборка докер-образа Jenkins.
+
+##### cdjks_dumper
+
+Название: `CDJKS_DUMPER_PASSWORD` - доступ к БД prodlog из Jenkins
+Назначение: используется для формирования бэкапа `prodlog` из Jenkins
+Изменение:
+- файл `pg_conf/initdb/.env` в докер-сборке `dwh-init`. Для активации необходима пересборка докер-образа `dwh-init`.
+- файл `jenkins.yaml`. Для активации необходима пересборка докер-образа Jenkins.
+
+##### svc_dw_kafka_prod
+
+Название: `KAFKA_PASSWORD` - доступ к БД prodlog из Kafka
+Назначение: не используется в текущей версии
+Изменение:
+- файл `pg_conf/initdb/.env` в докер-сборке `dwh-init`. Для активации необходима пересборка докер-образа `dwh-init`.
+
 ### ToDo
 
 - [x] объединение сервисов в единый `docker-compose.yml`

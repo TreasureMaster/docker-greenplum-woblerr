@@ -48,13 +48,13 @@ credentials:
             scope: GLOBAL
             id: "conflog-prod-admin"
             username: "cdjks_prodlog_deploy"
-            password: "password111"
+            password: "am2GHQmE7x9oXg5A"
             description: "Учетка для доступа к продлогу"
         - usernamePassword:
             scope: GLOBAL
             id: "conflog-dev-admin"
             username: "cdjks_prodlog_deploy"
-            password: "password111"
+            password: "am2GHQmE7x9oXg5A"
             description: "Учетка для доступа к девлогу (fake)"
         - usernamePassword:
             scope: GLOBAL
@@ -66,7 +66,7 @@ credentials:
             scope: GLOBAL
             id: "svc_cdjks_prodlog-pass"
             username: "cdjks_dumper"
-            password: "password111"
+            password: "h01uGc4LIR7kL8yo"
             description: "Доступ к prodlog для получения дампа"
         - usernamePassword:
             scope: GLOBAL
