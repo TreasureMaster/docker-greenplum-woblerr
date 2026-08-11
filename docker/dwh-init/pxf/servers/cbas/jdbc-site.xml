@@ -10,10 +10,10 @@
     </property>
     <property>
         <name>jdbc.user</name>
-        <value>ds_user</value>
+        <value>cbas_user</value>
     </property>
     <property>
         <name>jdbc.password</name>
-        <value>password111</value>
+        <value>BGESILnhgOW3mhbT</value>
     </property>
 </configuration>
