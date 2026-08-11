@@ -84,7 +84,7 @@ credentials:
             scope: GLOBAL
             id: "AFPROD-META"
             username: "afprod"
-            password: "password111"
+            password: "peU1ogW9wTOqTfi0"
             description: "СУЗ для коннекта Airflow с prodlog"
         - usernamePassword:
             scope: GLOBAL

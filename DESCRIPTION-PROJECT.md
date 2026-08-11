@@ -153,6 +153,23 @@
 Изменение:
 - файл `pg_conf/initdb/.env` в докер-сборке `dwh-init`. Для активации необходима пересборка докер-образа `dwh-init`.
 
+##### Airflow (postgres meta)
+
+Название: `AFPROD_BASE_PASSWORD/POSTGRESQL_PASSWORD` - доступ к БД метаданных Airflow
+Назначение: используется как учетка, формирующая БД метаданных Airflow с последующей работой с этой БД
+Изменение:
+- файл `pg_conf/initdb/.env` в докер-сборке `dwh-init`. Для активации необходима пересборка докер-образа `dwh-init`.
+- стартовый файл `.env` для `docker-compose.yml`.
+
+##### Airflow (postgres prodlog)
+
+Название: `AFPROD_SUZ_PASSWORD` - доступ к БД prodlog из Airflow
+Назначение: используется для запросов к метаинформации `prodlog` из Airflow
+Изменение:
+- файл `pg_conf/initdb/.env` в докер-сборке `dwh-init`. Для активации необходима пересборка докер-образа `dwh-init`.
+- файл `jenkins.yaml`. Для активации необходима пересборка докер-образа Jenkins.
+
+
 ### ToDo
 
 - [x] объединение сервисов в единый `docker-compose.yml`
