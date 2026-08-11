@@ -50,6 +50,7 @@ declare -A PROJECTS=(
     ["DWH/ADB/service-projects/automation/jks-airflow-params-update.git"]=""
     ["DWH/ADB/BASE-CFG/cfg-airflow.git"]=""
     ["DWH/ADB/service-projects/automation/jks-crutch-update.git"]=""
+    ["DWH/ADB/service-projects/automation/dwh-system-install.git"]=""
 )
 # Репозитории, где пользователи добавляются как Maintainer (40)
 MAINTAINER_PROJECTS=(

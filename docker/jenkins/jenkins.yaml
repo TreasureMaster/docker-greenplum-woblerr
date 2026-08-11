@@ -513,3 +513,20 @@ jobs:
           }
         }
       }
+
+      pipelineJob('DWH_GP/internal_manual/dwh-system-install') {
+        definition {
+          cpsScm {
+            scm {
+              git {
+                remote {
+                  url('${GITLAB_DWH_URL}/DWH/ADB/service-projects/automation/dwh-system-install.git')
+                  credentials('cdjksnd')
+                }
+                branches('*/master')
+              }
+            }
+            scriptPath('Jenkinsfile-dwh-system-install')
+          }
+        }
+      }

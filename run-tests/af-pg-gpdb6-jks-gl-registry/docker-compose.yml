@@ -51,14 +51,10 @@ services:
     hostname: postgres
     environment:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      # - POSTGRES_DB=${AFPROD_BASE_DB}
-    # env_file:
-    #   - ./pg-conf/initdb/.env.pxf
     volumes:
       - pgdb-conflog-data:/var/lib/postgresql/data
       - pgdb-init:/docker-entrypoint-initdb.d:ro
       - pgdb-preinit:/docker-entrypoint-preinit.d:ro
-      # - ./pg-conf/initdb:/docker-entrypoint-initdb.d
     ports:
       - "${EXPOSE_POSTGRES_PORT}:5432"
     depends_on:
