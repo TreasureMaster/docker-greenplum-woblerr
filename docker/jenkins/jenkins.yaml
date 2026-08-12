@@ -78,7 +78,7 @@ credentials:
             scope: GLOBAL
             id: "svc_cdjks_s2t-pass"
             username: "cdjks_s2t"
-            password: "password"
+            password: "dwhntlm_pass1775"
             description: "Доступ к файловой шаре s2t"
         - usernamePassword:
             scope: GLOBAL
