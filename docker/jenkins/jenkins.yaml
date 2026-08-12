@@ -42,7 +42,7 @@ credentials:
             scope: GLOBAL
             id: "adb-prod-admin"
             username: "adb_deploy_cdjks"
-            password: "PaswdQ802"
+            password: "f7wlqeRuXGyiX5vs"
             description: "Учетка для доступа к ADB"
         - usernamePassword:
             scope: GLOBAL
@@ -90,13 +90,13 @@ credentials:
             scope: GLOBAL
             id: "ADB-DEPLOY-PROD"
             username: "adb_deploy"
-            password: "password111"
+            password: "165EZLoODLos4cbE"
             description: "Вспомогательный СУЗ для коннекта Airflow с adb"
         - usernamePassword:
             scope: GLOBAL
             id: "ADB-EXEC-DWH"
             username: "adb_exec_dwh_small"
-            password: "PaswdQ802"
+            password: "FAT3THSvCDsPea6k"
             description: "Основной СУЗ для коннекта Airflow с adb"
 
 jobs:
