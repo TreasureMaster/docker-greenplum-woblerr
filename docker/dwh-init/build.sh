@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-VERSION="0.12.12"
+VERSION="1.0.0"
 IMAGE_TAG="dwh-init:${VERSION}"
 
 OUTPUT_DIR="$HOME/images"
