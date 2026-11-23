@@ -2,23 +2,23 @@ ARG REPO_BUILD_TAG
 ARG BASE_IMAGE="registry.red-soft.ru/ubi7/ubi"
 ARG OS_VERSION="7.3.7-261026"
 ARG GOLANG_VERSION="1.24.11"
-ARG GPXERCES_DOWNLOAD_URL="https://github.com"
+ARG GPXERCES_DOWNLOAD_URL="https://github.com/woblerr/gp-xerces/archive/refs/tags"
 ARG GPXERCES_VERSION="v3.1.2-p1"
-ARG LIBSIGAR_DOWNLOAD_URL="https://github.com"
+ARG LIBSIGAR_DOWNLOAD_URL="https://github.com/boundary/sigar"
 ARG LIBSIGAR_COMMIT_HASH="e8961a6674cc4d292e61b353b5c36bfc345434cc"
-ARG GPDB_DOWNLOAD_URL="https://github.com"
+ARG GPDB_DOWNLOAD_URL="https://github.com/woblerr/gpdb/archive/refs/tags"
 ARG GPDB_VERSION="6.27.1"
-ARG DISKQUOTA_DOWNLOAD_URL="https://github.com"
+ARG DISKQUOTA_DOWNLOAD_URL="https://github.com/woblerr/diskquota/archive/refs/tags"
 ARG DISKQUOTA_VERSION="2.3.0"
-ARG PXF_DOWNLOAD_URL="https://github.com"
+ARG PXF_DOWNLOAD_URL="https://github.com/woblerr/pxf/archive/refs/tags"
 ARG PXF_VERSION="release-6.10.1"
-ARG GPBACKUP_DOWNLOAD_URL="https://github.com"
+ARG GPBACKUP_DOWNLOAD_URL="https://github.com/woblerr/gpbackup/archive/refs/tags"
 ARG GPBACKUP_VERSION="1.30.5"
-ARG GPBACKUP_S3_PLUGIN_DOWNLOAD_URL="https://github.com"
+ARG GPBACKUP_S3_PLUGIN_DOWNLOAD_URL="https://github.com/woblerr/gpbackup-s3-plugin/archive/refs/tags"
 ARG GPBACKUP_S3_PLUGIN_VERSION="1.10.2"
-ARG GPBACKMAN_DOWNLOAD_URL="https://github.com"
+ARG GPBACKMAN_DOWNLOAD_URL="https://github.com/woblerr/gpbackman/archive/refs/tags"
 ARG GPBACKMAN_VERSION="v0.8.1"
-ARG WALG_DOWNLOAD_URL="https://github.com"
+ARG WALG_DOWNLOAD_URL="https://github.com/wal-g/wal-g"
 # Wait new WAL-G release
 ARG WALG_VERSION="4b33c88939ce0cc23acc5f89dcf5e427c50923d9"
 ARG GOSU_VERSION="1.19"
@@ -86,7 +86,7 @@ RUN dnf -y update \
     && ldconfig
 
 # python2.7
-RUN curl -fsSL https://pypa.io --output /tmp/get-pip.py \
+RUN curl https://bootstrap.pypa.io/pip/2.7/get-pip.py --output /tmp/get-pip.py \
     && python2 /tmp/get-pip.py \
     && pip2 install \
         pyyaml==5.3.1 \
@@ -180,7 +180,7 @@ RUN mkdir -p /opt/go \
         x86_64) dpkgArch='amd64' ;; \
         *) echo >&2 "error: unknown/unsupported architecture '${arch}'"; exit 1 ;; \
     esac \
-    && wget https://go.dev{GOLANG_VERSION}.linux-${dpkgArch}.tar.gz \
+    && wget https://go.dev/dl/go${GOLANG_VERSION}.linux-${dpkgArch}.tar.gz \
     && tar -xvf go${GOLANG_VERSION}.linux-${dpkgArch}.tar.gz -C /usr/local \
     && rm -f go${GOLANG_VERSION}.linux-${dpkgArch}.tar.gz
 
@@ -317,8 +317,8 @@ RUN arch="$(uname -m)" \
         x86_64) dpkgArch='amd64' ;; \
         *) echo >&2 "error: unknown/unsupported architecture '${arch}'"; exit 1 ;; \
     esac \
-    && wget -O /usr/local/bin/gosu "github.com{GOSU_VERSION}/gosu-${dpkgArch}" \
-    && wget -O /usr/local/bin/gosu.asc "github.com{GOSU_VERSION}/gosu-${dpkgArch}.asc" \
+    && wget -O /usr/local/bin/gosu "https://github.com/tianon/gosu/releases/download/${GOSU_VERSION}/gosu-${dpkgArch}" \
+    && wget -O /usr/local/bin/gosu.asc "https://github.com/tianon/gosu/releases/download/${GOSU_VERSION}/gosu-${dpkgArch}.asc" \
     && export GNUPGHOME="$(mktemp -d)" \
     && gpg --batch --keyserver hkps://ubuntu.com --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4 \
     && gpg --batch --verify /usr/local/bin/gosu.asc /usr/local/bin/gosu \
@@ -371,7 +371,7 @@ COPY --from=go_builder /tmp/wal-g/main/gp/wal-g /usr/local/greenplum-db/bin/wal-
 COPY --chmod=750 --chown=${GREENPLUM_USER}:${GREENPLUM_GROUP} docker/files/*.sh /
 LABEL \
     org.opencontainers.image.version="${REPO_BUILD_TAG}" \
-    org.opencontainers.image.source="github.com"
+    org.opencontainers.image.source="https://github.com/woblerr/docker-greenplum"
 
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["/start_gpdb.sh"]
