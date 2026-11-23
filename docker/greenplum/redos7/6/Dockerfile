@@ -353,7 +353,7 @@ RUN groupadd --gid ${GREENPLUM_GID} ${GREENPLUM_GROUP} \
                 ${GREENPLUM_PXF_BASE_DIRECTORY} \
                 /docker-entrypoint-initdb.d \
     && ln -sf /usr/bin/python2 /usr/bin/python \
-    && unlink /etc/localtime \
+    && rm -f /etc/localtime \
     && cp /usr/share/zoneinfo/${TZ} /etc/localtime \
     && echo "${TZ}" > /etc/timezone
 
