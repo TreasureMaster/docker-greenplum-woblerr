@@ -1,5 +1,6 @@
 ARG REPO_BUILD_TAG
-ARG REDOS_VERSION="7.3.7-261026"
+ARG BASE_IMAGE="registry.red-soft.ru/ubi7/ubi"
+ARG OS_VERSION="7.3.7-261026"
 ARG GOLANG_VERSION="1.24.11"
 ARG GPXERCES_DOWNLOAD_URL="https://github.com"
 ARG GPXERCES_VERSION="v3.1.2-p1"
@@ -22,7 +23,7 @@ ARG WALG_DOWNLOAD_URL="https://github.com"
 ARG WALG_VERSION="4b33c88939ce0cc23acc5f89dcf5e427c50923d9"
 ARG GOSU_VERSION="1.19"
 
-FROM registry.red-soft.ru/ubi7/ubi:${REDOS_VERSION} AS builder
+FROM ${BASE_IMAGE}:${OS_VERSION} AS builder
 
 ARG GPXERCES_DOWNLOAD_URL
 ARG GPXERCES_VERSION
@@ -242,7 +243,7 @@ RUN wget ${PXF_DOWNLOAD_URL}/${PXF_VERSION}.tar.gz -O /tmp/pxf-${PXF_VERSION}.ta
         /tmp/pxf \
         /tmp/pxf-${PXF_VERSION}.tar.gz
 
-FROM registry.red-soft.ru/ubi7/ubi:${REDOS_VERSION} AS final
+FROM ${BASE_IMAGE}:${OS_VERSION} AS final
 
 ARG REPO_BUILD_TAG
 ARG GPDB_VERSION
