@@ -56,6 +56,7 @@ RUN dnf -y update \
         libevent-devel \
         krb5-devel \
         pam-devel \
+        perl \
         perl-devel \
         perl-ExtUtils-Embed \
         readline-devel \
