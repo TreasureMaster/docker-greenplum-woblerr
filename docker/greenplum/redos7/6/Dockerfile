@@ -67,7 +67,8 @@ RUN dnf -y update \
         zlib-devel \
         openldap-devel \
         libuuid-devel \
-        glibc-common \
+        glibc-langpack-en \
+        glibc-locale-source \
         net-tools \
         ninja-build \
         openssh-clients \
@@ -80,6 +81,7 @@ RUN dnf -y update \
         wget \
         brotli-devel \
         libsodium-devel \
+    && dnf reinstall -y glibc-common \
     && dnf clean all \
     && rm -rf /var/cache/dnf \
     && echo -e "/usr/local/lib\n/usr/local/lib64\n" >> /etc/ld.so.conf.d/local.conf \
@@ -298,7 +300,8 @@ RUN dnf -y update \
         zip \
         net-tools \
         less \
-        glibc-common \
+        glibc-langpack-en \
+        glibc-locale-source \
         iproute \
         python2 \
         sudo \
@@ -307,6 +310,7 @@ RUN dnf -y update \
         ca-certificates \
         tzdata \
         java-11-openjdk-headless \
+    && dnf reinstall -y glibc-common \
     && dnf clean all \
     && rm -rf /var/cache/dnf
 
