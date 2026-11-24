@@ -56,11 +56,19 @@ endif
 
 FULL_TAG := $(BASE_REPO)$(IMAGE_NAME):$(VERSION)-$(OS)
 
-.PHONY: all build push test-e2e test-e2e-walg help
+.PHONY: all clean build push test-e2e test-e2e-walg help
 
 all: build
 
-build:
+clean:
+	@if docker image inspect $(FULL_TAG) >/dev/null 2>&1; then \
+		echo "Removing existing image $(FULL_TAG)..."; \
+		docker rmi -f $(FULL_TAG); \
+	else \
+		echo "Image $(FULL_TAG) not found locally, skipping removal."; \
+	fi
+
+build: clean
 	@echo "Building $(FULL_TAG) using $(BASE_IMAGE):$(OS_VERSION)"
 	docker buildx build \
 		-f docker/$(DOCKER_DIR)/Dockerfile \
@@ -82,5 +90,6 @@ help:
 	@echo "Примеры запуска:"
 	@echo "  make build                                        # greenplum 6 на redos7"
 	@echo "  make build OS=oraclelinux8                        # greenplum 6 на oraclelinux8"
-	@echo "  make build DB=greengage VER=7 OS=ubuntu22         # greengage 7 на ubuntu22.04"
+	@echo "  make build DB=greengage VER=7 OS=ubuntu22         # greengage 7 на ubuntu22"
 	@echo "  make build OS=rockylinux9 OS_VERSION=9.4          # переопределение тега ОС на лету"
+	@echo "  make clean [DB=...] [VER=...] [OS=...]            # удалить локальный образ вручную"
