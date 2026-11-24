@@ -340,6 +340,8 @@ RUN groupadd --gid ${GREENPLUM_GID} ${GREENPLUM_GROUP} \
     && localedef -i en_US -f UTF-8 en_US.UTF-8 \
     && mkdir -m 700 -p /home/${GREENPLUM_USER}/.ssh \
     && ssh-keygen -f /home/${GREENPLUM_USER}/.ssh/id_rsa -t rsa -N "" \
+    && printf "Host *\n\tStrictHostKeyChecking no\n\tUserKnownHostsFile /dev/null\n\tLogLevel ERROR\n" > /home/${GREENPLUM_USER}/.ssh/config \
+    && chmod 600 /home/${GREENPLUM_USER}/.ssh/config \
     && echo "HostKeyAlgorithms +ssh-rsa" >> /etc/ssh/sshd_config \
     && echo "PubkeyAcceptedKeyTypes +ssh-rsa" >> /etc/ssh/sshd_config \
     && echo "${GREENPLUM_USER} ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers \
