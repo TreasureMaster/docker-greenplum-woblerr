@@ -19,6 +19,8 @@ services:
       - GREENPLUM_PXF_ENABLE=true
       - GREENPLUM_PASSWORD_FILE=/run/secrets/gpdb_password
       - GREENPLUM_GPMON_PASSWORD_FILE=/run/secrets/gpmon_password
+    env_file:
+      - .env
     secrets:
       - gpdb_password
       - gpmon_password
