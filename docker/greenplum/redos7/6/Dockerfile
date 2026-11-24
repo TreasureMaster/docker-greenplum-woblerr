@@ -301,6 +301,8 @@ RUN dnf -y update \
         zip \
         net-tools \
         less \
+        procps-ng \
+        which \
         glibc-langpack-en \
         glibc-locale-source \
         iproute \
