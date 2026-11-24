@@ -4,7 +4,8 @@ VER ?= 6
 OS  ?= redos7
 
 # Реестры
-BASE_REPO          ?= app-registry01.corp.skbbank.ru/dcms-test/
+# BASE_REPO          ?= app-registry01.corp.skbbank.ru/dcms-test/
+BASE_REPO          ?= treasuremaster/
 # Можно переопределить на зеркало Docker Hub, например: app-registry01.corp.skbbank.ru/dockerhub-proxy/
 DOCKERHUB_REGISTRY ?=
 
